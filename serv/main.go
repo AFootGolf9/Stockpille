@@ -17,12 +17,12 @@ func main() {
 	}
 	repository.SetDB(database)
 
+	r := gin.Default()
+
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
-
-	r := gin.Default()
 
 	r.GET("/user/validate", controlller.ValidateToken)
 	r.GET("/user/", controlller.GetAllUsers)
