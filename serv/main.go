@@ -5,6 +5,7 @@ import (
 	"stockpille/db"
 	"stockpille/repository"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,11 @@ func main() {
 		panic(err)
 	}
 	repository.SetDB(database)
+
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	r.Use(cors.New(config))
 
 	r := gin.Default()
 
