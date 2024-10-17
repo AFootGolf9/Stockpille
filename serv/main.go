@@ -30,6 +30,7 @@ func main() {
 	r.GET("/location/", controlller.GetAllLocations)
 	r.POST("/user/", controlller.NewUser)
 	r.POST("/user/login", controlller.Login)
+	r.GET("/item/:id", controlller.GetItemById)
 	r.POST("/item/", controlller.NewItem)
 	r.POST("/location/", controlller.NewLocation)
 	r.GET("/user/:id", controlller.GetUserById)

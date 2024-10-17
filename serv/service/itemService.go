@@ -6,7 +6,16 @@ import (
 )
 
 func NewItem(item entity.Item) {
-	repository.InsertItem(item)
+	repository.Insert(&item)
+}
+
+func GetItemById(id int) entity.Item {
+	item := entity.Item{Sku: id}
+	err := repository.SelectPK(&item)
+	if err != nil {
+		panic(err)
+	}
+	return item
 }
 
 func GetAllItems() []entity.Item {
