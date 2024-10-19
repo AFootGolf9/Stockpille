@@ -1,9 +1,11 @@
 package main
 
 import (
-	"stockpille/controlller"
+	"stockpille/controller"
 	"stockpille/db"
+	"stockpille/entity"
 	"stockpille/repository"
+	"stockpille/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,18 +26,15 @@ func main() {
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
 
-	r.GET("/user/validate", controlller.ValidateToken)
-	r.GET("/user/", controlller.GetAllUsers)
-	r.GET("/item/", controlller.GetAllItems)
-	r.GET("/location/", controlller.GetAllLocations)
-	r.POST("/user/", controlller.NewUser)
-	r.POST("/user/login", controlller.Login)
-	r.GET("/item/:id", controlller.GetItemById)
-	r.POST("/item/", controlller.NewItem)
-	r.POST("/location/", controlller.NewLocation)
-	r.GET("/user/:id", controlller.GetUserById)
-	r.PUT("/user/:id", controlller.UpdateUser)
-	r.DELETE("/user/:id", controlller.DeleteUser)
+	rs := routes.RouteSeter{Router: r}
+
+	rs.SetCRUD(&entity.User{})
+	rs.SetCRUD(&entity.Item{})
+	rs.SetCRUD(&entity.Location{})
+	rs.SetCRUD(&entity.Allocation{})
+
+	r.GET("/user/validate", controller.ValidateToken)
+	r.POST("/user/login", controller.Login)
 
 	r.Run() // listen and serve on
 }

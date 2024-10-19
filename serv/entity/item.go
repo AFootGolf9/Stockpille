@@ -10,33 +10,31 @@ func (i *Item) GetId() int {
 	return i.Sku
 }
 
-func (i *Item) GetName() string {
-	return i.Name
-}
-
-func (i *Item) GetInfo() string {
-	return i.Description
-}
-
-func (i *Item) GetValidation() string {
-	return ""
-}
-
-func (i *Item) SetName(name string) {
-	i.Name = name
-}
-
-func (i *Item) SetInfo(info string) {
-	i.Description = info
-}
-
-func (i *Item) SetValidation(validation string) {
+func (i *Item) SetId(id int) {
+	i.Sku = id
 }
 
 func (i *Item) GetCamps() []string {
 	return []string{"item", "sku", "name", "description"}
 }
 
-func (i *Item) GetData() []interface{} {
-	return []interface{}{i.Sku, i.Name, i.Description}
+func (i *Item) GetData() []any {
+	return []any{&i.Sku, &i.Name, &i.Description}
+}
+
+func (i *Item) GetPath() string {
+	return "item"
+}
+
+func (i *Item) Validate() {
+	if i.Name == "" {
+		panic("Name is required")
+	}
+}
+
+func (i *Item) ValidateUpdate() {
+}
+
+func (i *Item) New() Entity {
+	return &Item{}
 }
