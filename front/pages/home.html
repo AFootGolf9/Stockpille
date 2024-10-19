@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../resources/home.css">
+    <title>Página Inicial</title>
+</head>
+<body>
+    <header class="header">
+        <h1>Minha Aplicação</h1>
+    </header>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2> <!-- Título da barra lateral -->
+            <ul>
+                <li><hr class="divider">
+                    <a href="#" onclick="toggleSubmenu('home-submenu')">Cadastro</a>
+                    <ul class="submenu" id="home-submenu">
+                        <li><a href="#">Cadastrar item</a></li>
+                        <li><a href="#">Cadastrar locação</a></li>
+                        <li><a href="#">Cadastrar usuário</a></li>
+                    </ul>
+                <li><hr class="divider">
+                    <li>
+                        <a href="#" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
+                        <ul class="submenu" id="perfil-submenu">
+                            <li><a href="#">Ver locações</a></li>
+                            <li><a href="#">Editar locação</a></li>
+                        </ul>
+                    </li>
+                <li><hr class="divider"> <!-- Linha de separação -->
+                    <li>
+                        <a href="#" onclick="toggleSubmenu('config-submenu')">Configurações</a>
+                    <ul class="submenu" id="config-submenu">
+                        <li><a href="#">Preferências</a></li>
+                        <li><a href="#">Segurança</a></li>
+                    </ul>
+                    </li>
+                <li><hr class="divider">
+                <li><a href="../pages/login.html">Logout</a></li>
+                <li><hr class="divider">
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <h2>morra</h2>
+            <p>morra caneta azul</p>
+        </main>
+    </div>
+    <script src="../resources/home.js"></script>
+</body>
+</html>
