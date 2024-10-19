@@ -1,4 +1,4 @@
-package controlller
+package controller
 
 import (
 	"stockpille/repository"
