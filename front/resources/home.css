@@ -1,0 +1,88 @@
+/* Estilos gerais */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #007bff;
+    color: white;
+    height: 60px;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    height: 100vh;
+    border-right: 5px solid #007bff;
+}
+
+.sidebar h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+/* Submenu inicialmente escondido */
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+}
+
+.submenu li {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.submenu a {
+    color: #0056b3;
+}
+
+.submenu a:hover {
+    text-decoration: underline;
+}
+
+/* Linha de divisão */
+.divider {
+    border: none;
+    border-top: 3px solid #007bff;
+    margin: 10px -20px; /* Remove margem nas laterais, compensa o padding da sidebar */
+}
+
+/* Estilos para o conteúdo principal */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    font-size: 18px;
+}
