@@ -5,6 +5,7 @@ import (
 	"stockpille/db"
 	"stockpille/entity"
 	"stockpille/repository"
+	"stockpille/repository/entityRepository"
 	"stockpille/routes"
 
 	"github.com/gin-contrib/cors"
@@ -17,6 +18,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	entityRepository.SetDB(database)
 	repository.SetDB(database)
 
 	r := gin.Default()

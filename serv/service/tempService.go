@@ -2,12 +2,12 @@ package service
 
 import (
 	"stockpille/entity"
-	"stockpille/repository"
+	"stockpille/repository/entityRepository"
 )
 
 func New(entity entity.Entity) {
 	entity.Validate()
-	err := repository.Insert(entity)
+	err := entityRepository.Insert(entity)
 
 	if err != nil {
 		panic(err)
@@ -15,12 +15,12 @@ func New(entity entity.Entity) {
 }
 
 func Get(entity entity.Entity) (entity.Entity, error) {
-	err := repository.SelectPK(entity)
+	err := entityRepository.SelectPK(entity)
 	return entity, err
 }
 
 func GetAll(entity entity.Entity) []entity.Entity {
-	entities, err := repository.SelectAll(entity)
+	entities, err := entityRepository.SelectAll(entity)
 
 	if err != nil {
 		panic(err)
@@ -31,14 +31,14 @@ func GetAll(entity entity.Entity) []entity.Entity {
 
 func Update(entity entity.Entity) {
 	entity.ValidateUpdate()
-	err := repository.Update(entity)
+	err := entityRepository.Update(entity)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func Delete(entity entity.Entity) {
-	err := repository.Delete(entity)
+	err := entityRepository.Delete(entity)
 	if err != nil {
 		panic(err)
 	}
