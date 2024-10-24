@@ -8,14 +8,15 @@
 </head>
 <body>
     <header class="header">
-        <h1>Minha Aplicação</h1>
+        <h1>StockPille <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Black_Mesa_logo.svg/1200px-Black_Mesa_logo.svg.png" alt="Imagem" width="50px" height="50px"></h1>
     </header>
     <div class="container">
         <nav class="sidebar">
-            <h2 href="#" onclick="showHome()">Menu</h2> <!-- Título da barra lateral -->
+            
+            <h2 href="#" class="boi" onclick="showHome()">Menu</h2> <!-- Título da barra lateral -->
             <ul>
                 <li><hr class="divider">
-                    <a href="#" onclick="toggleSubmenu('home-submenu')">Cadastro</a>
+                    <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Cadastro</a>
                     <ul class="submenu" id="home-submenu">
                         <li><a href="#" onclick="showProductForm()">Cadastrar item</a></li>
                         <li><a href="#" onclick="showAllocationForm()">Cadastrar locação</a></li>
@@ -23,7 +24,7 @@
                     </ul>
                 <li><hr class="divider">
                     <li>
-                        <a href="#" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
+                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
                         <ul class="submenu" id="perfil-submenu">
                             <li><a href="#" onclick="fetchAllocations()">Ver locações</a></li>
                             <li><a href="#" onclick="editAllocation()">Editar locação</a></li>
@@ -31,14 +32,14 @@
                     </li>
                 <li><hr class="divider"> 
                     <li>
-                        <a href="#" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
+                        <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
                     <ul class="submenu" id="config-submenu">
                         <li><a href="#" onclick="showReportOptions()">Gerar Relatórios</a></li>
                         <li><a href="#">Relatório de algm coisa sla</a></li>
                     </ul>
                     </li>
                 <li><hr class="divider">
-                <li><a href="../pages/login.html">Logout</a></li>
+                <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
                 <li><hr class="divider">
             </ul>
         </nav>
@@ -52,6 +53,9 @@
     </div>
     <script src="../resources/home.js"></script>
     <script src="../resources/forms.js"></script>
+    <script src="../resources/reports.js"></script>
     <script src="../resources/allocations.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </body>
 </html>

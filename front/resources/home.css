@@ -6,7 +6,7 @@ body {
 }
 
 .header {
-    background-color: #007bff;
+    background-color: #03111f;
     color: white;
     height: 60px;
     padding: 15px;
@@ -26,11 +26,11 @@ body {
     background-color: #f8f9fa;
     padding: 20px;
     height: 100vh;
-    border-right: 5px solid #007bff;
+    border-right: 5px solid #030a11;
 }
 
 .sidebar h2 {
-    color: #007bff;
+    color: #010407;
     margin-bottom: 20px;
 }
 
@@ -46,7 +46,7 @@ body {
 
 .sidebar a {
     text-decoration: none;
-    color: #007bff;
+    color: #082747;
 }
 
 .sidebar a:hover {
@@ -56,7 +56,8 @@ body {
 /* Linha de divisão */
 .divider {
     border: none;
-    border-top: 1px solid #007bff;
+    border-top: 2px solid #000102;
+    height: 5px;
     margin: 10px -20px; /* Remove margem nas laterais, compensa o padding da sidebar */
 }
 
@@ -71,6 +72,10 @@ body {
 form {
     max-width: 600px;
     margin: 0 auto;
+}
+
+.boi{
+    color: #5f747e;
 }
 
 .form-group {
@@ -93,7 +98,7 @@ form {
 }
 
 button {
-    background-color: #007bff;
+    background-color: #05101b;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -103,7 +108,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #121314;
 }
 
 .submenu {
@@ -115,3 +120,36 @@ button:hover {
 .submenu li {
     margin: 10px 0;
 }
+
+.custom-link {
+    color: #070707; /* Cor do link */
+    font-size: 16px; /* Tamanho da fonte */
+    text-decoration: none; /* Remove sublinhado */
+    padding: 8px; /* Espaçamento interno */
+    border: 0.5px solid #002f61; /* Borda ao redor do link */
+    border-radius: 5px; /* Cantos arredondados */
+    background-color: #f0f8ff; /* Cor de fundo */
+}
+
+.custom-link:hover {
+    color: #000000; /* Cor do link ao passar o mouse */
+    background-color: #5f747e; /* Cor de fundo ao passar o mouse */
+    text-decoration: underline; /* Sublinhado ao passar o mouse */
+}
+
+.custom-link-exit {
+    color: #ff0202; /* Cor do link */
+    font-size: 16px; /* Tamanho da fonte */
+    text-decoration: none; /* Remove sublinhado */
+    padding: 10px; /* Espaçamento interno */
+    border: 1px solid #0a0a0a; /* Borda ao redor do link */
+    border-radius: 5px; /* Cantos arredondados */
+    background-color: #d34545; /* Cor de fundo */
+}
+
+.custom-link-exit:hover {
+    color: #0c0c0c; /* Cor do link ao passar o mouse */
+    background-color: #ff0000; /* Cor de fundo ao passar o mouse */
+    text-decoration: underline; /* Sublinhado ao passar o mouse */
+}
+
