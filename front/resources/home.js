@@ -7,3 +7,13 @@ function toggleSubmenu(id) {
         submenu.style.display = "none"; // Esconde o submenu
     }
 }
+
+// Função para mostrar a página inicial
+function showHome() {
+    document.getElementById("main-content").innerHTML = `
+        <h2>Bem-vindo!</h2>
+        <p>Esta é a área principal. Selecione uma opção no menu.</p>
+    `;
+}
+
+

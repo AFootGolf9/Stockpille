@@ -53,30 +53,10 @@ body {
     text-decoration: underline;
 }
 
-/* Submenu inicialmente escondido */
-.submenu {
-    display: none;
-    list-style: none;
-    padding-left: 20px;
-}
-
-.submenu li {
-    margin: 10px 0;
-    font-size: 14px;
-}
-
-.submenu a {
-    color: #0056b3;
-}
-
-.submenu a:hover {
-    text-decoration: underline;
-}
-
 /* Linha de divisão */
 .divider {
     border: none;
-    border-top: 3px solid #007bff;
+    border-top: 1px solid #007bff;
     margin: 10px -20px; /* Remove margem nas laterais, compensa o padding da sidebar */
 }
 
@@ -85,4 +65,53 @@ body {
     flex: 1;
     padding: 20px;
     font-size: 18px;
+}
+
+/* Estilo do formulário */
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 20px; /* Indentação para os sub-itens */
+}
+
+.submenu li {
+    margin: 10px 0;
 }
