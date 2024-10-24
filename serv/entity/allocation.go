@@ -1,10 +1,13 @@
 package entity
 
+import "stockpille/repository"
+
 type Allocation struct {
-	Id         int `json:"id"`
-	ItemId     int `json:"item_id"`
-	LocationId int `json:"location_id"`
-	UserId     int `json:"user_id"`
+	Id         int    `json:"id"`
+	ItemId     int    `json:"item_id"`
+	LocationId int    `json:"location_id"`
+	UserId     int    `json:"user_id"`
+	Token      string `json:"token"`
 }
 
 func (a *Allocation) GetId() int {
@@ -34,9 +37,14 @@ func (a *Allocation) Validate() {
 	if a.LocationId == 0 {
 		panic("Location is required")
 	}
-	if a.UserId == 0 {
-		panic("Used is required")
+
+	userId := repository.GetUserIdByToken(a.Token)
+
+	if userId == -1 {
+		panic("Token invalid")
 	}
+
+	a.UserId = userId
 }
 
 func (a *Allocation) ValidateUpdate() {
