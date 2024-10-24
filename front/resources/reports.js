@@ -3,9 +3,9 @@ function showReportOptions() {
     const reportHtml = `
         <h2>Gerar Relatórios</h2>
         <ul>
-            <li><a href="#" onclick="generateReport('entrada')">Relatório de entrada de produtos</a></li>
-            <li><a href="#" onclick="generateReport('saida')">Relatório de saída de produtos</a></li>
-            <li><a href="#" onclick="generateReport('armazenamento')">Relatório de armazenamento de produtos</a></li>
+            <li><a href="#" onclick="generateReport('locacoes')">Relatório de locações por usuário</a></li>
+            <li><a href="#" onclick="generateReport('maisLocados')">Relatório de itens mais locados</a></li>
+            <li><a href="#" onclick="generateReport('maisItens')">Relatório de localizações com mais itens</a></li>
         </ul>
     `;
     
