@@ -6,59 +6,92 @@ body {
 }
 
 .header {
-    background-color: #03111f;
+    background-color: #143658;
     color: white;
     height: 60px;
     padding: 15px;
-    text-align: center;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     font-size: 24px;
 }
+
+.header-title {
+    flex: 1;
+    text-align: center;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+}
+
+#user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+#user-name {
+    font-size: 18px;
+    color: #ffffff;
+}
+
 
 .container {
     display: flex;
 }
 
+.sidebar-menu a:hover {
+    background-color: #f0f0f0;
+}
+
 .sidebar {
     width: 200px;
     background-color: #f8f9fa;
-    padding: 20px;
+    padding: 20px 0;
     height: 100vh;
-    border-right: 5px solid #030a11;
-}
-
-.sidebar h2 {
-    color: #010407;
-    margin-bottom: 20px;
+    border-right: 5px solid #143658;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza os itens na sidebar */
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
+    width: 100%; /* Garante que os elementos ocupem toda a largura da sidebar */
 }
 
-.sidebar ul li {
+.sidebar li {
+    position: relative;
     margin: 15px 0;
-    cursor: pointer;
+    text-align: center; /* Centraliza o texto dos botões */
+}
+
+/* Mostra o submenu ao passar o mouse e mantém visível */
+.sidebar li:hover .submenu,
+.submenu:hover {
+    display: block;
+}
+
+.sidebar h2 {
+    color: #010407;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
 .sidebar a {
     text-decoration: none;
     color: #082747;
+    display: block;
+    padding: 10px;
 }
 
 .sidebar a:hover {
     text-decoration: underline;
-}
-
-/* Linha de divisão */
-.divider {
-    border: none;
-    border-top: 2px solid #000102;
-    height: 5px;
-    margin: 10px -20px; /* Remove margem nas laterais, compensa o padding da sidebar */
 }
 
 /* Estilos para o conteúdo principal */
@@ -74,7 +107,7 @@ form {
     margin: 0 auto;
 }
 
-.boi{
+.boi {
     color: #5f747e;
 }
 
@@ -114,7 +147,7 @@ button:hover {
 .submenu {
     display: none;
     list-style: none;
-    padding-left: 20px; /* Indentação para os sub-itens */
+    padding-left: 20px;
 }
 
 .submenu li {
@@ -122,34 +155,40 @@ button:hover {
 }
 
 .custom-link {
-    color: #070707; /* Cor do link */
-    font-size: 16px; /* Tamanho da fonte */
-    text-decoration: none; /* Remove sublinhado */
-    padding: 8px; /* Espaçamento interno */
-    border: 0.5px solid #002f61; /* Borda ao redor do link */
-    border-radius: 5px; /* Cantos arredondados */
-    background-color: #f0f8ff; /* Cor de fundo */
+    color: #070707;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 8px;
+    border: 2px solid #002f61;
+    border-radius: 5px;
+    background-color: #f0f8ff;
+    width: calc(100% - 30px); /* Reduz a largura para dar espaço nas laterais */
+    margin: 0 4%; 
+    width: 80%; /* Ajuste para centralizar o botão na sidebar */
+    text-align: center;
 }
 
 .custom-link:hover {
-    color: #000000; /* Cor do link ao passar o mouse */
-    background-color: #5f747e; /* Cor de fundo ao passar o mouse */
-    text-decoration: underline; /* Sublinhado ao passar o mouse */
+    color: #000000;
+    background-color: #5f747e;
+    text-decoration: underline;
 }
 
 .custom-link-exit {
-    color: #ff0202; /* Cor do link */
-    font-size: 16px; /* Tamanho da fonte */
-    text-decoration: none; /* Remove sublinhado */
-    padding: 10px; /* Espaçamento interno */
-    border: 1px solid #0a0a0a; /* Borda ao redor do link */
-    border-radius: 5px; /* Cantos arredondados */
-    background-color: #d34545; /* Cor de fundo */
+    color: #ff0202;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 10px;
+    border: 2px solid #002f61;
+    border-radius: 5px;
+    background-color: #d34545;
+    margin: 0 4%; 
+    width: 80%; /* Ajuste para centralizar o botão na sidebar */
+    text-align: center;
 }
 
 .custom-link-exit:hover {
-    color: #0c0c0c; /* Cor do link ao passar o mouse */
-    background-color: #ff0000; /* Cor de fundo ao passar o mouse */
-    text-decoration: underline; /* Sublinhado ao passar o mouse */
+    color: #0c0c0c;
+    background-color: #ff0000;
+    text-decoration: underline;
 }
-
