@@ -16,4 +16,13 @@ function showHome() {
     `;
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("URL_DA_API_DO_USUARIO")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("user-name").textContent = data.nome || "Usuário";
+        })
+        .catch(error => console.error("Erro ao carregar dados do usuário:", error));
+});
+
 

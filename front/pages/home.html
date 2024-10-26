@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../resources/home.css">
-    <title>Página Inicial</title>
+    <title>StockPille</title>
 </head>
 <body>
     <header class="header">
-        <h1>StockPille <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Black_Mesa_logo.svg/1200px-Black_Mesa_logo.svg.png" alt="Imagem" width="50px" height="50px"></h1>
+        <h1>StockPille <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Imagem" width="40px" height="40px"></h1>
+        <div class="header">
+            <div id="user-info">
+                <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário" />
+                <span id="user-name">Sheik Kabe Sadul Meup-Al </span>
+            </div>
+        </div>
+        
     </header>
     <div class="container">
         <nav class="sidebar">
@@ -21,16 +28,18 @@
                         <li><a href="#" onclick="showProductForm()">Cadastrar item</a></li>
                         <li><a href="#" onclick="showAllocationForm()">Cadastrar locação</a></li>
                         <li><a href="#" onclick="showUserForm()">Cadastrar usuário</a></li>
+                        <li><hr class="divider">
                     </ul>
-                <li><hr class="divider">
+                
                     <li>
                         <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
                         <ul class="submenu" id="perfil-submenu">
                             <li><a href="#" onclick="fetchAllocations()">Ver locações</a></li>
                             <li><a href="#" onclick="editAllocation()">Editar locação</a></li>
+                            <li><hr class="divider">
                         </ul>
                     </li>
-                <li><hr class="divider"> 
+                
                     <li>
                         <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
                     <ul class="submenu" id="config-submenu">
@@ -38,15 +47,16 @@
                         <li><a href="#">Relatório de algm coisa sla</a></li>
                     </ul>
                     </li>
-                <li><hr class="divider">
+                
                 <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
                 <li><hr class="divider">
             </ul>
+            
         </nav>
 
         <main class="main-content" id="main-content">
             <h2>Bem-vindo!</h2>
-            <p>Selecione uma opção no menu para começar.</p>
+            <p>confesse seus pecados.</p>
         </main>
     </div>
 
