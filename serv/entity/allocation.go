@@ -30,6 +30,10 @@ func (a *Allocation) GetPath() string {
 	return "allocation"
 }
 
+func (a *Allocation) IsPersisted() bool {
+	return true
+}
+
 func (a *Allocation) Validate() {
 	if a.ItemId == 0 {
 		panic("Item is required")

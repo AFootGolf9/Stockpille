@@ -26,6 +26,10 @@ func (i *Item) GetPath() string {
 	return "item"
 }
 
+func (i *Item) IsPersisted() bool {
+	return true
+}
+
 func (i *Item) Validate() {
 	if i.Name == "" {
 		panic("Name is required")
