@@ -25,6 +25,10 @@ func (l *Location) GetPath() string {
 	return "location"
 }
 
+func (l *Location) IsPersisted() bool {
+	return true
+}
+
 func (l *Location) Validate() {
 	if l.Name == "" {
 		panic("Name is required")

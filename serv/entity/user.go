@@ -29,6 +29,10 @@ func (u *User) GetData() []any {
 	return []any{&u.Id, &u.Name, &u.Role, &u.Password}
 }
 
+func (u *User) IsPersisted() bool {
+	return true
+}
+
 func (u *User) Validate() {
 	if u.Name == "" {
 		panic("Name is required")

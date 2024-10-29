@@ -6,6 +6,7 @@ type Entity interface {
 	GetCamps() []string
 	GetData() []interface{}
 	GetPath() string
+	IsPersisted() bool
 	Validate()
 	ValidateUpdate()
 	New() Entity

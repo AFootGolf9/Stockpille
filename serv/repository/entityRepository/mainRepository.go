@@ -119,14 +119,22 @@ func Update(object entity.Entity) error {
 }
 
 func Delete(object entity.Entity) error {
-	if object.GetId() == 0 {
-		return errors.New("Id not set")
-	}
 
-	query := "DELETE FROM "
-	camps := object.GetCamps()
-	query += camps[0] + " WHERE " + camps[1] + " = $1"
-	_, err := db.Exec(query, object.GetId())
+	var err error
+	if object.IsPersisted() {
+		query := "UPDATE "
+		camps := object.GetCamps()
+		query += camps[0] + " SET status = true WHERE " + camps[1] + " = $1"
+	} else {
+		if object.GetId() == 0 {
+			return errors.New("Id not set")
+		}
+
+		query := "DELETE FROM "
+		camps := object.GetCamps()
+		query += camps[0] + " WHERE " + camps[1] + " = $1"
+		_, err = db.Exec(query, object.GetId())
+	}
 
 	return err
 }
