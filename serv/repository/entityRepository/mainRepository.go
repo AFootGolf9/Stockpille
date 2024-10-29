@@ -13,16 +13,39 @@ func SetDB(database *sql.DB) {
 	db = database
 }
 
+func insertCampsS(object entity.Entity) string {
+	camps := object.GetCamps()
+	str := ""
+
+	for i := 1; i < len(camps); i++ {
+		str += camps[i]
+		if i != len(camps)-1 {
+			str += ", "
+		}
+	}
+
+	return str
+}
+
+func insertCampsI(object entity.Entity) string {
+	camps := object.GetCamps()
+	str := ""
+
+	for i := 2; i < len(camps); i++ {
+		str += camps[i]
+		if i != len(camps)-1 {
+			str += ", "
+		}
+	}
+
+	return str
+}
+
 func Insert(object entity.Entity) error {
 	query := "INSERT INTO "
 	camps := object.GetCamps()
 	query += camps[0] + " ("
-	for i := 2; i < len(camps); i++ {
-		query += camps[i]
-		if i != len(camps)-1 {
-			query += ", "
-		}
-	}
+	query += insertCampsI(object)
 	query += ") VALUES ("
 	for i := 2; i < len(camps); i++ {
 		query += "$" + strconv.Itoa(i-1)
@@ -31,6 +54,7 @@ func Insert(object entity.Entity) error {
 		}
 	}
 	query += ")"
+
 	_, err := db.Exec(query, object.GetData()[1:]...)
 
 	return err
@@ -39,13 +63,13 @@ func Insert(object entity.Entity) error {
 func SelectPK(object entity.Entity) error {
 	query := "SELECT "
 	camps := object.GetCamps()
-	for i := 1; i < len(camps); i++ {
-		query += camps[i]
-		if i != len(camps)-1 {
-			query += ", "
-		}
-	}
+	query += insertCampsS(object)
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
+
+	if object.IsPersisted() {
+		query += " AND status != 'deleted'"
+	}
+
 	row := db.QueryRow(query, object.GetId())
 	err := row.Scan(object.GetData()...)
 
@@ -55,13 +79,13 @@ func SelectPK(object entity.Entity) error {
 func SelectAll(object entity.Entity) ([]entity.Entity, error) {
 	query := "SELECT "
 	camps := object.GetCamps()
-	for i := 1; i < len(camps); i++ {
-		query += camps[i]
-		if i != len(camps)-1 {
-			query += ", "
-		}
-	}
+	query += insertCampsS(object)
 	query += " FROM " + camps[0]
+
+	if object.IsPersisted() {
+		query += " WHERE status != 'deleted'"
+	}
+
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -124,7 +148,7 @@ func Delete(object entity.Entity) error {
 	if object.IsPersisted() {
 		query := "UPDATE "
 		camps := object.GetCamps()
-		query += camps[0] + " SET status = true WHERE " + camps[1] + " = $1"
+		query += camps[0] + " SET status = 'deleted' WHERE " + camps[1] + " = $1"
 	} else {
 		if object.GetId() == 0 {
 			return errors.New("Id not set")
