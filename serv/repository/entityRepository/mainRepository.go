@@ -69,7 +69,7 @@ func SelectPK(object entity.Entity) error {
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
 
 	if object.IsPersisted() {
-		query += " AND status != 'deleted'"
+		query += " AND status <> 'deleted'"
 	}
 
 	row := db.QueryRow(query, object.GetId())
@@ -85,7 +85,7 @@ func SelectAll(object entity.Entity) ([]entity.Entity, error) {
 	query += " FROM " + camps[0]
 
 	if object.IsPersisted() {
-		query += " WHERE status != 'deleted'"
+		query += " WHERE status <> 'deleted'"
 	}
 
 	rows, err := db.Query(query)
