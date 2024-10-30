@@ -67,7 +67,7 @@ func SelectPK(object entity.Entity) error {
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
 
 	if object.IsPersisted() {
-		query += " AND status != 'deleted'"
+		query += " AND status <> 'deleted'"
 	}
 
 	row := db.QueryRow(query, object.GetId())
@@ -83,7 +83,7 @@ func SelectAll(object entity.Entity) ([]entity.Entity, error) {
 	query += " FROM " + camps[0]
 
 	if object.IsPersisted() {
-		query += " WHERE status != 'deleted'"
+		query += " WHERE status <> 'deleted'"
 	}
 
 	rows, err := db.Query(query)
@@ -145,8 +145,9 @@ func Update(object entity.Entity) error {
 func Delete(object entity.Entity) error {
 
 	var err error
+	var query string
 	if object.IsPersisted() {
-		query := "UPDATE "
+		query = "UPDATE "
 		camps := object.GetCamps()
 		query += camps[0] + " SET status = 'deleted' WHERE " + camps[1] + " = $1"
 	} else {
@@ -154,11 +155,11 @@ func Delete(object entity.Entity) error {
 			return errors.New("Id not set")
 		}
 
-		query := "DELETE FROM "
+		query = "DELETE FROM "
 		camps := object.GetCamps()
 		query += camps[0] + " WHERE " + camps[1] + " = $1"
-		_, err = db.Exec(query, object.GetId())
 	}
+	_, err = db.Exec(query, object.GetId())
 
 	return err
 }
