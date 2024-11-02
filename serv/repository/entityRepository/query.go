@@ -18,8 +18,10 @@ func Query(object entity.Entity, camp int, value string) ([]entity.Entity, error
 	}
 	defer rows.Close()
 
+	num := 0
 	objects := []entity.Entity{}
 	for rows.Next() {
+		num++
 		object = object.New()
 		err := rows.Scan(object.GetData()...)
 		if err != nil {
@@ -28,5 +30,8 @@ func Query(object entity.Entity, camp int, value string) ([]entity.Entity, error
 		objects = append(objects, object)
 	}
 
+	if num == 0 {
+		return nil, nil
+	}
 	return objects, nil
 }
