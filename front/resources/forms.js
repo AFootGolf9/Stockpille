@@ -1,79 +1,64 @@
-// Função para exibir o formulário de cadastro de produtos
+// Função que exibe os campos de cadastro de produto
 function showProductForm() {
-    document.getElementById("main-content").innerHTML = `
+    // Defina o HTML para os campos de entrada
+    const formHTML = `
         <h2>Cadastro de Produto</h2>
-        <form id="productForm">
-            <div class="form-group">
-                <label for="productName">Nome do Produto:</label>
-                <input type="text" id="productName" name="productName" required>
-            </div>
-            <div class="form-group">
-                <label for="productDescription">Descrição:</label>
-                <textarea id="productDescription" name="productDescription" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="productPrice">Preço:</label>
-                <input type="number" id="productPrice" name="productPrice" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="productCategory">Categoria:</label>
-                <select id="productCategory" name="productCategory" required>
-                    <option value="eletronicos">Eletrônicos</option>
-                    <option value="roupas">Roupas</option>
-                    <option value="alimentos">Alimentos</option>
-                    <option value="livros">Livros</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="productStock">Estoque:</label>
-                <input type="number" id="productStock" name="productStock" required>
-            </div>
-            <div class="form-group">
-                <button type="submit">Cadastrar Produto</button>
-            </div>
-        </form>
+        <div class="form-group">
+            <label for="sku">SKU:</label>
+            <input type="text" id="sku" name="sku" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Nome do Produto:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Descrição:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <button id="registerProductBtn">Cadastrar Produto</button>
+        </div>
     `;
-}
 
-// Função para lidar com o envio do formulário de cadastro de produtos
-document.addEventListener('submit', function(event) {
-    if (event.target && event.target.id === 'productForm') {
-        event.preventDefault();
-        
-        // Pegando os valores dos inputs
-        const productName = document.getElementById("productName").value;
-        const productDescription = document.getElementById("productDescription").value;
-        const productPrice = document.getElementById("productPrice").value;
-        const productCategory = document.getElementById("productCategory").value;
-        const productStock = document.getElementById("productStock").value;
+    // Injeta o HTML no `main-content`
+    document.getElementById("main-content").innerHTML = formHTML;
 
-        // Criar o objeto de dados
+    // Adiciona o evento de clique no botão para enviar os dados ao backend
+    document.getElementById("registerProductBtn").addEventListener("click", function() {
+        // Captura os valores dos campos
+        const sku = document.getElementById("sku").value;
+        const name = document.getElementById("name").value;
+        const description = document.getElementById("description").value;
+
+        // Cria o objeto com os dados do produto
         const productData = {
-            name: productName,
-            description: productDescription,
-            price: productPrice,
-            category: productCategory,
-            stock: productStock
+            sku: sku,
+            name: name,
+            description: description
         };
 
-        // Enviar dados para a API
-        fetch('https://suaapi.com/produtos', {
-            method: 'POST',
+
+        fetch("http://localhost:3000/??????", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(productData)
         })
-        .then(response => response.json())
-        .then(data => {
-            alert('Produto cadastrado com sucesso!');
-            console.log('Sucesso:', data);
+        .then(response => {
+            if (response.ok) {
+                alert("Produto cadastrado com sucesso!");
+                // Limpa os campos após o envio
+                document.getElementById("sku").value = '';
+                document.getElementById("name").value = '';
+                document.getElementById("description").value = '';
+            } else {
+                throw new Error("Erro ao cadastrar o produto.");
+            }
         })
         .catch(error => {
-            console.error('Erro:', error);
-            alert('Ocorreu um erro ao cadastrar o produto.');
+            console.error("Erro:", error);
+            alert("Erro ao cadastrar o produto. Tente novamente.");
         });
-    }
-});
-
-
+    });
+}
