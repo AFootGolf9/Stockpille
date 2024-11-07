@@ -1,6 +1,4 @@
-// Função que exibe os campos de cadastro de produto
 function showProductForm() {
-    // Defina o HTML para os campos de entrada
     const formHTML = `
         <h2>Cadastro de Produto</h2>
         <div class="form-group">
@@ -20,25 +18,21 @@ function showProductForm() {
         </div>
     `;
 
-    // Injeta o HTML no `main-content`
     document.getElementById("main-content").innerHTML = formHTML;
 
-    // Adiciona o evento de clique no botão para enviar os dados ao backend
     document.getElementById("registerProductBtn").addEventListener("click", function() {
         // Captura os valores dos campos
-        const sku = document.getElementById("sku").value;
         const name = document.getElementById("name").value;
         const description = document.getElementById("description").value;
 
         // Cria o objeto com os dados do produto
         const productData = {
-            sku: sku,
             name: name,
             description: description
         };
 
 
-        fetch("http://localhost:3000/??????", {
+        fetch("http://localhost:8080/item", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -48,8 +42,6 @@ function showProductForm() {
         .then(response => {
             if (response.ok) {
                 alert("Produto cadastrado com sucesso!");
-                // Limpa os campos após o envio
-                document.getElementById("sku").value = '';
                 document.getElementById("name").value = '';
                 document.getElementById("description").value = '';
             } else {
