@@ -26,13 +26,13 @@
                     <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Cadastro</a>
                     <ul class="submenu" id="home-submenu">
                         <li><a href="#" onclick="showProductForm()">Cadastrar item</a></li>
-                        <li><a href="#" onclick="showAllocationForm()">Cadastrar locação</a></li>
-                        <li><a href="#" onclick="showUserForm()">Cadastrar usuário</a></li>
+                        <li><a href="#" onclick="showLocationForm()">Cadastrar localização</a></li>
+                        <li><a href="#" onclick="register()">Cadastrar usuário</a></li>
                         <li><hr class="divider">
                     </ul>
                 
                     <li>
-                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
+                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Localização</a>
                         <ul class="submenu" id="perfil-submenu">
                             <li><a href="#" onclick="fetchAllocations()">Ver locações</a></li>
                             <li><a href="#" onclick="editAllocation()">Editar locação</a></li>
@@ -62,7 +62,9 @@
 
     </div>
     <script src="../resources/home.js"></script>
-    <script src="../resources/forms.js"></script>
+    <script src="../resources/forms/Productform.js"></script>
+    <script src="../resources/forms/Locationform.js"></script>
+    <script src="../resources/forms/register.js"></script>
     <script src="../resources/reports.js"></script>
     <script src="../resources/allocations.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
