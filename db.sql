@@ -10,7 +10,7 @@ create table item(
     sku integer primary key default nextval('item_seq'),
     name varchar(255),
     description varchar(255),
-    status varchar(255)
+    status varchar(255) default 'new'
 );
 
 create sequence location_seq;
@@ -18,7 +18,7 @@ create sequence location_seq;
 create table location(
     id integer primary key default nextval('location_seq'),
     name varchar(255),
-    status varchar(255)
+    status varchar(255) default 'new'
 );
 
 create sequence user_seq;
@@ -38,7 +38,7 @@ create table allocation(
     item_sku integer references item(sku),
     location_id integer references location(id),
     user_id integer references user_data(id),
-    status varchar(255)
+    status varchar(255) default 'new'
 );
 
 create table token(
