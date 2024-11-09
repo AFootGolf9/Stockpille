@@ -41,8 +41,8 @@ function showProductList() {
                                         <td>${product.name}</td>
                                         <td>${product.description}</td>
                                         <td>
-                                            <button class="editBtn" data-id="${product.id}">Editar</button>
-                                            <button class="deleteBtn" data-id="${product.id}">Excluir</button>
+                                            <button class="editBtn" data-id="${product.sku}">Editar</button>
+                                            <button class="deleteBtn" data-id="${product.sku}">Excluir</button>
                                         </td>
                                     </tr>
                                 `).join('')}
