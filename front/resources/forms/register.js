@@ -1,5 +1,64 @@
+function loginUser(username, password) {
+    // Envia uma solicitação de login com as credenciais
+    fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error("Falha ao fazer login. Verifique suas credenciais.");
+        }
+    })
+    .then(data => {
+        const token = data.token;
+        
+        // Armazena o token como um cookie
+        document.cookie = `authToken=${token}; path=/`;
+
+        // Exibe o token na tela
+        displayAuthToken();
+
+        alert("Login realizado com sucesso!");
+    })
+    .catch(error => {
+        console.error("Erro no login:", error);
+        alert("Erro ao fazer login. Tente novamente.");
+    });
+}
+
+
+function showLoginForm() {
+    const loginHTML = `
+        <h2>Login</h2>
+        <div class="form-group">
+            <label for="username">Usuário:</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" required>
+        </div>
+        <button id="loginBtn">Entrar</button>
+        <div id="tokenDisplay"></div>
+    `;
+
+    document.getElementById("main-content").innerHTML = loginHTML;
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        // Chama a função de login com as credenciais
+        loginUser(username, password);
+    });
+}
+
 function showUserList() {
-    // Estrutura da tela com título e botão "Criar"
     const userListHTML = `
         <div class="user-header">
             <h2>Lista de Usuários</h2>
@@ -10,26 +69,28 @@ function showUserList() {
         </div>
     `;
 
-    // Insere o HTML na área principal
     document.getElementById("main-content").innerHTML = userListHTML;
 
-    // Carrega os usuários da API
-    fetch("http://localhost:8080/user")
+    fetch("http://localhost:8080/user", {
+        headers: {
+            "Authorization": `Bearer ${getCookie("authToken")}`
+        }
+    })
     .then(response => response.json())
     .then(data => {
-        const users = data.data; // Acessando os dados dentro de 'data'
+        const users = data.data;
         console.log("Resposta da API:", users);
         
         const userListContainer = document.getElementById("user-list");
 
         if (Array.isArray(users) && users.length > 0) {
-            // Criando a estrutura da tabela
             const tableHTML = `
                 <table class="user-table">
                     <thead>
                         <tr>
                             <th>Nome</th>
                             <th>Cargo</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,12 +98,30 @@ function showUserList() {
                             <tr>
                                 <td>${user.name}</td>
                                 <td>${user.role}</td>
+                                <td>
+                                    <button class="editBtn" data-id="${user.id}">Editar</button>
+                                    <button class="deleteBtn" data-id="${user.id}">Excluir</button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
             userListContainer.innerHTML = tableHTML;
+
+            document.querySelectorAll(".editBtn").forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const userId = event.target.getAttribute("data-id");
+                    showUserForm(userId);
+                });
+            });
+
+            document.querySelectorAll(".deleteBtn").forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const userId = event.target.getAttribute("data-id");
+                    deleteUser(userId);
+                });
+            });
         } else {
             userListContainer.innerHTML = "<p>Nenhum usuário cadastrado.</p>";
         }
@@ -52,13 +131,12 @@ function showUserList() {
         document.getElementById("user-list").innerHTML = "<p>Erro ao carregar usuários.</p>";
     });
 
-    // Adiciona evento de clique para o botão "Criar"
-    document.getElementById("createUserBtn").addEventListener("click", showUserForm);
+    document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
 }
 
-function showUserForm() {
+function showUserForm(userId = null) {
     const formHTML = `
-        <h2>Cadastro de Usuário</h2>
+        <h2>${userId ? 'Editar Usuário' : 'Cadastro de Usuário'}</h2>
         <div class="form-group">
             <label for="username">Nome:</label>
             <input type="text" id="username" name="username" required>
@@ -69,55 +147,110 @@ function showUserForm() {
         </div>
         <div class="form-group">
             <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" ${userId ? '' : 'required'}>
         </div>
         <div class="form-group">
-            <button id="register">Cadastrar Usuário</button>
+            <button id="register">${userId ? 'Atualizar Usuário' : 'Cadastrar Usuário'}</button>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = formHTML;
+
+    if (userId) {
+        fetch(`http://localhost:8080/user/${userId}`, {
+            headers: {
+                "Authorization": `Bearer ${getCookie("authToken")}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const user = data.data;
+            if (user) {
+                document.getElementById("username").value = user.name;
+                document.getElementById("role").value = user.role;
+            } else {
+                alert("Erro ao carregar dados do usuário.");
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao carregar dados do usuário:", error);
+            alert("Erro ao carregar dados do usuário.");
+        });
+    }
 
     document.getElementById("register").addEventListener("click", function() {
         const name = document.getElementById("username").value;
         const role = document.getElementById("role").value;
         const password = document.getElementById("password").value;
 
-        // Verificação de campos vazios
-        if (name === "" || role === "" || password === "") {
-            alert("Por favor, preencha todos os campos.");
-            return;
-        }
+        const userData = userId ? { name, role } : { name, role, password };
 
-        // Verificação de tamanho mínimo de senha
-        if (password.length < 4) {
-            alert("A senha deve ter pelo menos 4 caracteres.");
-            return;
-        }
-
-        // Envio do formulário via API
-        fetch('http://localhost:8080/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                role: role,
-                password: password
+        if (userId) {
+            fetch(`http://localhost:8080/user/${userId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getCookie("authToken")}`
+                },
+                body: JSON.stringify(userData)
             })
+            .then(response => {
+                if (response.ok) {
+                    alert("Usuário atualizado com sucesso!");
+                    showUserList();
+                } else {
+                    throw new Error("Erro ao atualizar o usuário.");
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                alert("Erro ao atualizar o usuário. Tente novamente.");
+            });
+        } else {
+            fetch("http://localhost:8080/user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getCookie("authToken")}`
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Usuário cadastrado com sucesso!");
+                    showUserList();
+                } else {
+                    throw new Error("Erro ao cadastrar o usuário.");
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                alert("Erro ao cadastrar o usuário. Tente novamente.");
+            });
+        }
+    });
+}
+
+function deleteUser(userId) {
+    const confirmDelete = confirm("Tem certeza que deseja excluir este usuário?");
+    if (confirmDelete) {
+        fetch(`http://localhost:8080/user/${userId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${getCookie("authToken")}`
+            }
         })
         .then(response => {
             if (response.ok) {
-                alert("Usuário cadastrado com sucesso!");
-                showUserList();  // Atualiza a lista após o cadastro
+                alert("Usuário excluído com sucesso!");
+                showUserList();
             } else {
-                throw new Error("Erro ao cadastrar o usuário.");
+                throw new Error("Erro ao excluir o usuário.");
             }
         })
         .catch(error => {
             console.error("Erro:", error);
-            alert("Erro ao cadastrar o usuário. Tente novamente.");
+            alert("Erro ao excluir o usuário. Tente novamente.");
         });
-    });
+    }
 }

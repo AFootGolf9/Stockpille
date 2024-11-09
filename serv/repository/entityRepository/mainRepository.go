@@ -88,6 +88,8 @@ func SelectAll(object entity.Entity) ([]entity.Entity, error) {
 		query += " WHERE status <> 'deleted'"
 	}
 
+	query += " ORDER BY " + camps[1]
+
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err

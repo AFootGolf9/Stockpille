@@ -21,22 +21,22 @@
     <div class="container">
         <nav class="sidebar">
             
-            <h2 href="#" class="boi" onclick="showHome()">Menu</h2> <!-- Título da barra lateral -->
+            <h2 href="#" class="boi" onclick="showHome()">Menu</h2> 
             <ul>
                 <li><hr class="divider">
-                    <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Cadastro</a>
+                    <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Geral</a>
                     <ul class="submenu" id="home-submenu">
-                        <li><a href="#" onclick="showProductList()">Cadastrar item</a></li>
-                        <li><a href="#" onclick="showLocationList()">Cadastrar localização</a></li>
-                        <li><a href="#" onclick="showUserList()">Cadastrar usuário</a></li>
+                        <li><a href="#" onclick="showProductList()">Itens</a></li>
+                        <li><a href="#" onclick="showLocationList()">Localizações</a></li>
+                        <li><a href="#" onclick="showUserList()">Usuários</a></li>
                         <li><hr class="divider">
                     </ul>
                 
                     <li>
-                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Localização</a>
+                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
                         <ul class="submenu" id="perfil-submenu">
-                            <li><a href="#" onclick="fetchAllocations()">Ver locações</a></li>
-                            <li><a href="#" onclick="editAllocation()">Editar locação</a></li>
+                            <li><a href="#" onclick="showAllocationForm()">Realizar Locação</a></li>
+                            <li><a href="#" onclick="showAllocationsList()">Ver Locações</a></li>
                             <li><hr class="divider">
                         </ul>
                     </li>
@@ -45,7 +45,7 @@
                         <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
                     <ul class="submenu" id="config-submenu">
                         <li><a href="#" onclick="showReportOptions()">Gerar Relatórios</a></li>
-                        <li><a href="#">Relatório de algm coisa sla</a></li>
+                        <li><a href="#" onclick="displayAuthToken()">Relatório de algm coisa sla</a></li>
                     </ul>
                     </li>
                 
@@ -67,7 +67,7 @@
     <script src="../resources/forms/Locationform.js"></script>
     <script src="../resources/forms/register.js"></script>
     <script src="../resources/reports.js"></script>
-    <script src="../resources/allocations.js"></script>
+    <script src="../resources/forms/allocate.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </body>
