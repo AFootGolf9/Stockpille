@@ -12,7 +12,7 @@ function showProductList() {
     document.getElementById("main-content").innerHTML = productListHTML;
 
     fetch("http://localhost:8080/item")
-    .then(response => response.text())  // Alterado para texto
+    .then(response => response.text())
     .then(text => {
         console.log("Resposta do servidor:", text);
 
