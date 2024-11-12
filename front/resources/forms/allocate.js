@@ -1,4 +1,3 @@
-// Função para buscar o valor do cookie
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -6,18 +5,18 @@ function getCookie(cname) {
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) == ' ') {
-            c = c.substring(1); // Remover espaços no começo
+            c = c.substring(1); 
         }
         if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length); // Retornar o valor do cookie
+            return c.substring(name.length, c.length);
         }
     }
-    return ""; // Retorna vazio se o cookie não for encontrado
+    return "";
 }
 
 function showAllocationForm() {
     const formHTML = `
-        <h2>Alocar Produto em Locação</h2>
+        <h2>Alocar Produto em Localização</h2>
         <div class="form-group">
             <label for="itemSelect">Selecione o Produto:</label>
             <select id="itemSelect" required>
@@ -25,9 +24,9 @@ function showAllocationForm() {
             </select>
         </div>
         <div class="form-group">
-            <label for="locationSelect">Selecione a Locação:</label>
+            <label for="locationSelect">Selecione a Localização:</label>
             <select id="locationSelect" required>
-                <option value="">Selecione uma Locação</option> <!-- opção inicial vazia -->
+                <option value="">Selecione uma Localização</option> <!-- opção inicial vazia -->
             </select>
         </div>
         <div class="form-group">
@@ -37,14 +36,12 @@ function showAllocationForm() {
 
     document.getElementById("main-content").innerHTML = formHTML;
 
-    // Carregar lista de produtos e locações
     loadItems();
     loadLocations();
 
-    // Adicionando o evento de clique corretamente
     document.getElementById("allocateBtn").addEventListener("click", function(event) {
-        event.preventDefault(); // Prevenir ação padrão
-        allocateProduct(); // Chama a função de alocar o produto
+        event.preventDefault(); 
+        allocateProduct();
     });
 }
 
@@ -85,11 +82,11 @@ function loadLocations() {
                 });
             } else {
                 const noLocationsOption = document.createElement("option");
-                noLocationsOption.textContent = "Nenhuma locação disponível";
+                noLocationsOption.textContent = "Nenhuma Localização disponível";
                 locationSelect.appendChild(noLocationsOption);
             }
         })
-        .catch(error => console.error("Erro ao carregar locações:", error));
+        .catch(error => console.error("Erro ao carregar localizações:", error));
 }
 
 function allocateProduct() {
