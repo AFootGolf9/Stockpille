@@ -21,3 +21,18 @@ func GetItemQuantity(c *gin.Context) {
 		"quantity": out,
 	})
 }
+
+func RelAllocByUser(c *gin.Context) {
+	out := repository.RelAllocByUser()
+	c.JSON(200, out)
+}
+
+func RelAllocByItem(c *gin.Context) {
+	out := repository.RelAllocByItem()
+	c.JSON(200, out)
+}
+
+func RelItemByLocation(c *gin.Context) {
+	out := repository.RelItemByLocation()
+	c.JSON(200, out)
+}

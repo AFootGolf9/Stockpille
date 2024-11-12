@@ -39,5 +39,9 @@ func main() {
 	r.GET("/user/validate", controller.ValidateToken)
 	r.POST("/user/login", controller.Login)
 
+	r.GET("/rel/allocbyuser", controller.RelAllocByUser)
+	r.GET("/rel/allocbyitem", controller.RelAllocByItem)
+	r.GET("/rel/itembylocation", controller.RelItemByLocation)
+
 	r.Run() // listen and serve on
 }
