@@ -35,6 +35,7 @@ func main() {
 	rs.SetCRUD(&entity.Location{})
 	rs.SetCRUD(&entity.Allocation{})
 
+	r.GET("/item/quantity/:id", controller.GetItemQuantity)
 	r.GET("/user/validate", controller.ValidateToken)
 	r.POST("/user/login", controller.Login)
 
