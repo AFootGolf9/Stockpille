@@ -24,28 +24,48 @@ function showProductList() {
                 const productListContainer = document.getElementById("product-list");
 
                 if (Array.isArray(products) && products.length > 0) {
-                    const tableHTML = `
+                    let tableHTML = `
                         <table class="product-table">
                             <thead>
                                 <tr>
                                     <th>SKU</th>
                                     <th>Item</th>
                                     <th>Descrição</th>
+                                    <th>Quantidade</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${products.map(product => `
-                                    <tr>
-                                        <td>${product.sku}</td>
-                                        <td>${product.name}</td>
-                                        <td>${product.description}</td>
-                                        <td>
-                                            <button class="editBtn" data-id="${product.sku}">Editar</button>
-                                            <button class="deleteBtn" data-id="${product.sku}">Excluir</button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
+                    `;
+
+                    
+                    products.forEach(product => {
+                        tableHTML += `
+                            <tr>
+                                <td>${product.sku}</td>
+                                <td>${product.name}</td>
+                                <td>${product.description}</td>
+                                <td id="quantity-${product.sku}">Carregando...</td>
+                                <td>
+                                    <button class="editBtn" data-id="${product.sku}">Editar</button>
+                                    <button class="deleteBtn" data-id="${product.sku}">Excluir</button>
+                                </td>
+                            </tr>
+                        `;
+
+                        // Requisição para quantidade de cada item
+                        fetch(`http://localhost:8080/item/quantity/${product.sku}`)
+                            .then(response => response.json())
+                            .then(quantityData => {
+                                document.getElementById(`quantity-${product.sku}`).textContent = quantityData.quantity;
+                            })
+                            .catch(error => {
+                                console.error("Erro ao carregar quantidade:", error);
+                                document.getElementById(`quantity-${product.sku}`).textContent = "Erro";
+                            });
+                    });
+
+                    tableHTML += `
                             </tbody>
                         </table>
                     `;
@@ -55,12 +75,12 @@ function showProductList() {
                     const table = productListContainer.querySelector("table");
                     table.addEventListener("click", function(event) {
                         const target = event.target;
-                        
+
                         if (target.classList.contains("editBtn")) {
                             const productId = target.getAttribute("data-id");
                             showProductForm(productId);  // Passa o ID para edição
                         }
-                        
+
                         if (target.classList.contains("deleteBtn")) {
                             const productId = target.getAttribute("data-id");
                             deleteProduct(productId);  // Passa o ID para exclusão

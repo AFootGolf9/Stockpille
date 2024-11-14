@@ -168,7 +168,7 @@ form h2 {
 }
 
 .product-list {
-    max-height: 200px;
+    max-height: 700px;
     overflow-y: auto;
     border: 1px solid #ccc;
     margin-top: 5px;
