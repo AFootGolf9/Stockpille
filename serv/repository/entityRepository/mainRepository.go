@@ -66,9 +66,9 @@ func SelectPK(object entity.Entity) error {
 	query += insertCampsS(object)
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
 
-	if object.IsPersisted() {
-		query += " AND status <> 'deleted'"
-	}
+	// if object.IsPersisted() {
+	// 	query += " AND status <> 'deleted'"
+	// }
 
 	row := db.QueryRow(query, object.GetId())
 	err := row.Scan(object.GetData()...)
