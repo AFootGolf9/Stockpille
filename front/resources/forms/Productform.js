@@ -15,8 +15,6 @@ function showProductList() {
     .then(response => response.text())
     .then(text => {
         console.log("Resposta do servidor:", text);
-
-        // Tenta separar múltiplos erros concatenados
         try {
             const parsedData = tryParseJSON(text);
             if (parsedData) {
@@ -103,7 +101,7 @@ function showProductList() {
     });
 
     document.getElementById("createProductBtn").addEventListener("click", function() {
-        showProductForm();  // Passa o ID vazio para criação
+        showProductForm();  
     });
 }
 

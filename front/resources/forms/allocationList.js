@@ -10,7 +10,6 @@ function showAllocationsList() {
 
     document.getElementById("main-content").innerHTML = allocationsListHTML;
 
-    // Faz a requisição inicial para obter as locações
     fetch("http://localhost:8080/allocation")
     .then(response => response.json())
     .then(data => {
@@ -20,7 +19,6 @@ function showAllocationsList() {
             const allocations = data.data;
             const allocationsListContainer = document.getElementById("allocations-list");
 
-            // Array de promessas para buscar os dados relacionados
             const itemPromises = allocations.map(allocation =>
                 fetch(`http://localhost:8080/item/${allocation.item_id}`).then(res => res.json())
             );
@@ -31,7 +29,6 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/location/${allocation.location_id}`).then(res => res.json())
             );
 
-            // Resolve todas as promessas e então processa os dados
             Promise.all([Promise.all(itemPromises), Promise.all(userPromises), Promise.all(locationPromises)])
             .then(([items, users, locations]) => {
                 const tableHTML = `
