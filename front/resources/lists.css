@@ -11,7 +11,7 @@
 }
 
 .product-table th {
-    background-color: #f2f2f2;
+    background-color: #0073e6;
     font-weight: bold;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .location-table th {
-    background-color: #f2f2f2;
+    background-color: #0073e6;
     font-weight: bold;
 }
 
@@ -203,4 +203,73 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+/* Estilo da tabela de locações */
+.allocations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.allocations-table th, .allocations-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.allocations-table th {
+    background-color: #0073e6;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+}
+
+.allocations-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.allocations-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilo do botão de ações */
+#allocations-list button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#allocations-list button:hover {
+    background-color: #45a049;
+}
+
+/* Estilo para o container principal */
+#main-content {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilo para o cabeçalho da lista de locações */
+.allocations-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.allocations-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* Estilo de overflow para a lista de locações */
+.allocations-list {
+    max-height: 700px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: white;
+    margin-top: 5px;
 }
