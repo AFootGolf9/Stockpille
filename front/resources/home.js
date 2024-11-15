@@ -1,4 +1,3 @@
-// Função para mostrar/esconder os submenus
 function toggleSubmenu(id) {
     var submenu = document.getElementById(id);
     if (submenu.style.display === "none" || submenu.style.display === "") {
@@ -8,7 +7,6 @@ function toggleSubmenu(id) {
     }
 }
 
-// Função para mostrar a página inicial
 function showHome() {
     document.getElementById("main-content").innerHTML = `
         <h2>Bem-vindo!</h2>

@@ -104,7 +104,6 @@ function allocateProduct() {
     }
     
 
-    // Verificando se os campos estão preenchidos corretamente
     if (!itemId || !locationId || !token) {
         alert("Por favor, preencha todos os campos.");
         return;
@@ -117,7 +116,6 @@ function allocateProduct() {
     }))
     
 
-    // Enviar dados para o backend
     fetch("http://localhost:8080/allocation", {
         method: "POST",
         headers: {

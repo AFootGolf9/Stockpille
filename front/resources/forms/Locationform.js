@@ -1,5 +1,4 @@
 function showLocationList() {
-    // Estrutura da tela com título e botão "Criar"
     const locationListHTML = `
         <div class="location-header">
             <h2>Lista de Localizações</h2>
