@@ -40,7 +40,7 @@ function showAllocationsList() {
                             <tr>
                                 <th>ID</th>
                                 <th>Produto (SKU)</th>
-                                <th>Locação</th>
+                                <th>Localização</th>
                                 <th>Usuário</th>
                             </tr>
                         </thead>
