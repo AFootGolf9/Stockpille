@@ -1,5 +1,7 @@
 package entity
 
+import "strings"
+
 type Item struct {
 	Sku         int    `json:"sku"`
 	Name        string `json:"name"`
@@ -34,9 +36,13 @@ func (i *Item) Validate() {
 	if i.Name == "" {
 		panic("Name is required")
 	}
+	i.Name = strings.ToUpper(i.Name)
+	i.Description = strings.ToUpper(i.Description)
 }
 
 func (i *Item) ValidateUpdate() {
+	i.Name = strings.ToUpper(i.Name)
+	i.Description = strings.ToUpper(i.Description)
 }
 
 func (i *Item) New() Entity {

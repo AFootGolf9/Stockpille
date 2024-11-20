@@ -1,5 +1,7 @@
 package entity
 
+import "strings"
+
 type Location struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
@@ -33,9 +35,11 @@ func (l *Location) Validate() {
 	if l.Name == "" {
 		panic("Name is required")
 	}
+	l.Name = strings.ToUpper(l.Name)
 }
 
 func (l *Location) ValidateUpdate() {
+	l.Name = strings.ToUpper(l.Name)
 }
 
 func (l *Location) New() Entity {

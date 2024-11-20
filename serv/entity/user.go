@@ -1,6 +1,9 @@
 package entity
 
-import "stockpille/util"
+import (
+	"stockpille/util"
+	"strings"
+)
 
 type User struct {
 	Id       int    `json:"id"`
@@ -45,11 +48,19 @@ func (u *User) Validate() {
 	}
 
 	u.Password = util.Encript(u.Password)
+	u.Name = strings.ToUpper(u.Name)
+	u.Role = strings.ToUpper(u.Role)
 }
 
 func (u *User) ValidateUpdate() {
 	if u.Password != "" {
 		u.Password = util.Encript(u.Password)
+	}
+	if u.Name != "" {
+		u.Name = strings.ToUpper(u.Name)
+	}
+	if u.Role != "" {
+		u.Role = strings.ToUpper(u.Role)
 	}
 }
 
