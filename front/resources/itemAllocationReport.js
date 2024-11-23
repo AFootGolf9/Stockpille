@@ -63,7 +63,7 @@ function generateItemAllocationPDF() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Relatório de Itens Mais Locados", 14, 20);
+    doc.text("Relatório de itens mais locados", 14, 20);
 
     const table = document.querySelector(".allocations-table");
     if (table) {

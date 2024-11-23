@@ -85,7 +85,7 @@ function generatePDF() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Relatório de Locações por Usuários", 14, 20);
+    doc.text("Relatório de locações por usuários", 14, 20);
 
     const table = document.querySelector(".allocations-table");
     if (table) {
