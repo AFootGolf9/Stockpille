@@ -63,7 +63,7 @@ function generateItemByLocationPDF() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Relatório de Localizações com Mais Itens", 14, 20);
+    doc.text("Relatório de localizações com mais itens", 14, 20);
     const table = document.querySelector(".allocations-table");
     if (table) {
         const rows = table.querySelectorAll("tr");
