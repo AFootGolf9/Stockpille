@@ -54,7 +54,7 @@ func Insert(object entity.Entity) error {
 		}
 	}
 	query += ")"
-
+	
 	_, err := db.Exec(query, object.GetData()[1:]...)
 
 	return err
@@ -143,6 +143,7 @@ func Update(object entity.Entity) error {
 }
 
 func Delete(object entity.Entity) error {
+<<<<<<< HEAD
 
 	var err error
 	var query string
@@ -160,6 +161,16 @@ func Delete(object entity.Entity) error {
 		query += camps[0] + " WHERE " + camps[1] + " = $1"
 	}
 	_, err = db.Exec(query, object.GetId())
+=======
+	if object.GetId() == 0 {
+		return errors.New("Id not set")
+	}
+
+	query := "DELETE FROM "
+	camps := object.GetCamps()
+	query += camps[0] + " WHERE " + camps[1] + " = $1"
+	_, err := db.Exec(query, object.GetId())
+>>>>>>> 1908afb (finished refactor(I hope so))
 
 	return err
 }
