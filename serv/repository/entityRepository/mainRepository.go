@@ -46,7 +46,6 @@ func Insert(object entity.Entity) error {
 	camps := object.GetCamps()
 	query += camps[0] + " ("
 	query += insertCampsI(object)
-	query += insertCampsI(object)
 	query += ") VALUES ("
 	for i := 2; i < len(camps); i++ {
 		query += "$" + strconv.Itoa(i-1)
@@ -64,7 +63,6 @@ func Insert(object entity.Entity) error {
 func SelectPK(object entity.Entity) error {
 	query := "SELECT "
 	camps := object.GetCamps()
-	query += insertCampsS(object)
 	query += insertCampsS(object)
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
 

@@ -10,6 +10,9 @@ type Allocation struct {
 	Token      string `json:"token"`
 }
 
+// select item_sku, location_id, user_id, count(item_sku) from allocation group by item_sku, location_id, user_id;
+// maybe imple
+
 func (a *Allocation) GetId() int {
 	return a.Id
 }
