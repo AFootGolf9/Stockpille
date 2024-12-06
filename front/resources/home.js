@@ -15,7 +15,7 @@ function showHome() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch("URL_DA_API_DO_USUARIO")
+    fetch("http://localhost:8080/user/validate")
         .then(response => response.json())
         .then(data => {
             document.getElementById("user-name").textContent = data.nome || "Usuário";

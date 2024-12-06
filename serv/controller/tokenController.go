@@ -16,6 +16,7 @@ func ValidateToken(c *gin.Context) {
 			"message": "Invalid token",
 		})
 		c.Abort()
+		return
 	}
 	user := entity.User{Id: userid}
 	entityRepository.SelectPK(&user)
