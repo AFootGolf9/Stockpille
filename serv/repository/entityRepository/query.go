@@ -12,6 +12,11 @@ func Query(object entity.Entity, camp int, value string) ([]entity.Entity, error
 		}
 	}
 	query += " FROM " + camps[0] + " WHERE " + camps[camp] + " = $1"
+
+	if object.IsPersisted() {
+		query += " AND status <> 'deleted'"
+	}
+
 	rows, err := db.Query(query, value)
 	if err != nil {
 		return nil, err

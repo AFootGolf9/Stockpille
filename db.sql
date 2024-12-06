@@ -46,3 +46,5 @@ create table token(
     user_id int references user_data(id),
     time timestamp default now()
 );
+
+alter table user_data add constraint unique_name unique (name);
