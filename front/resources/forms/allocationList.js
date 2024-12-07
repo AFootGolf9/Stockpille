@@ -39,6 +39,7 @@ function showAllocationsList() {
                                 <th>Produto (SKU)</th>
                                 <th>Localização</th>
                                 <th>Usuário</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,6 +54,9 @@ function showAllocationsList() {
                                         <td>${item.name || 'Produto não encontrado'} (${item.sku || 'SKU indisponível'})</td>
                                         <td>${location.name || 'Locação não encontrada'}</td>
                                         <td>${user.name || 'Usuário não encontrado'}</td>
+                                        <td>
+                                            <button class="delete-btn" onclick="deleteAllocation(${allocation.id})">Excluir</button>
+                                        </td>
                                     </tr>
                                 `;
                             }).join('')}
@@ -74,4 +78,27 @@ function showAllocationsList() {
         console.error("Erro ao carregar as locações:", error);
         document.getElementById("allocations-list").innerHTML = `<p>Erro ao carregar as locações: ${error.message}</p>`;
     });
+}
+
+function deleteAllocation(allocationId) {
+    if (confirm("Tem certeza de que deseja excluir esta locação?")) {
+        fetch(`http://localhost:8080/allocation/${allocationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Locação excluída com sucesso!");
+                showAllocationsList(); // Recarrega a lista de locações
+            } else {
+                throw new Error("Erro ao excluir a locação.");
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao excluir a locação:", error);
+            alert("Erro ao excluir a locação: " + error.message);
+        });
+    }
 }

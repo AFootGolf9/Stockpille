@@ -218,3 +218,24 @@ button:hover {
 .sidebar-footer a:hover {
     text-decoration: underline;
 }
+
+.welcome-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    opacity: 0.3;
+    align: right;
+}
+.main-content {
+    position: relative; /* Necessário para alinhar elementos filhos */
+}
+
+.welcome-image {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 150px; /* Ajuste o tamanho conforme necessário */
+    height: auto;
+    margin: 10px; /* Espaçamento opcional da borda */
+}
