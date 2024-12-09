@@ -69,6 +69,7 @@ func putController(entity entity.Entity, c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
+		println(err.Error())
 		c.JSON(400, gin.H{
 			"error": "Invalid ID",
 		})

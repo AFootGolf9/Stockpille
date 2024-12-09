@@ -9,5 +9,6 @@ type Entity interface {
 	IsPersisted() bool
 	Validate()
 	ValidateUpdate()
+	HideSecret()
 	New() Entity
 }

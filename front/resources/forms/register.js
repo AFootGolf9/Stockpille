@@ -183,7 +183,10 @@ function showUserForm(userId = null) {
         const role = document.getElementById("role").value;
         const password = document.getElementById("password").value;
 
-        const userData = userId ? { name, role } : { name, role, password };
+        // const userData = userId ? { name, role } : { name, role, password };
+        const userData = { name, role, password };
+
+        console.log(JSON.stringify(userData))
 
         if (userId) {
             fetch(`http://localhost:8080/user/${userId}`, {

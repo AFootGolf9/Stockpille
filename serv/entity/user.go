@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"stockpille/repository"
 	"stockpille/util"
 	"strings"
 )
@@ -53,15 +54,36 @@ func (u *User) Validate() {
 }
 
 func (u *User) ValidateUpdate() {
+	camps := []string{"user_data", "id"}
+	data := []any{&u.Id}
 	if u.Password != "" {
 		u.Password = util.Encript(u.Password)
+	} else {
+		println("password added")
+		camps = append(camps, "password")
+		data = append(data, &u.Password)
 	}
 	if u.Name != "" {
 		u.Name = strings.ToUpper(u.Name)
+	} else {
+		camps = append(camps, "name")
+		data = append(data, &u.Name)
 	}
 	if u.Role != "" {
 		u.Role = strings.ToUpper(u.Role)
+	} else {
+		camps = append(camps, "role")
+		data = append(data, &u.Role)
 	}
+	err := repository.PrepareForUpdate(camps, data)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (u *User) HideSecret() {
+	u.Password = ""
 }
 
 func (u *User) New() Entity {
