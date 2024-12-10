@@ -1,6 +1,9 @@
 package entity
 
-import "strings"
+import (
+	"stockpille/repository"
+	"strings"
+)
 
 type Location struct {
 	Id   int    `json:"id"`
@@ -39,7 +42,20 @@ func (l *Location) Validate() {
 }
 
 func (l *Location) ValidateUpdate() {
-	l.Name = strings.ToUpper(l.Name)
+	camps := []string{"location", "id"}
+	data := []interface{}{&l.Id}
+	if l.Name != "" {
+		l.Name = strings.ToUpper(l.Name)
+	} else {
+		camps = append(camps, "name")
+		data = append(data, &l.Name)
+	}
+
+	err := repository.PrepareForUpdate(camps, data)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (l *Location) HideSecret() {

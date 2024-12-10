@@ -1,6 +1,9 @@
 package entity
 
-import "strings"
+import (
+	"stockpille/repository"
+	"strings"
+)
 
 type Item struct {
 	Sku         int    `json:"sku"`
@@ -41,8 +44,26 @@ func (i *Item) Validate() {
 }
 
 func (i *Item) ValidateUpdate() {
-	i.Name = strings.ToUpper(i.Name)
-	i.Description = strings.ToUpper(i.Description)
+	camps := []string{"item", "sku"}
+	data := []any{&i.Sku}
+	if i.Name != "" {
+		i.Name = strings.ToUpper(i.Name)
+	} else {
+		camps = append(camps, "name")
+		data = append(data, &i.Name)
+	}
+	if i.Description != "" {
+		i.Description = strings.ToUpper(i.Description)
+	} else {
+		camps = append(camps, "description")
+		data = append(data, &i.Description)
+	}
+
+	err := repository.PrepareForUpdate(camps, data)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (i *Item) HideSecret() {
