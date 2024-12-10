@@ -45,6 +45,9 @@ func (i *Item) ValidateUpdate() {
 	i.Description = strings.ToUpper(i.Description)
 }
 
+func (i *Item) HideSecret() {
+}
+
 func (i *Item) New() Entity {
 	return &Item{}
 }

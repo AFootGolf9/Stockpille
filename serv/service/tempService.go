@@ -16,6 +16,7 @@ func New(entity entity.Entity) {
 
 func Get(entity entity.Entity) (entity.Entity, error) {
 	err := entityRepository.SelectPK(entity)
+	entity.HideSecret()
 	return entity, err
 }
 
@@ -24,6 +25,10 @@ func GetAll(entity entity.Entity) []entity.Entity {
 
 	if err != nil {
 		panic(err)
+	}
+
+	for _, entity := range entities {
+		entity.HideSecret()
 	}
 
 	return entities

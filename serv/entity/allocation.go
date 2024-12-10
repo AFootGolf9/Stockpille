@@ -57,6 +57,9 @@ func (a *Allocation) Validate() {
 func (a *Allocation) ValidateUpdate() {
 }
 
+func (a *Allocation) HideSecret() {
+}
+
 func (a *Allocation) New() Entity {
 	return &Allocation{}
 }

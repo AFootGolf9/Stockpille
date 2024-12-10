@@ -42,6 +42,9 @@ func (l *Location) ValidateUpdate() {
 	l.Name = strings.ToUpper(l.Name)
 }
 
+func (l *Location) HideSecret() {
+}
+
 func (l *Location) New() Entity {
 	return &Location{}
 }

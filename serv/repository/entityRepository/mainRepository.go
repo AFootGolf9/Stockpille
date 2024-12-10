@@ -121,6 +121,7 @@ func Update(object entity.Entity) error {
 
 	for index, value := range object.GetData() {
 		if value == nil {
+			println("value is nil")
 			object.GetData()[index] = original.GetData()[index]
 		}
 	}
@@ -138,7 +139,6 @@ func Update(object entity.Entity) error {
 
 	list := append(object.GetData()[1:], object.GetId())
 
-	print(query)
 	_, err = db.Exec(query, list...)
 
 	return err
