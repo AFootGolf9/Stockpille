@@ -10,18 +10,14 @@ function showAllocationReport() {
         </div>
     `;
 
-    // Insere o HTML inicial no conteúdo principal
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    // Faz a requisição diretamente para o endpoint allocbyuser
     fetch("http://localhost:8080/rel/allocbyuser")
         .then(response => response.json())
         .then(allocationData => {
             console.log("Relatório de locações por usuário:", allocationData); // Log para verificar os dados recebidos
 
-            // Verifica se o relatório contém dados
             if (allocationData && Object.keys(allocationData).length > 0) {
-                // Transforma os dados em uma estrutura mais amigável
                 const results = Object.entries(allocationData).map(([userName, totalAllocations]) => ({
                     user: userName,
                     totalAllocations: totalAllocations
