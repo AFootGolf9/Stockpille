@@ -13,69 +13,47 @@ function showAllocationReport() {
     // Insere o HTML inicial no conteúdo principal
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    // Faz a requisição para obter todos os usuários
-    fetch("http://localhost:8080/user")
+    // Faz a requisição diretamente para o endpoint allocbyuser
+    fetch("http://localhost:8080/rel/allocbyuser")
         .then(response => response.json())
-        .then(usersData => {
-            console.log("Usuários obtidos:", usersData);  // Log para verificar os usuários recebidos
-            // Verifica se a resposta contém usuários
-            if (usersData && Array.isArray(usersData.data) && usersData.data.length > 0) {
-                const users = usersData.data;  // Lista de usuários
+        .then(allocationData => {
+            console.log("Relatório de locações por usuário:", allocationData); // Log para verificar os dados recebidos
 
-                // Faz uma requisição para obter a quantidade de locações por usuário
-                fetch("http://localhost:8080/rel/allocbyuser")
-                    .then(res => res.json())
-                    .then(allocationData => {
-                        console.log("Relatório de locações por usuário:", allocationData); // Log da resposta de locações
+            // Verifica se o relatório contém dados
+            if (allocationData && Object.keys(allocationData).length > 0) {
+                // Transforma os dados em uma estrutura mais amigável
+                const results = Object.entries(allocationData).map(([userName, totalAllocations]) => ({
+                    user: userName,
+                    totalAllocations: totalAllocations
+                }));
 
-                        // Verifica se a resposta de locações contém dados
-                        if (allocationData && Object.keys(allocationData).length > 0) {
-                            // Processa os dados e monta o relatório
-                            const results = users.map(user => {
-                                const userName = user.name;
-                                const totalAllocations = allocationData[userName] || 0;  // Conta locações ou usa 0 caso não haja locações para o usuário
-                                return {
-                                    user: userName,
-                                    totalAllocations: totalAllocations
-                                };
-                            });
-
-                            // Monta a tabela do relatório
-                            const tableHTML = `
-                                <table class="allocations-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuário</th>
-                                            <th>Total de Locações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${results.map(result => `
-                                            <tr>
-                                                <td>${result.user}</td>
-                                                <td>${result.totalAllocations}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            `;
-                            document.getElementById("allocations-report-result").innerHTML = tableHTML;
-                        } else {
-                            document.getElementById("allocations-report-result").innerHTML = "<p>Nenhuma locação encontrada.</p>";
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Erro ao carregar o relatório de locações:", error);
-                        document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar o relatório de locações: ${error.message}</p>`;
-                    });
-
+                // Monta a tabela do relatório
+                const tableHTML = `
+                    <table class="allocations-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Total de Locações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${results.map(result => `
+                                <tr>
+                                    <td>${result.user}</td>
+                                    <td>${result.totalAllocations}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById("allocations-report-result").innerHTML = tableHTML;
             } else {
-                document.getElementById("allocations-report-result").innerHTML = "<p>Nenhum usuário encontrado.</p>";
+                document.getElementById("allocations-report-result").innerHTML = "<p>Nenhuma locação encontrada.</p>";
             }
         })
         .catch(error => {
-            console.error("Erro ao carregar os usuários:", error);
-            document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar os usuários: ${error.message}</p>`;
+            console.error("Erro ao carregar o relatório de locações:", error);
+            document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar o relatório de locações: ${error.message}</p>`;
         });
 }
 
@@ -107,25 +85,25 @@ function generatePDF() {
         doc.autoTable({
             head: [["Usuário", "Total de Locações"]],
             body: tableData,
-            startY: 30,  // Posição onde a tabela começa
-            theme: 'grid',  // Tema para bordas visíveis
+            startY: 30,
+            theme: 'grid',
             styles: {
-                font: 'helvetica',  // Fonte
-                fontSize: 12,       // Tamanho da fonte
-                cellPadding: 5,     // Espaçamento das células
-                valign: 'middle',   // Alinhamento vertical
+                font: 'helvetica',
+                fontSize: 12,
+                cellPadding: 5,
+                valign: 'middle',
             },
             headStyles: {
-                fillColor: [22, 160, 133],  // Cor do cabeçalho
-                textColor: 255,              // Cor do texto no cabeçalho
-                fontStyle: 'bold',           // Estilo da fonte do cabeçalho
+                fillColor: [22, 160, 133],
+                textColor: 255,
+                fontStyle: 'bold',
             },
             bodyStyles: {
-                fillColor: [242, 242, 242],  // Cor de fundo das células
-                textColor: 0,                // Cor do texto
+                fillColor: [242, 242, 242],
+                textColor: 0,
             },
             alternateRowStyles: {
-                fillColor: [255, 255, 255],  // Cor alternada das linhas
+                fillColor: [255, 255, 255],
             },
         });
 
