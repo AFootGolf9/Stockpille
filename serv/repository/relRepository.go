@@ -7,9 +7,14 @@ func GetItemQuantity(num int) int {
 }
 
 func RelAllocByUser() map[string]int {
+	// rows, err := db.Query("SELECT u.name, count(a.user_id) FROM user_data u " +
+	// 	"INNER JOIN allocation a ON u.id = a.user_id where a.status <> 'deleted' " +
+	// 	"GROUP BY u.id ORDER BY count(a.user_id) DESC;")
+
 	rows, err := db.Query("SELECT u.name, count(a.user_id) FROM user_data u " +
-		"INNER JOIN allocation a ON u.id = a.user_id where a.status <> 'deleted' " +
+		"INNER JOIN allocation a ON u.id = a.user_id " +
 		"GROUP BY u.id ORDER BY count(a.user_id) DESC;")
+
 	if err != nil {
 		panic(err)
 	}
