@@ -34,6 +34,20 @@ func GetAll(entity entity.Entity) []entity.Entity {
 	return entities
 }
 
+func GetWithPagination(entity entity.Entity, page int, size int) []entity.Entity {
+	entities, err := entityRepository.SelectWithPagination(entity, page, size)
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entity := range entities {
+		entity.HideSecret()
+	}
+
+	return entities
+}
+
 func Update(entity entity.Entity) {
 	entity.ValidateUpdate()
 	err := entityRepository.Update(entity)

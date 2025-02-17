@@ -14,7 +14,7 @@ func MakeController(entity entity.Entity, rest Rest) func(c *gin.Context) {
 		case GET:
 			getController(entity, c)
 		case GETALL:
-			getAllController(entity, c)
+			getControllerWithPagination(entity, c)
 		case POST:
 			postController(entity, c)
 		case PUT:
@@ -52,6 +52,25 @@ func getController(entity entity.Entity, c *gin.Context) {
 func getAllController(entity entity.Entity, c *gin.Context) {
 	c.JSON(200, gin.H{
 		"data": service.GetAll(entity),
+	})
+}
+
+func getControllerWithPagination(entity entity.Entity, c *gin.Context) {
+	pageStr := c.Query("page")
+	sizeStr := c.Query("size")
+	page := 0
+	size := 15
+
+	if pageStr != "" {
+		page, _ = strconv.Atoi(pageStr)
+	}
+
+	if sizeStr != "" {
+		size, _ = strconv.Atoi(sizeStr)
+	}
+
+	c.JSON(200, gin.H{
+		"data": service.GetWithPagination(entity, page, size),
 	})
 }
 

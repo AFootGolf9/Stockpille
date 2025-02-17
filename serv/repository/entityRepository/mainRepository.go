@@ -109,7 +109,7 @@ func SelectAll(object entity.Entity) ([]entity.Entity, error) {
 
 func Update(object entity.Entity) error {
 	if object.GetId() == 0 {
-		return errors.New("Id not set")
+		return errors.New("ID NOT SET")
 	}
 
 	original := object.New()
@@ -154,7 +154,7 @@ func Delete(object entity.Entity) error {
 		query += camps[0] + " SET status = 'deleted' WHERE " + camps[1] + " = $1"
 	} else {
 		if object.GetId() == 0 {
-			return errors.New("Id not set")
+			return errors.New("ID NOT SET")
 		}
 
 		query = "DELETE FROM "
