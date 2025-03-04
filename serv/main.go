@@ -34,6 +34,7 @@ func main() {
 	rs.SetCRUD(&entity.Item{})
 	rs.SetCRUD(&entity.Location{})
 	rs.SetCRUD(&entity.Allocation{})
+	rs.SetCRUD(&entity.Role{})
 
 	r.GET("/item/quantity/:id", controller.GetItemQuantity)
 	r.GET("/user/validate", controller.ValidateToken)
@@ -42,6 +43,8 @@ func main() {
 	r.GET("/rel/allocbyuser", controller.RelAllocByUser)
 	r.GET("/rel/allocbyitem", controller.RelAllocByItem)
 	r.GET("/rel/itembylocation", controller.RelItemByLocation)
+
+	// https://github.com/gin-gonic/gin/blob/v1.10.0/docs/doc.md#custom-middleware
 
 	r.Run() // listen and serve on
 }

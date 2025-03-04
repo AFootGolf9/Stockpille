@@ -21,12 +21,26 @@ create table location(
     status varchar(255) default 'new'
 );
 
+create sequence role_seq;
+
+create table role(
+    id integer primary key default nextval('role_seq'),
+    name varchar(255),
+    status varchar(255) default 'new'
+);
+
+create table role_permission(
+    role_id integer references role(id),
+    permission varchar(4),
+    table_name varchar(255)
+)
+
 create sequence user_seq;
 
 create table user_data(
     id integer primary key default nextval('user_seq'),
     name varchar(255),
-    role varchar(255),
+    roleId integer references role(id),
     password varchar(255),
     status varchar(255) default 'new'
 );
