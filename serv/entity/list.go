@@ -8,5 +8,6 @@ var (
 		&Location{},
 		&Role{},
 		&User{},
+		&Category{},
 	}
 )

@@ -46,4 +46,17 @@ func Start() {
 	for _, entities := range entity.Entities {
 		repository.CreateRolePermission(1, entities.GetCamps()[0], "RWDU")
 	}
+
+	// create the default category
+	category := &entity.Category{
+		Name: "no category",
+	}
+
+	category.SetId(1)
+	category.Validate()
+	err = entityRepository.Insert(category)
+
+	if err != nil {
+		panic(err)
+	}
 }
