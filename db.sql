@@ -4,12 +4,21 @@ create database stockpille;
 
 -- tables
 
+create sequence category_seq;
+
+create table category(
+    id integer primary key default nextval('category_seq'),
+    name varchar(255),
+    status varchar(255) default 'new'
+);
+
 create sequence item_seq;
 
 create table item(
     sku integer primary key default nextval('item_seq'),
     name varchar(255),
     description varchar(255),
+    category_id integer references category(id),
     status varchar(255) default 'new'
 );
 

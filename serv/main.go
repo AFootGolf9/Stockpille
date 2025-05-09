@@ -41,6 +41,7 @@ func main() {
 	rs.SetCRUD(&entity.Location{})
 	rs.SetCRUD(&entity.Allocation{})
 	rs.SetCRUD(&entity.Role{})
+	rs.SetCRUD(&entity.Category{})
 
 	r.GET("/item/quantity/:id", controller.GetItemQuantity)
 	r.GET("/user/validate", controller.ValidateToken)
