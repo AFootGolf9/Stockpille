@@ -14,7 +14,7 @@ func GetUserIdByToken(token string) int {
 		panic(err)
 	}
 
-	if time.Now().Sub(date).Hours() > 6 {
+	if time.Since(date).Hours() > 6 {
 		db.Exec("DELETE FROM token WHERE token = $1", token)
 		return -1
 	}

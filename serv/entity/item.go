@@ -9,6 +9,7 @@ type Item struct {
 	Sku         int    `json:"sku"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	CategoryId  int    `json:"category_id"`
 }
 
 func (i *Item) GetId() int {
@@ -20,11 +21,11 @@ func (i *Item) SetId(id int) {
 }
 
 func (i *Item) GetCamps() []string {
-	return []string{"item", "sku", "name", "description"}
+	return []string{"item", "sku", "name", "description", "category_id"}
 }
 
 func (i *Item) GetData() []any {
-	return []any{&i.Sku, &i.Name, &i.Description}
+	return []any{&i.Sku, &i.Name, &i.Description, &i.CategoryId}
 }
 
 func (i *Item) GetPath() string {
@@ -39,6 +40,13 @@ func (i *Item) Validate() {
 	if i.Name == "" {
 		panic("Name is required")
 	}
+
+	categoryValid := repository.VeryfyCategory(i.CategoryId)
+
+	if !categoryValid {
+		i.CategoryId = 1
+	}
+
 	i.Name = strings.ToUpper(i.Name)
 	i.Description = strings.ToUpper(i.Description)
 }
