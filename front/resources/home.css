@@ -1,0 +1,220 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: url('../resources/background.jpg') no-repeat center center fixed; /* Substitua pelo caminho da sua imagem */
+    background-size: cover;
+    background-color: #a8a8a8; /* Cor de fallback */
+}
+
+.main-content {
+    background-color: rgba(255, 255, 255, 0.8); /* Fundo branco com transparência para destacar o conteúdo */
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.header {
+    background-color: #143658;
+    color: white;
+    height: 8vh;
+    padding: 1vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 24px;
+}
+
+.header-title {
+    flex: 1;
+    text-align: center;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+}
+
+#user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+#user-name {
+    font-size: 18px;
+    color: #ffffff;
+}
+
+
+.container {
+    display: flex;
+}
+
+.sidebar-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #ffffff;
+    padding: 10px 0;
+    height: 93vh;
+    border-right: 5px solid #143658;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%; 
+    flex-grow: 1;
+}
+
+.sidebar li {
+    position: relative;
+    margin: 15px 0;
+    text-align: center; 
+}
+
+.sidebar li:hover .submenu,
+.submenu:hover {
+    display: block;
+}
+
+.sidebar h2 {
+    color: #010407;
+    margin-bottom: 1px;
+    text-align: center;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #082747;
+    display: block;
+    padding: 10px;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    font-size: 18px;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.boi {
+    color: #5f747e;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #05101b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #121314;
+}
+
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+}
+
+.submenu li {
+    margin: 10px 0;
+}
+
+.custom-link {
+    color: #070707;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 8px;
+    border: 2px solid #002f61;
+    border-radius: 5px;
+    background-color: #f0f8ff;
+    width: calc(100% - 30px); /* Reduz a largura para dar espaço nas laterais */
+    margin: 0 4%; 
+    width: 80%; /* Ajuste para centralizar o botão na sidebar */
+    text-align: center;
+}
+
+.custom-link:hover {
+    color: #000000;
+    background-color: #5f747e;
+    text-decoration: underline;
+}
+
+.custom-link-exit {
+    color: #ff0202;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 10px;
+    border: 2px solid #002f61;
+    border-radius: 5px;
+    background-color: #d34545;
+    margin: 0 4%; 
+    width: 80%; /* Ajuste para centralizar o botão na sidebar */
+    text-align: center;
+}
+
+.custom-link-exit:hover {
+    color: #0c0c0c;
+    background-color: #ff0000;
+    text-decoration: underline;
+}
+
+.sidebar-footer {
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+}
+
+.sidebar-footer a {
+    color: #666;
+    text-decoration: none;
+    margin: 1 5px;
+}
+
+.sidebar-footer a:hover {
+    text-decoration: underline;
+}
