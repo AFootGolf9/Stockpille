@@ -16,9 +16,9 @@ function showItemByLocationReport() {
         .then(locationData => {
             console.log("Relatório de localizações com mais itens:", locationData); 
             
-            if (locationData && Object.keys(locationData).length > 0) {
-                const results = Object.keys(locationData).map(locationName => {
-                    const totalItems = locationData[locationName] || 0;  
+            if (locationData && locationData.data && Object.keys(locationData.data).length > 0) {
+                const results = Object.keys(locationData.data).map(locationName => {
+                    const totalItems = locationData.data[locationName] || 0;  
                     return {
                         location: locationName,
                         totalItems: totalItems
@@ -57,25 +57,29 @@ function showItemByLocationReport() {
 }
 
 function generateItemByLocationPDF() {
-
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("Relatório de localizações com mais itens", 14, 20);
+
     const table = document.querySelector(".allocations-table");
     if (table) {
         const rows = table.querySelectorAll("tr");
-        const tableData = [];
+        if (rows.length <= 1) {
+            alert("Não há dados suficientes para gerar o PDF.");
+            return;
+        }
 
+        const tableData = [];
         rows.forEach((row, index) => {
             const cells = row.querySelectorAll("td, th");
             const rowData = [];
             cells.forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            if (index !== 0) {  
+            if (index !== 0) {  // Ignora a primeira linha (cabeçalho)
                 tableData.push(rowData);
             }
         });
@@ -115,6 +119,8 @@ function generateItemByLocationPDF() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(text, 10, pageHeight - 10); 
+    } else {
+        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
     }
 
     doc.save("relatorio_localizacoes.pdf");

@@ -17,10 +17,10 @@ function showItemAllocationReport() {
         .then(itemData => {
             console.log("Relatório de itens mais locados:", itemData); 
             
-            if (itemData && Object.keys(itemData).length > 0) {
+            if (itemData && itemData.data && Object.keys(itemData.data).length > 0) {
                 // Processa os dados e monta o relatório
-                const results = Object.keys(itemData).map(itemName => {
-                    const totalAllocations = itemData[itemName] || 0; 
+                const results = Object.keys(itemData.data).map(itemName => {
+                    const totalAllocations = itemData.data[itemName] || 0; 
                     return {
                         item: itemName,
                         totalAllocations: totalAllocations
@@ -68,15 +68,19 @@ function generateItemAllocationPDF() {
     const table = document.querySelector(".allocations-table");
     if (table) {
         const rows = table.querySelectorAll("tr");
-        const tableData = [];
+        if (rows.length <= 1) {
+            alert("Não há dados suficientes para gerar o PDF.");
+            return;
+        }
 
+        const tableData = [];
         rows.forEach((row, index) => {
             const cells = row.querySelectorAll("td, th");
             const rowData = [];
             cells.forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            if (index !== 0) { 
+            if (index !== 0) { // Ignora a primeira linha (cabeçalho)
                 tableData.push(rowData);
             }
         });
@@ -116,6 +120,8 @@ function generateItemAllocationPDF() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(text, 10, pageHeight - 10); 
+    } else {
+        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
     }
 
     doc.save("relatorio_itens_locados.pdf");

@@ -1,4 +1,7 @@
-import { getCookie } from './cookie.js';
+function getToken() {
+    // Aqui você pode buscar o token do localStorage ou de um cookie, conforme sua implementação
+    return localStorage.getItem('authToken'); // Exemplo de token armazenado no localStorage
+}
 
 function showAllocationForm() {
     const formHTML = `
@@ -32,53 +35,63 @@ function showAllocationForm() {
 }
 
 function loadItems() {
-    fetch("http://localhost:8080/item")
-        .then(response => response.json())
-        .then(data => {
-            const items = data.data;
-            const itemSelect = document.getElementById("itemSelect");
-            if (Array.isArray(items) && items.length > 0) {
-                items.forEach(item => {
-                    const option = document.createElement("option");
-                    option.value = item.sku;
-                    option.textContent = `${item.sku} - ${item.name}`;
-                    itemSelect.appendChild(option);
-                });
-            } else {
-                const noItemsOption = document.createElement("option");
-                noItemsOption.textContent = "Nenhum produto disponível";
-                itemSelect.appendChild(noItemsOption);
-            }
-        })
-        .catch(error => console.error("Erro ao carregar produtos:", error));
+    fetch("http://localhost:8080/item", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const items = data.data;
+        const itemSelect = document.getElementById("itemSelect");
+        if (Array.isArray(items) && items.length > 0) {
+            items.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.sku;
+                option.textContent = `${item.sku} - ${item.name}`;
+                itemSelect.appendChild(option);
+            });
+        } else {
+            const noItemsOption = document.createElement("option");
+            noItemsOption.textContent = "Nenhum produto disponível";
+            itemSelect.appendChild(noItemsOption);
+        }
+    })
+    .catch(error => console.error("Erro ao carregar produtos:", error));
 }
 
 function loadLocations() {
-    fetch("http://localhost:8080/location")
-        .then(response => response.json())
-        .then(data => {
-            const locations = data.data;
-            const locationSelect = document.getElementById("locationSelect");
-            if (Array.isArray(locations) && locations.length > 0) {
-                locations.forEach(location => {
-                    const option = document.createElement("option");
-                    option.value = location.id;
-                    option.textContent = location.name;
-                    locationSelect.appendChild(option);
-                });
-            } else {
-                const noLocationsOption = document.createElement("option");
-                noLocationsOption.textContent = "Nenhuma Localização disponível";
-                locationSelect.appendChild(noLocationsOption);
-            }
-        })
-        .catch(error => console.error("Erro ao carregar localizações:", error));
+    fetch("http://localhost:8080/location", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const locations = data.data;
+        const locationSelect = document.getElementById("locationSelect");
+        if (Array.isArray(locations) && locations.length > 0) {
+            locations.forEach(location => {
+                const option = document.createElement("option");
+                option.value = location.id;
+                option.textContent = location.name;
+                locationSelect.appendChild(option);
+            });
+        } else {
+            const noLocationsOption = document.createElement("option");
+            noLocationsOption.textContent = "Nenhuma Localização disponível";
+            locationSelect.appendChild(noLocationsOption);
+        }
+    })
+    .catch(error => console.error("Erro ao carregar localizações:", error));
 }
 
 function allocateProduct() {
     const itemId = document.getElementById("itemSelect").value;
     const locationId = document.getElementById("locationSelect").value;
-    const token = getCookie("token");
+    const token = getToken();
     console.log("Produto selecionado:", itemId);
     console.log("Locação selecionada:", locationId);
     console.log("Token:", token);
@@ -87,18 +100,6 @@ function allocateProduct() {
         alert("Por favor, preencha todos os campos.");
         return;
     }
-    
-    
-    if (!itemId || !locationId || !token) {
-        alert("Por favor, preencha todos os campos.");
-        return;
-    }
-    console.log(JSON.stringify({
-        item_id: parseInt(itemId),
-        location_id: parseInt(locationId),
-        token: token
-    }))
-    
 
     fetch("http://localhost:8080/allocation", {
         method: "POST",
@@ -108,8 +109,7 @@ function allocateProduct() {
         },
         body: JSON.stringify({
             item_id: parseInt(itemId),
-            location_id: parseInt(locationId),
-            token: token
+            location_id: parseInt(locationId)
         })
     })
     .then(response => response.json())
@@ -118,7 +118,7 @@ function allocateProduct() {
         if (data.status) {
             alert("Produto alocado com sucesso!");
         } else {
-            alert("Deu ruim e");
+            alert("Erro ao alocar o produto.");
         }
     })
     .catch(error => {

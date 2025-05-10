@@ -9,7 +9,6 @@ function showLocationList() {
         </div>
     `;
 
-
     document.getElementById("main-content").innerHTML = locationListHTML;
 
     fetch("http://localhost:8080/location")
@@ -68,7 +67,6 @@ function showLocationList() {
             document.getElementById("location-list").innerHTML = "<p>Erro ao carregar locações.</p>";
         });
 
-
     document.getElementById("createLocationBtn").addEventListener("click", () => showLocationForm());
 }
 
@@ -107,6 +105,12 @@ function showLocationForm(locationId = null) {
     // Adiciona o evento de clique para enviar o formulário
     document.getElementById("registerLocationBtn").addEventListener("click", function() {
         const locationName = document.getElementById("locationName").value;
+
+        if (!locationName) {
+            alert("Por favor, informe o nome da localização.");
+            return; // Impede o envio do formulário
+        }
+
         const locationData = { name: locationName };
 
         if (locationId) {

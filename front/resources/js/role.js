@@ -24,7 +24,7 @@ function showRoleForm() {
                     <input type="checkbox" name="permissions" value="users.delete">
                     Excluir Usuários
                 </label><br>
-                </div>
+            </div>
             <button type="submit">Criar Cargo</button>
         </form>
         <div id="roleMessage"></div>
@@ -62,9 +62,9 @@ function createRole() {
         },
         body: JSON.stringify(roleData)
     })
-    .then(response => response.json())
-    .then(data => {
-                if (response.ok) {
+    .then(response => response.json()) // Aqui está a mudança: usamos `response.json()` para extrair os dados da resposta
+    .then(data => { // Agora `data` contém a resposta JSON
+        if (data.success) {  // Mudança aqui, você deve verificar o valor correto retornado
             alert("Cargo criado com sucesso!");
             // Opcional: Atualizar a lista de usuários para refletir o novo cargo
             // showUserList();

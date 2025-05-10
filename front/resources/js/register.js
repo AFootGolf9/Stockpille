@@ -1,5 +1,3 @@
-import { getCookie } from './cookie.js';
-
 function loginUser(username, password) {
     // Envia uma solicitação de login com as credenciais
     fetch("http://localhost:8080/login", {

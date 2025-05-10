@@ -1,3 +1,8 @@
+function getToken() {
+    // Aqui você pode buscar o token do localStorage ou de um cookie, conforme sua implementação
+    return localStorage.getItem('authToken'); // Exemplo de token armazenado no localStorage
+}
+
 function showAllocationsList() {
     const allocationsListHTML = `
         <div class="allocations-header">
@@ -10,7 +15,12 @@ function showAllocationsList() {
 
     document.getElementById("main-content").innerHTML = allocationsListHTML;
 
-    fetch("http://localhost:8080/allocation")
+    fetch("http://localhost:8080/allocation", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+        }
+    })
     .then(response => response.json())
     .then(data => {
         console.log("Resposta do servidor:", data);
@@ -20,13 +30,28 @@ function showAllocationsList() {
             const allocationsListContainer = document.getElementById("allocations-list");
 
             const itemPromises = allocations.map(allocation =>
-                fetch(`http://localhost:8080/item/${allocation.item_id}`).then(res => res.json())
+                fetch(`http://localhost:8080/item/${allocation.item_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                    }
+                }).then(res => res.json())
             );
             const userPromises = allocations.map(allocation =>
-                fetch(`http://localhost:8080/user/${allocation.user_id}`).then(res => res.json())
+                fetch(`http://localhost:8080/user/${allocation.user_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                    }
+                }).then(res => res.json())
             );
             const locationPromises = allocations.map(allocation =>
-                fetch(`http://localhost:8080/location/${allocation.location_id}`).then(res => res.json())
+                fetch(`http://localhost:8080/location/${allocation.location_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                    }
+                }).then(res => res.json())
             );
 
             Promise.all([Promise.all(itemPromises), Promise.all(userPromises), Promise.all(locationPromises)])
