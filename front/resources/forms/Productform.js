@@ -1,3 +1,5 @@
+import { getCookie } from './cookie.js';
+
 function showProductList() {
     const productListHTML = `
         <div class="product-header">

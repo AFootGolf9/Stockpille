@@ -1,16 +1,14 @@
 async function loadUserInfo() {
-    const token = getCookie("token");
+    const token = getCookie("token");// Exibe o token no console para depuração
 
-    if (!token) {
-        window.location.href = "../pages/login.html"; // Redireciona para a página de login se não houver token
-        return;
-    }
+    console.log(token);
+    
 
     try {
         const response = await fetch('http://localhost:8080/user', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`, // Passando o token para a requisição
+                'Authorization': `${token}`, // Passando o token para a requisição
             }
         });
 

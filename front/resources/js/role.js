@@ -58,13 +58,13 @@ function createRole() {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${getCookie("authToken")}`
+            "Authorization": `Bearer ${getCookie("token")}`
         },
         body: JSON.stringify(roleData)
     })
     .then(response => response.json())
     .then(data => {
-        if (response.ok) {
+                if (response.ok) {
             alert("Cargo criado com sucesso!");
             // Opcional: Atualizar a lista de usuários para refletir o novo cargo
             // showUserList();

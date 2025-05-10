@@ -1,3 +1,5 @@
+import { getCookie } from './cookie.js';
+
 function loginUser(username, password) {
     // Envia uma solicitação de login com as credenciais
     fetch("http://localhost:8080/login", {
@@ -18,10 +20,10 @@ function loginUser(username, password) {
         const token = data.token;
 
         // Armazena o token como um cookie
-        document.cookie = `authToken=${token}; path=/`;
+        document.cookie = `token=${token}; path=/`;
 
         // Exibe o token na tela
-        displayAuthToken();
+        displaytoken();
 
         alert("Login realizado com sucesso!");
         // Após o login bem-sucedido, você pode redirecionar para a lista de usuários
@@ -78,7 +80,7 @@ function showUserList() {
 
     fetch("http://localhost:8080/user", {
         headers: {
-            "Authorization": `Bearer ${getCookie("authToken")}`
+            "Authorization": `Bearer ${getCookie("token")}`
         }
     })
     .then(response => response.json())
@@ -169,7 +171,7 @@ function showUserForm(userId = null) {
 
     fetch("http://localhost:8080/roles", {
         headers: {
-            "Authorization": `Bearer ${getCookie("authToken")}`
+            "Authorization": `Bearer ${getCookie("token")}`
         }
     })
     .then(response => response.json())
@@ -187,7 +189,7 @@ function showUserForm(userId = null) {
         if (userId) {
             fetch(`http://localhost:8080/user/${userId}`, {
                 headers: {
-                    "Authorization": `Bearer ${getCookie("authToken")}`
+                    "Authorization": `Bearer ${getCookie("token")}`
                 }
             })
             .then(response => response.json())
@@ -229,7 +231,7 @@ function showUserForm(userId = null) {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getCookie("authToken")}`
+                    "Authorization": `Bearer ${getCookie("token")}`
                 },
                 body: JSON.stringify(userData)
             })
@@ -250,7 +252,7 @@ function showUserForm(userId = null) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getCookie("authToken")}`
+                    "Authorization": `Bearer ${getCookie("token")}`
                 },
                 body: JSON.stringify(userData)
             })
@@ -277,7 +279,7 @@ function deleteUser(userId) {
         fetch(`http://localhost:8080/user/${userId}`, {
             method: "DELETE",
             headers: {
-                "Authorization": `Bearer ${getCookie("authToken")}`
+                "Authorization": `Bearer ${getCookie("token")}`
             }
         })
         .then(response => {
@@ -295,16 +297,3 @@ function deleteUser(userId) {
     }
 }
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-function displayAuthToken() {
-    const token = getCookie("authToken");
-    const tokenDisplay = document.getElementById("tokenDisplay");
-    if (tokenDisplay) {
-        tokenDisplay.textContent = `Token de Autenticação: ${token}`;
-    }
-}
