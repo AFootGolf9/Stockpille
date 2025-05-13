@@ -54,7 +54,6 @@ func Insert(object entity.Entity) error {
 		}
 	}
 	query += ")"
-	print(query)
 	_, err := db.Exec(query, object.GetData()[1:]...)
 
 	return err
