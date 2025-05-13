@@ -15,6 +15,7 @@ function showProductList() {
             </div>
             <button id="createProductBtn">Criar</button>
             <button id="createCategoryBtn">Criar Categoria</button>
+            <button id="listCategoryBtn">Listar Categorias</button>
         </div>
         <div id="product-list" class="product-list">
             <p>Carregando produtos...</p>
@@ -22,7 +23,9 @@ function showProductList() {
     `;
 
     document.getElementById("main-content").innerHTML = productListHTML;
-
+document.getElementById("listCategoryBtn").addEventListener("click", function() {
+    showCategoryList();
+});
     const productSearch = document.getElementById("productSearch");
     const categoryFilter = document.getElementById("categoryFilter");
     let allProducts = []; // Variável para armazenar todos os produtos carregados
@@ -194,8 +197,11 @@ function showProductList() {
     });
 
     document.getElementById("createCategoryBtn").addEventListener("click", function() {
-        showCategoryForm(); // Chama a função para exibir o formulário de categoria
+        showCategoryForm(); 
     });
+    document.getElementById("listCategoryBtn").addEventListener("click", function() {
+    showCategoryList();
+});
 }
 
 function tryParseJSON(text) {
@@ -379,160 +385,4 @@ async function createCategory() {
         console.error("Erro ao criar categoria:", error);
         alert("Erro ao criar categoria.");
     }
-// }
-// fetch("http://localhost:8080/category", {
-//     method: "GET",
-//     headers: {
-//         "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
-//     }
-// })
-// .then(response => response.json())
-// .then(categoriesData => {
-//     const categories = categoriesData.data;
-//     const categoryFilter = document.getElementById("categoryFilter");
-//     const categoryList = document.getElementById("category-list"); // Elemento para mostrar as categorias
-
-//     // Limpa o filtro de categorias
-//     categoryFilter.innerHTML = `<option value="">Todas as Categorias</option>`;
-    
-//     // Exibe as categorias no filtro
-//     categories.forEach(category => {
-//         const option = document.createElement("option");
-//         option.value = category.id;
-//         option.textContent = category.name;
-//         categoryFilter.appendChild(option);
-//     });
-
-//     // Exibe as categorias em uma lista com os botões de Editar e Excluir
-//     let categoryListHTML = "<ul>";
-//     categories.forEach(category => {
-//         categoryListHTML += `
-//             <li>
-//                 ${category.name}
-//                 <button class="edit-category-btn" data-id="${category.id}">Editar</button>
-//                 <button class="delete-category-btn" data-id="${category.id}">Excluir</button>
-//             </li>
-//         `;
-//     });
-//     categoryListHTML += "</ul>";
-
-//     categoryList.innerHTML = categoryListHTML;
-
-//     // Adicionar listeners para os botões de editar e excluir
-//     const editButtons = document.querySelectorAll(".edit-category-btn");
-//     const deleteButtons = document.querySelectorAll(".delete-category-btn");
-
-//     editButtons.forEach(button => {
-//         button.addEventListener("click", function() {
-//             const categoryId = this.getAttribute("data-id");
-//             showCategoryForm(categoryId); // Chama a função para editar a categoria
-//         });
-//     });
-
-//     deleteButtons.forEach(button => {
-//         button.addEventListener("click", function() {
-//             const categoryId = this.getAttribute("data-id");
-//             deleteCategory(categoryId); // Chama a função para excluir a categoria
-//         });
-//     });
-// })
-// .catch(error => console.error("Erro ao carregar categorias:", error));
-
-// function showCategoryForm(categoryId = null) {
-//     const formHTML = `
-//         <h2>${categoryId ? 'Editar Categoria' : 'Criar Nova Categoria'}</h2>
-//         <form id="category-form">
-//             <div class="form-group">
-//                 <label for="category-name">Nome da Categoria:</label>
-//                 <input type="text" id="category-name" name="category-name" required>
-//             </div>
-//             <button type="submit">${categoryId ? 'Atualizar Categoria' : 'Criar Categoria'}</button>
-//         </form>
-//         <div id="category-message"></div>
-//     `;
-//     document.getElementById("main-content").innerHTML = formHTML;
-
-//     if (categoryId) {
-//         // Carregar dados da categoria para edição
-//         fetch(`http://localhost:8080/category/${categoryId}`, {
-//             method: "GET",
-//             headers: {
-//                 "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
-//             }
-//         })
-//         .then(response => response.json())
-//         .then(categoryData => {
-//             const category = categoryData.data;
-//             if (category) {
-//                 document.getElementById("category-name").value = category.name;
-//             }
-//         })
-//         .catch(error => console.error("Erro ao carregar dados da categoria:", error));
-//     }
-
-//     document.getElementById("category-form").addEventListener("submit", function(event) {
-//         event.preventDefault();
-//         createOrUpdateCategory(categoryId); // Chama a função para criar ou atualizar a categoria
-//     });
-// }
-
-// async function createOrUpdateCategory(categoryId = null) {
-//     const name = document.getElementById("category-name").value;
-
-//     if (!name) {
-//         alert("Por favor, preencha o nome da categoria.");
-//         return;
-//     }
-
-//     try {
-//         const url = categoryId ? `http://localhost:8080/category/${categoryId}` : "http://localhost:8080/category";
-//         const method = categoryId ? "PUT" : "POST";
-//         const response = await fetch(url, {
-//             method: method,
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
-//             },
-//             body: JSON.stringify({ name: name }),
-//         });
-
-//         const data = await response.json();
-//         if (response.ok) {
-//             alert(`${categoryId ? 'Categoria atualizada' : 'Categoria criada'} com sucesso!`);
-//             showProductList(); // Voltar à lista de produtos após criar/atualizar a categoria
-//         } else {
-//             alert("Erro ao criar/atualizar categoria: " + (data.message || 'Erro desconhecido'));
-//         }
-//     } catch (error) {
-//         console.error("Erro ao criar/atualizar categoria:", error);
-//         alert("Erro ao criar/atualizar categoria.");
-//     }
-// }
-
-
-// function deleteCategory(categoryId) {
-//     const confirmDelete = confirm("Tem certeza que deseja excluir esta categoria?");
-//     if (confirmDelete) {
-//         fetch(`http://localhost:8080/category/${categoryId}`, {
-//             method: "DELETE",
-//             headers: {
-//                 "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
-//             }
-//         })
-//         .then(response => {
-//             if (response.ok) {
-//                 alert("Categoria excluída com sucesso!");
-//                 showProductList(); // Voltar à lista de produtos após excluir a categoria
-//             } else {
-//                 return response.json().then(data => {
-//                     throw new Error(`Erro ao excluir a categoria: ${data.message || 'Erro desconhecido'}`);
-//                 });
-//             }
-//         })
-//         .catch(error => {
-//             console.error("Erro:", error);
-//             alert(error.message);
-//         });
-//     }
-// }
 }

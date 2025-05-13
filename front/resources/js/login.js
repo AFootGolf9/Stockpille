@@ -1,5 +1,3 @@
-import { getCookie, handleErrors, displayMessage } from '../utils.js';
-
  async function login() {
   try {
   const name = document.getElementById("username").value;
