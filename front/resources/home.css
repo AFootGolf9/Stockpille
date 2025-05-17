@@ -15,7 +15,6 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-
 .header {
     background-color: #143658;
     color: white;
@@ -50,13 +49,14 @@ body {
     color: #ffffff;
 }
 
-
 .container {
     display: flex;
 }
 
 .sidebar-menu a:hover {
-    background-color: #f0f0f0;
+    background-color: transparent !important;
+    text-decoration: none !important;
+    color: inherit !important;
 }
 
 .sidebar {
@@ -84,7 +84,7 @@ body {
 
 .sidebar li:hover .submenu,
 .submenu:hover {
-    display: block;
+    display: none; /* desativa submenu abrir no hover */
 }
 
 .sidebar h2 {
@@ -101,7 +101,9 @@ body {
 }
 
 .sidebar a:hover {
-    text-decoration: underline;
+    background-color: transparent !important;
+    text-decoration: none !important;
+    color: #000000 !important; /* muda só a cor */
 }
 
 .main-content {
@@ -149,7 +151,8 @@ button {
 }
 
 button:hover {
-    background-color: #121314;
+    background-color: transparent !important;
+    color: #000000 !important;
 }
 
 .submenu {
@@ -177,9 +180,9 @@ button:hover {
 }
 
 .custom-link:hover {
-    color: #000000;
-    background-color: #5f747e;
-    text-decoration: underline;
+    background-color: transparent !important;
+    color: #000000 !important;
+    text-decoration: none !important;
 }
 
 .custom-link-exit {
@@ -196,9 +199,9 @@ button:hover {
 }
 
 .custom-link-exit:hover {
-    color: #0c0c0c;
-    background-color: #ff0000;
-    text-decoration: underline;
+    background-color: transparent !important;
+    color: #000000 !important;
+    text-decoration: none !important;
 }
 
 .sidebar-footer {
@@ -216,5 +219,93 @@ button:hover {
 }
 
 .sidebar-footer a:hover {
-    text-decoration: underline;
+    background-color: transparent !important;
+    color: #000000 !important;
+    text-decoration: none !important;
+}
+
+/* RESPONSIVIDADE - para telas até 768px (tablets e smartphones) */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* sidebar vai pra cima e conteúdo embaixo */
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 5px solid #143658;
+    padding: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding-left: 0;
+  }
+
+  .sidebar li {
+    margin: 5px 10px;
+    text-align: center;
+  }
+
+  .custom-link, .custom-link-exit {
+    width: auto;
+    margin: 0 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .main-content {
+    margin: 10px 5px;
+    padding: 15px;
+    font-size: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 20px;
+  }
+
+  #user-info {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  #user-name {
+    font-size: 16px;
+  }
+}
+
+/* Para telas muito pequenas, como celulares menores */
+@media (max-width: 400px) {
+  .header {
+    font-size: 18px;
+  }
+
+  #user-info img {
+    width: 30px;
+    height: 30px;
+  }
+
+  #user-name {
+    font-size: 14px;
+  }
+
+  .custom-link, .custom-link-exit {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .sidebar li {
+    margin: 3px 6px;
+  }
 }

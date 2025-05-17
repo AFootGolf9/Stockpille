@@ -110,3 +110,31 @@ button:hover {
     margin-top: 10px;
     color: red;
 }
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .login-container {
+        width: 90%;
+        padding: 15px;
+        box-shadow: none;
+    }
+
+    .login-container h1 {
+        font-size: 20px;
+    }
+
+    .login-container .form-control,
+    input,
+    button {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    input {
+        width: 100%;
+    }
+
+    button {
+        padding: 12px 0;
+    }
+}

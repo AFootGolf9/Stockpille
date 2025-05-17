@@ -1,4 +1,22 @@
 function showRoleForm() {
+    const entities = ["users", "roles", "products"];
+    const actions = ["view", "create", "edit", "delete"];
+
+    // Gera dinamicamente os checkboxes de permissões
+    let permissionsHTML = '';
+    entities.forEach(entity => {
+        actions.forEach(action => {
+            const permission = `${entity}.${action}`;
+            permissionsHTML += `
+                <label>
+                    <input type="checkbox" name="permissions" value="${permission}">
+                    ${action.charAt(0).toUpperCase() + action.slice(1)} ${capitalize(entity)}
+                </label><br>
+            `;
+        });
+        permissionsHTML += `<br>`;
+    });
+
     const roleFormHTML = `
         <h2>Criar Novo Cargo</h2>
         <form id="createRoleForm">
@@ -6,28 +24,16 @@ function showRoleForm() {
                 <label for="roleName">Nome do Cargo:</label>
                 <input type="text" id="roleName" name="roleName" required>
             </div>
-            <h3>Permissões de Acesso:</h3>
+            <h3>Permissões de Acesso:(ESTAS SAO DE EXEMPLO VOU IMPLEMENTAR MAIS DPS</h3>
             <div class="permissions-group">
-                <label>
-                    <input type="checkbox" name="permissions" value="users.view">
-                    Visualizar Usuários
-                </label><br>
-                <label>
-                    <input type="checkbox" name="permissions" value="users.create">
-                    Criar Usuários
-                </label><br>
-                <label>
-                    <input type="checkbox" name="permissions" value="users.edit">
-                    Editar Usuários
-                </label><br>
-                <label>
-                    <input type="checkbox" name="permissions" value="users.delete">
-                    Excluir Usuários
-                </label><br>
+                ${permissionsHTML}
             </div>
             <button type="submit">Criar Cargo</button>
         </form>
         <div id="roleMessage"></div>
+        <hr>
+        <h2>Cargos Existentes</h2>
+        <div id="existingRoles"></div>
     `;
 
     document.getElementById("main-content").innerHTML = roleFormHTML;
@@ -37,6 +43,12 @@ function showRoleForm() {
         event.preventDefault();
         createRole();
     });
+
+    listExistingRoles();
+}
+
+function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function createRole() {
@@ -54,7 +66,7 @@ function createRole() {
         permissions: permissions
     };
 
-    fetch("http://localhost:8080/roles", { // Certifique-se de que este endpoint esteja correto
+    fetch("http://localhost:8080/roles", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -62,18 +74,53 @@ function createRole() {
         },
         body: JSON.stringify(roleData)
     })
-    .then(response => response.json()) // Aqui está a mudança: usamos `response.json()` para extrair os dados da resposta
-    .then(data => { // Agora `data` contém a resposta JSON
-        if (data.success) {  // Mudança aqui, você deve verificar o valor correto retornado
-            alert("Cargo criado com sucesso!");
-            // Opcional: Atualizar a lista de usuários para refletir o novo cargo
-            // showUserList();
-        } else {
-            alert(`Erro ao criar cargo: ${data.message || 'Erro desconhecido'}`);
-        }
+    .then(response => {
+        if (!response.ok) throw new Error("Erro ao criar cargo.");
+        return response.json();
+    })
+    .then(data => {
+        alert("Cargo criado com sucesso!");
+        showRoleForm(); // Recarrega para atualizar a lista
     })
     .catch(error => {
         console.error("Erro ao criar cargo:", error);
         alert("Erro ao criar cargo. Tente novamente.");
+    });
+}
+
+function listExistingRoles() {
+    fetch("http://localhost:8080/roles", {
+        headers: {
+            "Authorization": `Bearer ${getCookie("token")}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Erro ao carregar cargos.");
+        return response.json();
+    })
+    .then(data => {
+        const roles = data.data;
+        const container = document.getElementById("existingRoles");
+
+        if (Array.isArray(roles) && roles.length > 0) {
+            const html = `
+                <ul>
+                    ${roles.map(role => `
+                        <li>
+                            <strong>${role.name}</strong> - Permissões: ${role.permissions?.join(", ") || "Nenhuma"}
+                            <!-- Botões de ação futura -->
+                            <!-- <button onclick="editRole('${role.id}')">Editar</button> -->
+                        </li>
+                    `).join("")}
+                </ul>
+            `;
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = "<p>Nenhum cargo cadastrado ainda.</p>";
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao buscar cargos:", error);
+        document.getElementById("existingRoles").innerHTML = "<p>Erro ao carregar cargos.</p>";
     });
 }

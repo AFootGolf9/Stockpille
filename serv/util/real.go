@@ -13,7 +13,7 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func Encript(pass string) string {
-	hash, _ := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	hash, _ := bcrypt.GenerateFromPassword([]byte(pass), 12)
 	return string(hash)
 }
 

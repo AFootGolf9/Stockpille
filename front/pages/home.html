@@ -18,7 +18,6 @@
         </div>
     </header>
     
-    
     <div class="container">
         <nav class="sidebar"> 
             <h2 href="#" onclick="sh8owHome()">Menu</h2> 
@@ -26,36 +25,34 @@
                 <li><hr class="divider">
                     <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Geral</a>
                     <ul class="submenu" id="home-submenu">
-                        <li><a href="#" onclick="showProductList()">Itens</a></li>
-                        <li><a href="#" onclick="showLocationList()">Localizações</a></li>
-                        <li><a href="#" onclick="showUserList()">Usuários</a></li>
+                        <li class="restricted" data-permission="items.view"><a href="#" onclick="showProductList()">Itens</a></li>
+                        <li class="restricted" data-permission="locations.view"><a href="#" onclick="showLocationList()">Localizações</a></li>
+                        <li class="restricted" data-permission="users.view"><a href="#" onclick="showUserList()">Usuários</a></li>
                         <li><hr class="divider">
                     </ul>
                 
                     <li>
                         <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
                         <ul class="submenu" id="perfil-submenu">
-                            <li><a href="#" onclick="showAllocationForm()">Realizar Locação</a></li>
-                            <li><a href="#" onclick="showAllocationsList()">Ver Locações realizadas</a></li>
+                            <li class="restricted" data-permission="allocations.create"><a href="#" onclick="showAllocationForm()">Realizar Locação</a></li>
+                            <li class="restricted" data-permission="allocations.view"><a href="#" onclick="showAllocationsList()">Ver Locações realizadas</a></li>
                             <li><hr class="divider">
                         </ul>
                     </li>
                 
                     <li>
                         <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
-                    <ul class="submenu" id="config-submenu">
-                        <li><a href="#" onclick="showReportMenu()">Gerar Relatórios</a></li>
-                    </ul>
+                        <ul class="submenu" id="config-submenu">
+                            <li class="restricted" data-permission="reports.generate"><a href="#" onclick="showReportMenu()">Gerar Relatórios</a></li>
+                        </ul>
                     </li>
                 
-                <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
+                    <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
               
                     <div class="sidebar-footer">
                         <p>© 2024 StockPille</p>
                     </div>
-        
             </ul>
-            
         </nav>
 
         <main class="main-content" id="main-content">
@@ -64,7 +61,7 @@
         </main>
     </div>
 
-    </div>
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="../resources/js/home.js"></script>
@@ -79,9 +76,9 @@
     <script src="../resources/js/allocate.js"></script>
     <script src="../resources/js/allocationList.js"></script>
     <script src="../resources/js/role.js"></script>
-    <script src="../resources/js/user.js"></script>
     <script src="../resources/js/login.js"></script>
     <script src="../resources/js/cookie.js"></script>
     <script src="../resources/js/category.js"></script>
 </body>
 </html>
+
