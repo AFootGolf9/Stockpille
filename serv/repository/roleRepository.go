@@ -50,6 +50,21 @@ func UpdateRolePermission(roleId int, table string, permission string) {
 	}
 }
 
+func GetRoleIdByName(roleName string) (int, error) {
+	println("GetRoleIdByName", roleName)
+	rows, err := db.Query("SELECT id FROM role WHERE name = $1", roleName)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+	var roleId int
+	if rows.Next() {
+		rows.Scan(&roleId)
+	}
+	println(roleId)
+	return roleId, nil
+}
+
 func VerifyRole(roleId int) bool {
 	rows, err := db.Query("SELECT id FROM role WHERE id = $1", roleId)
 	if err != nil {

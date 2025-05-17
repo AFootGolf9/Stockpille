@@ -4,7 +4,6 @@ import (
 	"stockpille/entity"
 	"stockpille/repository"
 	"stockpille/repository/entityRepository"
-	"stockpille/util"
 )
 
 func Start() {
@@ -32,7 +31,7 @@ func Start() {
 
 	user := &entity.User{
 		Name:     "admin",
-		Password: util.Encript("admin"),
+		Password: "admin",
 		RoleId:   1,
 	}
 	user.SetId(1)

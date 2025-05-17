@@ -32,6 +32,8 @@ func main() {
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
 
+	r.POST("/user/login", controller.Login)
+
 	r.Use(middleware.AuthMiddleware())
 
 	rs := routes.RouteSeter{Router: r}
@@ -45,13 +47,14 @@ func main() {
 
 	r.GET("/item/quantity/:id", controller.GetItemQuantity)
 	r.GET("/user/validate", controller.ValidateToken)
-	r.POST("/user/login", controller.Login)
 
 	r.GET("/rel/allocbyuser", controller.RelAllocByUser)
 	r.GET("/rel/allocbyitem", controller.RelAllocByItem)
 	r.GET("/rel/itembylocation", controller.RelItemByLocation)
 
-	r.POST("/test", controller.CreatePermission)
+	r.POST("/role-permision", controller.CreatePermission)
+	r.PUT("/role-permision", controller.UpdatePermission)
+	r.GET("/role-permision", controller.GetPermission)
 
 	// https://github.com/gin-gonic/gin/blob/v1.10.0/docs/doc.md#custom-middleware
 
