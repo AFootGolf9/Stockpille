@@ -58,6 +58,8 @@ func UpdatePermission(c *gin.Context) {
 		return
 	}
 
+	roleWithPermission.Name = strings.ToUpper(roleWithPermission.Name)
+
 	role := entity.Role{
 		Name: roleWithPermission.Name,
 	}
@@ -116,6 +118,8 @@ func GetPermission(c *gin.Context) {
 		return
 	}
 
+	roleWithPermission.Name = strings.ToUpper(roleWithPermission.Name)
+
 	roleId, err := repository.GetRoleIdByName(roleWithPermission.Name)
 	if err != nil || roleId == 0 {
 		c.JSON(404, gin.H{
@@ -141,4 +145,48 @@ func GetPermission(c *gin.Context) {
 		})
 	}
 	c.JSON(200, roleWithPermission)
+}
+
+func DeletePermission(c *gin.Context) {
+	var roleWithPermission RoleWithPermission
+	user := c.MustGet("user").(entity.User)
+
+	if err := c.ShouldBindJSON(&roleWithPermission); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	roleWithPermission.Name = strings.ToUpper(roleWithPermission.Name)
+
+	role := entity.Role{
+		Name: roleWithPermission.Name,
+	}
+
+	roleId, err := repository.GetRoleIdByName(role.Name)
+
+	if err != nil {
+		c.JSON(404, gin.H{
+			"error": "Role not found",
+		})
+		return
+	}
+	role.SetId(roleId)
+
+	permission, err := service.GetRolePermission(user.RoleId, role.GetCamps()[0])
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+	if strings.Contains(permission, "D") {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	repository.RemoveAllRolePermission(roleId)
+
+	c.JSON(200, gin.H{"status": "success"})
 }

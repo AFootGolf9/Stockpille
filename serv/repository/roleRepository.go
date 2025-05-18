@@ -65,6 +65,13 @@ func GetRoleIdByName(roleName string) (int, error) {
 	return roleId, nil
 }
 
+func RemoveAllRolePermission(roleId int) {
+	_, err := db.Exec("DELETE FROM role_permission WHERE role_id = $1", roleId)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func VerifyRole(roleId int) bool {
 	rows, err := db.Query("SELECT id FROM role WHERE id = $1", roleId)
 	if err != nil {
