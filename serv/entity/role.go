@@ -6,8 +6,9 @@ import (
 )
 
 type Role struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	UserId int    `json:"user_id"`
 }
 
 func (r *Role) GetId() int {
@@ -19,11 +20,11 @@ func (r *Role) SetId(id int) {
 }
 
 func (r *Role) GetCamps() []string {
-	return []string{"role", "id", "name"}
+	return []string{"role", "id", "name", "user_id"}
 }
 
 func (r *Role) GetData() []any {
-	return []any{&r.Id, &r.Name}
+	return []any{&r.Id, &r.Name, &r.UserId}
 }
 
 func (r *Role) GetPath() string {
@@ -34,10 +35,12 @@ func (r *Role) IsPersisted() bool {
 	return true
 }
 
-func (r *Role) Validate() {
+func (r *Role) Validate(id int) {
 	if r.Name == "" {
 		panic("Name is required")
 	}
+
+	r.UserId = id
 	r.Name = strings.ToUpper(r.Name)
 }
 

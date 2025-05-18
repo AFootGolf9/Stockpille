@@ -26,7 +26,30 @@ func CreatePermission(c *gin.Context) {
 		Name: roleWithPermission.Name,
 	}
 
-	service.New(&role)
+	user := c.MustGet("user").(entity.User)
+
+	permission, err := service.GetRolePermission(user.RoleId, role.GetCamps()[0])
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+	if permission == "" {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	if !strings.Contains(permission, "c") && !strings.Contains(permission, "C") {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	service.New(&role, user.Id)
 
 	roleId, err := repository.GetRoleIdByName(role.Name)
 

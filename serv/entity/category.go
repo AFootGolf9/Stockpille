@@ -6,8 +6,9 @@ import (
 )
 
 type Category struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	UserId int    `json:"user_id"`
 }
 
 func (c *Category) GetId() int {
@@ -19,7 +20,7 @@ func (c *Category) SetId(id int) {
 }
 
 func (c *Category) GetCamps() []string {
-	return []string{"category", "id", "name"}
+	return []string{"category", "id", "name", "user_id"}
 }
 
 func (c *Category) GetPath() string {
@@ -27,17 +28,19 @@ func (c *Category) GetPath() string {
 }
 
 func (c *Category) GetData() []any {
-	return []any{&c.Id, &c.Name}
+	return []any{&c.Id, &c.Name, &c.UserId}
 }
 
 func (c *Category) IsPersisted() bool {
 	return true
 }
 
-func (c *Category) Validate() {
+func (c *Category) Validate(id int) {
 	if c.Name == "" {
 		panic("Name is required")
 	}
+
+	c.UserId = id
 
 	c.Name = strings.ToUpper(c.Name)
 }

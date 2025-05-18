@@ -7,7 +7,7 @@ type Entity interface {
 	GetData() []interface{}
 	GetPath() string
 	IsPersisted() bool
-	Validate()
+	Validate(id int)
 	ValidateUpdate()
 	HideSecret()
 	New() Entity

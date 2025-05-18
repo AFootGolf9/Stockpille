@@ -9,6 +9,7 @@ create sequence category_seq;
 create table category(
     id integer primary key default nextval('category_seq'),
     name varchar(255),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 
@@ -27,6 +28,7 @@ create sequence location_seq;
 create table location(
     id integer primary key default nextval('location_seq'),
     name varchar(255),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 
@@ -35,6 +37,7 @@ create sequence role_seq;
 create table role(
     id integer primary key default nextval('role_seq'),
     name varchar(255),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 

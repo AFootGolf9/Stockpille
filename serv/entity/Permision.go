@@ -30,7 +30,7 @@ func (p *Permission) IsPersisted() bool {
 	return true
 }
 
-func (p *Permission) Validate() {
+func (p *Permission) Validate(id int) {
 }
 
 func (p *Permission) ValidateUpdate() {
