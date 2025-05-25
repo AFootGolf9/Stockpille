@@ -6,8 +6,9 @@ import (
 )
 
 type Location struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	UserId int    `json:"user_id"`
 }
 
 func (l *Location) GetId() int {
@@ -19,11 +20,11 @@ func (l *Location) SetId(id int) {
 }
 
 func (l *Location) GetCamps() []string {
-	return []string{"location", "id", "name"}
+	return []string{"location", "id", "name", "user_id"}
 }
 
 func (l *Location) GetData() []interface{} {
-	return []interface{}{&l.Id, &l.Name}
+	return []interface{}{&l.Id, &l.Name, &l.UserId}
 }
 
 func (l *Location) GetPath() string {
@@ -34,10 +35,12 @@ func (l *Location) IsPersisted() bool {
 	return true
 }
 
-func (l *Location) Validate() {
+func (l *Location) Validate(id int) {
 	if l.Name == "" {
 		panic("Name is required")
 	}
+
+	l.UserId = id
 	l.Name = strings.ToUpper(l.Name)
 }
 

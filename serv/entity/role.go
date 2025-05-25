@@ -34,10 +34,11 @@ func (r *Role) IsPersisted() bool {
 	return true
 }
 
-func (r *Role) Validate() {
+func (r *Role) Validate(id int) {
 	if r.Name == "" {
 		panic("Name is required")
 	}
+
 	r.Name = strings.ToUpper(r.Name)
 }
 

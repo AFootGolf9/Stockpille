@@ -1,13 +1,10 @@
 package entity
 
-import "stockpille/repository"
-
 type Allocation struct {
-	Id         int    `json:"id"`
-	ItemId     int    `json:"item_id"`
-	LocationId int    `json:"location_id"`
-	UserId     int    `json:"user_id"`
-	Token      string `json:"token"`
+	Id         int `json:"id"`
+	ItemId     int `json:"item_id"`
+	LocationId int `json:"location_id"`
+	UserId     int `json:"user_id"`
 }
 
 // select item_sku, location_id, user_id, count(item_sku) from allocation group by item_sku, location_id, user_id;
@@ -37,7 +34,7 @@ func (a *Allocation) IsPersisted() bool {
 	return true
 }
 
-func (a *Allocation) Validate() {
+func (a *Allocation) Validate(id int) {
 	if a.ItemId == 0 {
 		panic("Item is required")
 	}
@@ -45,13 +42,7 @@ func (a *Allocation) Validate() {
 		panic("Location is required")
 	}
 
-	userId := repository.GetUserIdByToken(a.Token)
-
-	if userId == -1 {
-		panic("Token invalid")
-	}
-
-	a.UserId = userId
+	a.UserId = id
 }
 
 func (a *Allocation) ValidateUpdate() {

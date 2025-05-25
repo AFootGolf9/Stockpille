@@ -37,7 +37,7 @@ func (u *User) IsPersisted() bool {
 	return true
 }
 
-func (u *User) Validate() {
+func (u *User) Validate(id int) {
 	if u.Name == "" {
 		panic("Name is required")
 	}

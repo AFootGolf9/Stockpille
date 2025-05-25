@@ -4,11 +4,22 @@ create database stockpille;
 
 -- tables
 
+create sequence user_seq;
+
+create table user_data(
+    id integer primary key default nextval('user_seq'),
+    name varchar(255),
+    roleId integer,
+    password varchar(255),
+    status varchar(255) default 'new'
+);
+
 create sequence category_seq;
 
 create table category(
     id integer primary key default nextval('category_seq'),
     name varchar(255),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 
@@ -19,6 +30,7 @@ create table item(
     name varchar(255),
     description varchar(255),
     category_id integer references category(id),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 
@@ -27,6 +39,7 @@ create sequence location_seq;
 create table location(
     id integer primary key default nextval('location_seq'),
     name varchar(255),
+    user_id integer references user_data(id),
     status varchar(255) default 'new'
 );
 
@@ -38,20 +51,14 @@ create table role(
     status varchar(255) default 'new'
 );
 
+-- add foreign key to user_data table
+alter table user_data
+    add constraint fk_role foreign key (roleId) references role(id);
+
 create table role_permission(
     role_id integer references role(id),
     permission varchar(4),
     table_name varchar(255)
-);
-
-create sequence user_seq;
-
-create table user_data(
-    id integer primary key default nextval('user_seq'),
-    name varchar(255),
-    roleId integer references role(id),
-    password varchar(255),
-    status varchar(255) default 'new'
 );
 
 create sequence allocate;

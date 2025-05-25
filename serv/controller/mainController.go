@@ -123,7 +123,31 @@ func getControllerWithPagination(object entity.Entity, c *gin.Context) {
 
 func postController(object entity.Entity, c *gin.Context) {
 	c.BindJSON(&object)
-	service.New(object)
+
+	user := c.MustGet("user").(entity.User)
+
+	permission, err := service.GetRolePermission(user.RoleId, object.GetCamps()[0])
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+	if permission == "" {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	if !strings.Contains(permission, "w") && !strings.Contains(permission, "W") {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	service.New(object, user.Id)
 	c.JSON(200, gin.H{
 		"status": "Entry created, lad",
 	})

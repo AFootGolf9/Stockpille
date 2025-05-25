@@ -5,8 +5,8 @@ import (
 	"stockpille/repository/entityRepository"
 )
 
-func New(object entity.Entity) {
-	object.Validate()
+func New(object entity.Entity, userId int) {
+	object.Validate(userId)
 	err := entityRepository.Insert(object)
 
 	if err != nil {
