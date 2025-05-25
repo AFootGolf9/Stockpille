@@ -19,19 +19,6 @@ func Start() {
 		}
 	}
 
-	user := &entity.User{
-		Name:     "ADMIN",
-		Password: util.Encript("admin"),
-	}
-	user.SetId(1)
-	// user.Validate()
-	err = entityRepository.Insert(user)
-
-	if err != nil {
-		panic(err)
-	}
-
-	// create the admin user
 	role := &entity.Role{
 		Name: "ADMIN",
 	}
@@ -43,14 +30,27 @@ func Start() {
 		panic(err)
 	}
 
-	// update the user with the role
-
-	user.RoleId = role.GetId()
-	err = entityRepository.Update(user)
+	user := &entity.User{
+		Name:     "ADMIN",
+		Password: util.Encript("admin"),
+		RoleId:   1,
+	}
+	user.SetId(1)
+	// user.Validate()
+	err = entityRepository.Insert(user)
 
 	if err != nil {
 		panic(err)
 	}
+
+	// // update the user with the role
+
+	// user.RoleId = role.GetId()
+	// err = entityRepository.Update(user)
+
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	for _, entities := range entity.Entities {
 		repository.CreateRolePermission(1, entities.GetCamps()[0], "RWDU")
