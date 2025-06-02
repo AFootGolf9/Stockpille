@@ -36,3 +36,13 @@ func RelItemByLocation(c *gin.Context) {
 	out := repository.RelItemByLocation()
 	c.JSON(200, out)
 }
+
+func RelItemByCategory(c *gin.Context) {
+	out := repository.RelItemByCategory()
+	c.JSON(200, out)
+}
+
+func RelUserByRole(c *gin.Context) {
+	out := repository.RelUserByRole()
+	c.JSON(200, out)
+}

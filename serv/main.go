@@ -51,6 +51,8 @@ func main() {
 	r.GET("/rel/allocbyuser", controller.RelAllocByUser)
 	r.GET("/rel/allocbyitem", controller.RelAllocByItem)
 	r.GET("/rel/itembylocation", controller.RelItemByLocation)
+	r.GET("/rel/itembycategory", controller.RelItemByCategory)
+	r.GET("/rel/userbyrole", controller.RelUserByRole)
 
 	r.POST("/role-permision", controller.CreatePermission)
 	r.PUT("/role-permision", controller.UpdatePermission)
