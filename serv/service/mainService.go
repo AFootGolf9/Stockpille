@@ -17,7 +17,7 @@ func New(object entity.Entity, userId int) {
 func Get(object entity.Entity, allowed string, userId int) (entity.Entity, error) {
 	var err error
 	if allowed == "self" {
-		// to do
+		err = entityRepository.SelfSelectPK(object, userId)
 	}
 	if allowed == "all" {
 		err = entityRepository.SelectPK(object)
@@ -45,7 +45,7 @@ func GetWithPagination(object entity.Entity, page int, size int, allowed string,
 	objects := []entity.Entity{}
 	var err error
 	if allowed == "self" {
-		// to do
+		objects, err = entityRepository.SelectWithPaginationAndUser(object, page, size, userId)
 	}
 	if allowed == "all" {
 		objects, err = entityRepository.SelectWithPagination(object, page, size)
@@ -66,7 +66,7 @@ func Update(object entity.Entity, allowed string, userId int) {
 	var err error
 	object.ValidateUpdate()
 	if allowed == "self" {
-		// to do
+		err = entityRepository.SelfUpdate(object, userId)
 	}
 	if allowed == "all" {
 		err = entityRepository.Update(object)
@@ -80,7 +80,7 @@ func Update(object entity.Entity, allowed string, userId int) {
 func Delete(object entity.Entity, allowed string, userId int) {
 	var err error
 	if allowed == "self" {
-		// to do
+		err = entityRepository.SelfUpdate(object, userId)
 	}
 	if allowed == "all" {
 		err = entityRepository.Delete(object)
