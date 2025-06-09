@@ -66,3 +66,41 @@ func RelItemByLocation() map[string]int {
 	}
 	return out
 }
+
+func RelItemByCategory() map[string]int {
+	// select c.name, count(i.category_id) from category c inner join item i on c.id = i.category_id group by c.id;
+
+	rows, err := db.Query("SELECT c.name, count(i.category_id) FROM category c " +
+		"INNER JOIN item i ON c.id = i.category_id GROUP BY c.id;")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	out := make(map[string]int)
+	for rows.Next() {
+		var name string
+		var count int
+		rows.Scan(&name, &count)
+		out[name] = count
+	}
+	return out
+}
+
+func RelUserByRole() map[string]int {
+	// select r.name, count(u.role_id) from role r inner join user_data u on r.id = u.role_id group by r.id;
+
+	rows, err := db.Query("SELECT r.name, count(u.role_id) FROM role r " +
+		"INNER JOIN user_data u ON r.id = u.role_id GROUP BY r.id;")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	out := make(map[string]int)
+	for rows.Next() {
+		var name string
+		var count int
+		rows.Scan(&name, &count)
+		out[name] = count
+	}
+	return out
+}

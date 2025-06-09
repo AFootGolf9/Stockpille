@@ -10,6 +10,7 @@ type Item struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	CategoryId  int    `json:"category_id"`
+	UserId      int    `json:"user_id"`
 }
 
 func (i *Item) GetId() int {
@@ -21,11 +22,11 @@ func (i *Item) SetId(id int) {
 }
 
 func (i *Item) GetCamps() []string {
-	return []string{"item", "sku", "name", "description", "category_id"}
+	return []string{"item", "sku", "name", "description", "category_id", "user_id"}
 }
 
 func (i *Item) GetData() []any {
-	return []any{&i.Sku, &i.Name, &i.Description, &i.CategoryId}
+	return []any{&i.Sku, &i.Name, &i.Description, &i.CategoryId, &i.UserId}
 }
 
 func (i *Item) GetPath() string {
@@ -36,10 +37,12 @@ func (i *Item) IsPersisted() bool {
 	return true
 }
 
-func (i *Item) Validate() {
+func (i *Item) Validate(id int) {
 	if i.Name == "" {
 		panic("Name is required")
 	}
+
+	i.UserId = id
 
 	categoryValid := repository.VeryfyCategory(i.CategoryId)
 

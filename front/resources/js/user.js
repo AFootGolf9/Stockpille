@@ -1,10 +1,7 @@
 async function loadUserInfo() {
     const token = getCookie("token");
 
-    if (!token) {
-        window.location.href = "../pages/login.html"; // Redireciona para login se não houver token
-        return;
-    }
+
 
     try {
         const response = await fetch('http://localhost:8080/user/validate', {
@@ -39,3 +36,19 @@ async function loadUserInfo() {
 document.addEventListener("DOMContentLoaded", function() {
     loadUserInfo();
 });
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.querySelector(".sidebar");
+
+    hamburger.addEventListener("click", function () {
+      if (sidebar.classList.contains("show")) {
+        sidebar.classList.remove("show");
+        sidebar.classList.add("hide");
+      } else {
+        sidebar.classList.remove("hide");
+        sidebar.classList.add("show");
+      }
+    });
+  });

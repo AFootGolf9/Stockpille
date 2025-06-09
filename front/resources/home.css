@@ -1,34 +1,53 @@
-body {
+/* Reset básico e Box Sizing */
+* {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    background: url('../resources/background.jpg') no-repeat center center fixed; /* Substitua pelo caminho da sua imagem */
-    background-size: cover;
-    background-color: #a8a8a8; /* Cor de fallback */
+    box-sizing: border-box;
 }
 
-.main-content {
-    background-color: rgba(255, 255, 255, 0.8); /* Fundo branco com transparência para destacar o conteúdo */
-    margin: 20px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+body {
+    font-family: Arial, sans-serif;
+    background: url('../resources/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    background-color: #a8a8a8; /* Cor de fallback */
+    line-height: 1.6; /* Melhor legibilidade */
 }
 
 .header {
     background-color: #143658;
     color: white;
-    height: 8vh;
-    padding: 1vh;
+    height: 60px; /* Altura fixa para o header */
+    padding: 0 15px; /* Padding horizontal */
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 24px;
+    position: fixed; /* Fixa o header no topo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1001; /* Acima da sidebar quando a sidebar não é 'fixed' */
 }
 
-.header-title {
-    flex: 1;
-    text-align: center;
+#hamburger-btn {
+    display: none; /* Oculto por padrão, visível em telas menores */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.header-title-container h1 {
+    font-size: 22px; /* Ajustado para caber melhor */
+    display: flex; /* Para alinhar imagem e texto */
+    align-items: center;
+    gap: 10px; /* Espaço entre texto e imagem */
+}
+
+.header-title-container h1 img {
+    width: 35px; /* Ajustado */
+    height: 35px; /* Ajustado */
 }
 
 #user-info {
@@ -37,88 +56,151 @@ body {
 }
 
 #user-info img {
-    width: 40px;
-    height: 40px;
+    width: 35px; /* Ajustado */
+    height: 35px; /* Ajustado */
     border-radius: 50%;
     margin-right: 10px;
     object-fit: cover;
 }
 
 #user-name {
-    font-size: 18px;
+    font-size: 16px; /* Ajustado */
     color: #ffffff;
 }
 
 .container {
     display: flex;
-}
-
-.sidebar-menu a:hover {
-    background-color: transparent !important;
-    text-decoration: none !important;
-    color: inherit !important;
+    padding-top: 60px; /* Altura do header para não sobrepor o conteúdo */
 }
 
 .sidebar {
-    width: 200px;
+    width: 220px; /* Largura da sidebar */
     background-color: #ffffff;
-    padding: 10px 0;
-    height: 93vh;
-    border-right: 5px solid #143658;
+    border-right: 3px solid #143658;
+    height: calc(100vh - 60px); /* Altura total menos o header */
+    padding: 15px 0;
+    display: flex; /* Para alinhar o footer no final */
     flex-direction: column;
-    align-items: center;
+    overflow-y: auto; /* Caso o conteúdo da sidebar seja extenso */
+    transition: transform 0.3s ease-in-out; /* Transição para mobile */
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
     width: 100%; 
-    flex-grow: 1;
+    flex-grow: 1; /* Faz a lista crescer para empurrar o footer para baixo */
 }
 
 .sidebar li {
     position: relative;
-    margin: 15px 0;
+    margin: 10px 0; /* Reduzido um pouco */
     text-align: center; 
-}
-
-.sidebar li:hover .submenu,
-.submenu:hover {
-    display: none; /* desativa submenu abrir no hover */
 }
 
 .sidebar h2 {
     color: #010407;
-    margin-bottom: 1px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+    font-size: 20px;
     text-align: center;
+    cursor: pointer; /* Adicionado já que tem onclick */
 }
 
-.sidebar a {
+.sidebar a { /* Estilo base para links da sidebar, incluindo os de submenu */
     text-decoration: none;
     color: #082747;
     display: block;
-    padding: 10px;
+    padding: 8px 15px; /* Padding ajustado */
+    font-size: 15px;
 }
 
 .sidebar a:hover {
-    background-color: transparent !important;
-    text-decoration: none !important;
-    color: #000000 !important; /* muda só a cor */
+    background-color: #e9ecef; /* Um hover sutil */
+    color: #000000;
+}
+
+/* Estilos específicos para os botões principais do menu */
+.custom-link, .custom-link-exit {
+    color: #070707;
+    font-size: 16px;
+    padding: 10px; /* Padding aumentado */
+    border: 2px solid #002f61;
+    border-radius: 5px;
+    background-color: #f0f8ff;
+    display: block; /* Já era block, mas reforçando */
+    width: 90%; /* Largura dos botões */
+    margin: 5px auto; /* Centraliza e adiciona margem vertical */
+    text-align: center;
+}
+
+.custom-link:hover {
+    background-color: #ddeeff;
+    color: #000000;
+    border-color: #001f40;
+}
+
+.custom-link-exit {
+    background-color: #ffebee; /* Cor de fundo mais suave para sair */
+    border-color: #c62828;
+    color: #c62828; /* Cor do texto vermelha */
+}
+
+.custom-link-exit:hover {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+    border-color: #b71c1c;
+}
+
+.submenu {
+    display: none; /* Submenus ocultos por padrão */
+    list-style: none;
+    padding-left: 0; /* Removido padding-left, itens serão centralizados ou usarão padding do 'a' */
+    background-color: #f8f9fa; /* Fundo leve para destacar submenus */
+}
+
+.submenu li {
+    margin: 0; /* Remove margem dos LIs do submenu */
+}
+.submenu li a {
+    padding: 8px 20px; /* Padding para itens de submenu */
+    font-size: 14px;
+    color: #333;
+}
+.submenu li a:hover {
+    background-color: #e0e0e0;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 20px; /* Margem para o divisor */
 }
 
 .main-content {
     flex: 1;
     padding: 20px;
-    font-size: 18px;
+    background-color: rgba(255, 255, 255, 0.85); /* Fundo branco com leve transparência */
+    margin: 15px; /* Margem ao redor do conteúdo principal */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Caso o conteúdo seja maior que a tela */
+    height: calc(100vh - 60px - 30px); /* (100vh - header) - margens verticais do main-content */
 }
 
+.main-content h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Formulários - Estilos básicos mantidos e levemente ajustados */
 form {
     max-width: 600px;
     margin: 0 auto;
-}
-
-.boi {
-    color: #5f747e;
+    background-color: #fff; /* Adicionado fundo para formulários se estiverem dentro do main-content */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .form-group {
@@ -127,185 +209,129 @@ form {
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px; /* Aumentado espaço */
+    font-weight: bold;
+    color: #333;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 10px;
+    padding: 12px; /* Aumentado padding */
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
 }
 
-button {
-    background-color: #05101b;
+button, input[type="submit"], input[type="button"] { /* Estilo geral para botões */
+    background-color: #003c7a; /* Azul mais forte */
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px; /* Aumentado padding */
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.2s ease;
 }
 
-button:hover {
-    background-color: transparent !important;
-    color: #000000 !important;
-}
-
-.submenu {
-    display: none;
-    list-style: none;
-    padding-left: 20px;
-}
-
-.submenu li {
-    margin: 10px 0;
-}
-
-.custom-link {
-    color: #070707;
-    font-size: 16px;
-    text-decoration: none;
-    padding: 8px;
-    border: 2px solid #002f61;
-    border-radius: 5px;
-    background-color: #f0f8ff;
-    width: calc(100% - 30px); /* Reduz a largura para dar espaço nas laterais */
-    margin: 0 4%; 
-    width: 80%; /* Ajuste para centralizar o botão na sidebar */
-    text-align: center;
-}
-
-.custom-link:hover {
-    background-color: transparent !important;
-    color: #000000 !important;
-    text-decoration: none !important;
-}
-
-.custom-link-exit {
-    color: #ff0202;
-    font-size: 16px;
-    text-decoration: none;
-    padding: 10px;
-    border: 2px solid #002f61;
-    border-radius: 5px;
-    background-color: #d34545;
-    margin: 0 4%; 
-    width: 80%; /* Ajuste para centralizar o botão na sidebar */
-    text-align: center;
-}
-
-.custom-link-exit:hover {
-    background-color: transparent !important;
-    color: #000000 !important;
-    text-decoration: none !important;
+button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+    background-color: #002a54; /* Azul mais escuro no hover */
+    color: white; /* Garante que a cor do texto permaneça branca */
 }
 
 .sidebar-footer {
-    padding-top: 20px;
+    padding: 15px 10px;
     border-top: 1px solid #ddd;
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: #666;
     text-align: center;
+    margin-top: auto; /* Empurra o footer para o final da sidebar */
 }
 
-.sidebar-footer a {
-    color: #666;
-    text-decoration: none;
-    margin: 1 5px;
+/* --- Media Queries para Responsividade --- */
+
+/* Telas menores / Mobile (até 767px) */
+@media (max-width: 767.98px) {
+    #hamburger-btn {
+        display: block; /* Mostra o botão hambúrguer */
+    }
+
+    .header-title-container h1 {
+        font-size: 18px; /* Reduz um pouco o título */
+    }
+     .header-title-container h1 img {
+        width: 30px; 
+        height: 30px; 
+    }
+    #user-name {
+        display: none; /* Opcional: Ocultar nome do usuário para economizar espaço */
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0; /* Começa na tela */
+        top: 60px; /* Abaixo do header fixo */
+        width: 250px; /* Largura da sidebar no mobile */
+        height: calc(100vh - 60px); /* Altura total menos o header */
+        z-index: 1000;
+        transform: translateX(-100%); /* Começa fora da tela */
+        border-right: none; /* Remove borda direita no mobile se sobrepõe */
+        box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Adiciona sombra para destacar */
+    }
+
+    .sidebar.open {
+        transform: translateX(0); /* Move a sidebar para dentro da tela */
+    }
+
+    .container {
+        /* Em mobile, o container não precisa ser flex da mesma forma,
+           pois a sidebar é 'fixed' e o main-content ocupa o espaço. */
+    }
+
+    .main-content {
+        margin-left: 0; /* Conteúdo principal ocupa toda a largura */
+        width: 100%;
+        margin: 15px; /* Mantém as margens, mas ajusta para padding-top do header */
+        padding-top: 15px; /* Adiciona padding, pois o margin-top do container não se aplica mais diretamente */
+        height: calc(100vh - 60px - 30px); /* Ajuste considerando o header fixo */
+    }
+
+    /* Opcional: Adicionar um overlay no conteúdo principal quando o menu estiver aberto */
+    /* .main-content.sidebar-open-effect {
+        opacity: 0.5;
+        pointer-events: none;
+    } */
 }
 
-.sidebar-footer a:hover {
-    background-color: transparent !important;
-    color: #000000 !important;
-    text-decoration: none !important;
-}
+/* Telas maiores / Desktop (768px em diante) */
+@media (min-width: 768px) {
+    /* Mantém o comportamento original para desktop */
+    .header {
+        position: static; /* Header volta ao fluxo normal no desktop, ou mantenha fixed se preferir */
+        /* Se header for static, o container não precisa de padding-top: 60px */
+    }
+    .container {
+         padding-top: 0; /* Reset do padding-top se header for static */
+    }
 
-/* RESPONSIVIDADE - para telas até 768px (tablets e smartphones) */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column; /* sidebar vai pra cima e conteúdo embaixo */
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 5px solid #143658;
-    padding: 10px 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .sidebar ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    padding-left: 0;
-  }
-
-  .sidebar li {
-    margin: 5px 10px;
-    text-align: center;
-  }
-
-  .custom-link, .custom-link-exit {
-    width: auto;
-    margin: 0 10px;
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-
-  .main-content {
-    margin: 10px 5px;
-    padding: 15px;
-    font-size: 16px;
-  }
-
-  .header {
-    flex-direction: column;
-    height: auto;
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 20px;
-  }
-
-  #user-info {
-    justify-content: center;
-    margin-top: 10px;
-  }
-
-  #user-name {
-    font-size: 16px;
-  }
-}
-
-/* Para telas muito pequenas, como celulares menores */
-@media (max-width: 400px) {
-  .header {
-    font-size: 18px;
-  }
-
-  #user-info img {
-    width: 30px;
-    height: 30px;
-  }
-
-  #user-name {
-    font-size: 14px;
-  }
-
-  .custom-link, .custom-link-exit {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  .sidebar li {
-    margin: 3px 6px;
-  }
+    /* Ajustes se o header for mantido como 'fixed' no desktop */
+    /* Se o header for 'fixed' no desktop, descomente o padding-top abaixo e ajuste o height da sidebar/main-content */
+    /*
+    .header { position: fixed; width: 100%; top: 0; z-index: 1001;}
+    .container { padding-top: 60px; }
+    .sidebar { height: calc(100vh - 60px); top: 60px; position: sticky; } // Para sidebar que rola com o conteúdo mas para no topo
+    .main-content { height: calc(100vh - 60px - 30px); }
+    */
+    
+    /* Se header for static (comportamento padrão que assumi para desktop): */
+    .sidebar {
+        position: static; /* Volta ao fluxo normal */
+        transform: translateX(0);
+        height: calc(100vh - 60px); /* Ajustar se header não for mais 60px ou se for static */
+        box-shadow: none;
+    }
+     .main-content {
+        height: calc(100vh - 60px - 30px); /* Ajustar se header não for mais 60px ou se for static */
+    }
 }

@@ -1,188 +1,192 @@
+/* lists.css */
+
+/* --- Estilos Base --- */
+
 .product-filter {
     display: flex;
-    gap: 15px; /* Aumentei o espaçamento entre os elementos */
-    margin-bottom: 20px; /* Aumentei a margem inferior */
+    gap: 15px;
+    margin-bottom: 20px;
     align-items: center;
-    padding: 10px; /* Adicionei um pequeno padding interno */
-    background-color: #f5f5f5; /* Cor de fundo levemente cinza */
-    border-radius: 8px; /* Bordas mais arredondadas */
-    border: 1px solid #e0e0e0; /* Borda sutil */
+    padding: 15px; /* Aumentei um pouco o padding */
+    background-color: #f8f9fa; /* Tom de cinza um pouco mais claro */
+    border-radius: 8px;
+    border: 1px solid #dee2e6; /* Borda sutil */
 }
 
 .product-filter input[type="text"],
 .product-filter select {
-    padding: 10px; /* Aumentei o padding interno */
-    border: 1px solid #ccc;
-    border-radius: 6px; /* Bordas mais arredondadas */
-    font-size: 16px; /* Aumentei um pouco a fonte */
+    padding: 10px;
+    border: 1px solid #ced4da; /* Tom de borda padrão */
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: #fff; /* Fundo branco para campos */
 }
 
 .product-filter input[type="text"] {
-    flex-grow: 1; /* Permite que a barra de pesquisa cresça para ocupar o espaço disponível */
+    flex-grow: 1;
 }
 
 .product-filter select {
-    width: auto; /* Largura automática para o select */
+    width: auto; /* Ajusta a largura ao conteúdo, mas pode precisar de min-width */
+    min-width: 150px; /* Garante uma largura mínima usável */
 }
 
-/* Estilos existentes para .product-table e outros elementos */
-.product-table {
+/* Tabelas Gerais - Estilo base comum */
+.product-table, .location-table, .user-table, .allocations-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 0; /* Remover ou ajustar a margem superior */
+    margin-top: 20px; /* Margem padrão para todas as tabelas */
 }
 
-.product-table th, .product-table td {
-    border: 1px solid #ddd;
-    padding: 10px; /* Aumentei o padding para melhor leitura */
+.product-table th, .product-table td,
+.location-table th, .location-table td,
+.user-table th, .user-table td,
+.allocations-table th, .allocations-table td {
+    border: 1px solid #dee2e6; /* Borda mais clara */
+    padding: 12px; /* Padding padrão aumentado */
     text-align: left;
+    font-size: 15px; /* Fonte base para tabelas */
 }
 
-.product-table th {
-    background-color: #0073e6;
+.product-table th,
+.location-table th,
+.user-table th,
+.allocations-table th {
+    background-color: #007bff; /* Azul padrão bootstrap-like */
     font-weight: bold;
-    color: white; /* Adicionei cor branca ao texto do cabeçalho para melhor contraste */
+    color: white; /* Garante texto branco para contraste */
 }
 
-.product-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+.product-table tr:nth-child(even),
+.location-table tr:nth-child(even),
+.user-table tr:nth-child(even),
+.allocations-table tr:nth-child(even) {
+    background-color: #f8f9fa; /* Fundo alternado mais claro */
 }
 
-.product-table tr:hover {
+.product-table tr:hover,
+.location-table tr:hover,
+.user-table tr:hover,
+.allocations-table tr:hover {
+    background-color: #e9ecef; /* Hover sutil */
+}
+
+/* Ajustes específicos, se #product-list for um container da tabela */
+#product-list { /* Se for um container que recebe a tabela */
+    margin-top: 0;
+    /* Se #product-list for o container da tabela e precisar de rolagem: */
+    /* overflow-x: auto; */ /* Veja .product-list-container abaixo */
+}
+
+/* Containers específicos para listas com rolagem */
+.product-list-container, .allocations-list-container { /* Use estas classes para envolver as tabelas se necessário */
+    max-height: 700px; /* Altura máxima antes da rolagem vertical */
+    overflow-y: auto; /* Rolagem vertical */
+    overflow-x: hidden; /* Inicialmente não permite rolagem horizontal no container */
+    border: 1px solid #dee2e6;
+    margin-top: 5px;
+    background-color: white;
+}
+
+/* Para itens de lista clicáveis dentro desses containers (exemplo, se não for tabela) */
+.product-item {
+    padding: 10px; /* Padding aumentado */
+    cursor: pointer;
+    border-bottom: 1px solid #eee; /* Divisor leve */
+}
+.product-item:last-child {
+    border-bottom: none;
+}
+.product-item:hover {
     background-color: #f1f1f1;
 }
 
-/* Se a tabela de produtos estiver em um contêiner, ajuste a margem do contêiner também */
-#product-list {
-    margin-top: 0; /* Ajuste ou remova o espaçamento acima da lista de produtos */
-}
-.location-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
 
-.location-table th, .location-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.location-table th {
-    background-color: #0073e6;
-    font-weight: bold;
-}
-
-.location-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.location-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-#location-list button {
+/* Botões dentro de listas específicas (ex: #location-list button) */
+#location-list button, #allocations-list button {
     padding: 10px 20px;
-    background-color: #0073e6;
+    background-color: #007bff;
     color: white;
     border: none;
     cursor: pointer;
+    border-radius: 4px;
 }
 
-#location-list button:hover {
-    background-color: #0073e6;
+#location-list button:hover, #allocations-list button:hover {
+    background-color: #002a54; /* Tom mais escuro para hover */
 }
 
-/* Estilo para o container principal */
-#main-content {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
 
-/* Estilo para a lista de usuários */
-.user-list {
-    margin-top: 20px;
-}
-
-.user-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.user-table th, .user-table td {
-    border: 1px solid #ddd;
-    padding: 8px; /* Mesma padronização de espaçamento das outras tabelas */
-    text-align: left;
-}
-
-.user-table th {
-    background-color: #0073e6; /* Cor de fundo igual à das outras tabelas */
-    font-weight: bold;
-}
-
-.user-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.user-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Estilo para o cabeçalho da lista de usuários */
-.user-header {
+/* Headers de Seção (User, Allocations) */
+.user-header, .allocations-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding-bottom: 10px; /* Espaço antes da borda */
+    border-bottom: 1px solid #dee2e6; /* Linha divisória */
 }
 
-.user-header h2 {
+.user-header h2, .allocations-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 22px; /* Ajustado */
+    color: #343a40; /* Cor de título escura */
 }
 
-.user-header button {
-    background-color: #0073e6;
+.user-header button, .allocations-header button { /* Estilo para botões dentro desses headers */
+    background-color: #002a54; /* Verde para "adicionar" ou ação primária */
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 10px 18px; /* Padding ajustado */
+    font-size: 15px;
     cursor: pointer;
     border-radius: 5px;
 }
 
-.user-header button:hover {
-    background-color: #005bb5; /* Cor do botão ajustada */
+.user-header button:hover, .allocations-header button:hover {
+    background-color: #002a54; /* Verde mais escuro */
 }
 
 
-/* Estilo para o formulário de cadastro */
-form h2 {
-    font-size: 24px;
+/* Estilos para Formulários (geralmente dentro de modals ou seções específicas) */
+form h2 { /* Título dentro de um formulário */
+    font-size: 22px;
     margin-bottom: 20px;
+    color: #343a40;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px; /* Espaçamento entre grupos de formulário */
 }
 
 .form-group label {
-    font-size: 16px;
+    font-size: 15px;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    font-weight: 600; /* Rótulos um pouco mais destacados */
+    color: #495057; /* Cor para rótulos */
 }
 
-.form-group input {
+.form-group input[type="text"], /* Aplicar a todos os inputs relevantes */
+.form-group input[type="password"],
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
+    font-size: 15px;
+    border: 1px solid #ced4da;
     border-radius: 5px;
+    background-color: #fff;
+}
+.form-group textarea {
+    min-height: 80px; /* Altura mínima para textareas */
 }
 
-.form-group button {
-    background-color: #0073e6;
+.form-group button, form > button { /* Botão de submit principal do formulário */
+    background-color: #002a54;
     color: white;
     padding: 12px 20px;
     font-size: 16px;
@@ -192,136 +196,168 @@ form h2 {
     margin-top: 10px;
 }
 
-.form-group button:hover {
-    background-color: #0073e6;
+.form-group button:hover, form > button:hover {
+    background-color: #0056b3; /* Azul mais escuro */
 }
 
 /* Mensagem de erro */
 .error-message {
-    color: red;
+    color: #dc3545; /* Vermelho bootstrap-like para erros */
     font-size: 14px;
-}
-
-.product-list {
-    max-height: 700px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
     margin-top: 5px;
-    background-color: white;
 }
 
-.product-item {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.product-item:hover {
-    background-color: #f1f1f1;
-}
+/* Estilo geral para Select (se não estiver dentro de .form-group ou .product-filter) */
 select {
-    width: 100%;
-    padding: 8px;
+    width: 100%; /* Por padrão, ocupa a largura disponível */
+    padding: 10px; /* Padding padrão */
     margin-top: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ced4da;
     border-radius: 4px;
+    font-size: 15px; /* Fonte padrão */
 }
 
-button {
-    padding: 10px 15px;
+/* Estilo geral para Botão (se não coberto por regras mais específicas) */
+button.btn-generic { /* Adicionei uma classe para evitar conflitos com botões de sistema/HTML puro */
+    padding: 10px 18px;
     margin-top: 10px;
-    background-color: #0073e6;
+    background-color: #6c757d; /* Cinza secundário */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 15px;
 }
 
-button:hover {
-    background-color: #0073e6;
+button.btn-generic:hover {
+    background-color: #545b62; /* Cinza mais escuro */
 }
 
-/* Estilo da tabela de locações */
-.allocations-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.allocations-table th, .allocations-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.allocations-table th {
-    background-color: #0073e6;
-    font-weight: bold;
-    color: rgb(0, 0, 0);
-}
-
-.allocations-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.allocations-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Estilo do botão de ações */
-#allocations-list button {
-    padding: 10px 20px;
-    background-color: #0073e6;
-    color: rgb(0, 0, 0);
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-#allocations-list button:hover {
-    background-color: #0073e6;
-}
-
-/* Estilo para o container principal */
-#main-content {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-/* Estilo para o cabeçalho da lista de locações */
-.allocations-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.allocations-header h2 {
-    font-size: 1.8rem;
-    margin: 0;
-}
-
-/* Estilo de overflow para a lista de locações */
-.allocations-list {
-    max-height: 700px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    background-color: white;
-    margin-top: 5px;
-}
-
+/* Botão Gerar PDF */
 #button-container {
-    margin-top: 10px;     /* Distância do topo para o botão */
+    margin-top: 20px; /* Aumentei um pouco a distância */
+    text-align: right; /* Alinhar o botão à direita, se desejado */
 }
 
 #generate-pdf {
     padding: 10px 20px;
-    background-color: #e60000; /* Cor de fundo */
-    color: white; /* Cor do texto */
+    background-color: #dc3545; /* Vermelho para ações destrutivas ou importantes como PDF */
+    color: white;
     border: none;
-    border-radius: 5px; /* Bordas arredondadas */
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 15px;
 }
 
 #generate-pdf:hover {
-    background-color: #0073e6; /* Cor de fundo ao passar o mouse */
+    background-color: #c82333; /* Vermelho mais escuro */
+}
+
+
+/* --- Media Queries para Responsividade --- */
+
+@media (max-width: 767.98px) {
+    .product-filter {
+        flex-direction: column;
+        align-items: stretch; /* Faz os itens ocuparem a largura total */
+        gap: 10px; /* Espaçamento reduzido quando empilhado */
+    }
+
+    .product-filter input[type="text"],
+    .product-filter select {
+        width: 100%; /* Ocupa toda a largura no mobile */
+        min-width: 0; /* Reseta min-width */
+    }
+
+    /* Tabelas Responsivas: Adiciona rolagem horizontal */
+    .product-table-wrapper, /* Crie um div com esta classe envolvendo cada tabela */
+    .location-table-wrapper,
+    .user-table-wrapper,
+    .allocations-table-wrapper,
+    .product-list-container, /* Se já for um container com overflow-y */
+    .allocations-list-container {
+        overflow-x: auto; /* Permite rolagem horizontal */
+        -webkit-overflow-scrolling: touch; /* Rolagem suave em iOS */
+    }
+
+    /* Opcional: fazer as tabelas terem display block para forçar rolagem dentro do wrapper */
+     .product-table, .location-table, .user-table, .allocations-table {
+        /* display: block; */ /* Descomente se o wrapper sozinho não for suficiente */
+        /* white-space: nowrap; */ /* Mantém o conteúdo da célula em uma linha */
+        /* min-width: 600px; */ /* Exemplo: força uma largura mínima para a tabela, induzindo rolagem */
+    }
+
+
+    .product-table th, .product-table td,
+    .location-table th, .location-table td,
+    .user-table th, .user-table td,
+    .allocations-table th, .allocations-table td {
+        padding: 8px; /* Padding reduzido em telas menores */
+        font-size: 14px; /* Fonte ligeiramente menor */
+    }
+
+    /* Ajustes para headers de seção */
+    .user-header, .allocations-header {
+        flex-direction: column;
+        align-items: flex-start; /* Alinha itens à esquerda */
+        gap: 10px; /* Espaço entre título e botão */
+    }
+
+    .user-header h2, .allocations-header h2 {
+        font-size: 20px; /* Tamanho de fonte reduzido */
+    }
+
+    .user-header button, .allocations-header button {
+        width: 100%; /* Botão ocupa toda a largura */
+        text-align: center;
+    }
+
+    /* Ajustes para formulários */
+    form h2 {
+        font-size: 20px;
+    }
+
+    .form-group label,
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group textarea,
+    .form-group select {
+        font-size: 14px; /* Fonte um pouco menor nos formulários */
+    }
+
+    .form-group button, form > button {
+        width: 100%; /* Botões de formulário ocupam largura total */
+        padding: 12px 15px;
+    }
+
+    #generate-pdf {
+        width: 100%; /* Botão de PDF ocupa largura total */
+        margin-top: 15px;
+    }
+    #button-container {
+        text-align: center; /* Centraliza o botão no mobile */
+    }
+
+    /* Ajuste para containers de lista com altura máxima */
+    .product-list-container, .allocations-list-container {
+        max-height: 50vh; /* Exemplo: limita a altura a 50% da altura da viewport */
+    }
+}
+
+/* Opcional: Ajustes para telas muito pequenas (ex: abaixo de 480px) */
+@media (max-width: 479.98px) {
+    .product-table th, .product-table td,
+    .location-table th, .location-table td,
+    .user-table th, .user-table td,
+    .allocations-table th, .allocations-table td {
+        padding: 6px;
+        font-size: 13px;
+    }
+
+    .user-header h2, .allocations-header h2, form h2 {
+        font-size: 18px;
+    }
 }

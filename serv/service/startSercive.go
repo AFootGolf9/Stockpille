@@ -4,6 +4,7 @@ import (
 	"stockpille/entity"
 	"stockpille/repository"
 	"stockpille/repository/entityRepository"
+	"stockpille/util"
 )
 
 func Start() {
@@ -17,12 +18,12 @@ func Start() {
 			return
 		}
 	}
-	// create the admin user
+
 	role := &entity.Role{
-		Name: "admin",
+		Name: "ADMIN",
 	}
 	role.SetId(1)
-	role.Validate()
+	role.Validate(1)
 	err = entityRepository.Insert(role)
 
 	if err != nil {
@@ -30,17 +31,26 @@ func Start() {
 	}
 
 	user := &entity.User{
-		Name:     "admin",
-		Password: "admin",
+		Name:     "ADMIN",
+		Password: util.Encript("admin"),
 		RoleId:   1,
 	}
 	user.SetId(1)
-	user.Validate()
+	// user.Validate()
 	err = entityRepository.Insert(user)
 
 	if err != nil {
 		panic(err)
 	}
+
+	// // update the user with the role
+
+	// user.RoleId = role.GetId()
+	// err = entityRepository.Update(user)
+
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	for _, entities := range entity.Entities {
 		repository.CreateRolePermission(1, entities.GetCamps()[0], "RWDU")
@@ -52,7 +62,7 @@ func Start() {
 	}
 
 	category.SetId(1)
-	category.Validate()
+	category.Validate(1)
 	err = entityRepository.Insert(category)
 
 	if err != nil {
