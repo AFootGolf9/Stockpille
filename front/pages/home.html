@@ -4,81 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../resources/home.css">
-    <link rel="stylesheet" href="../resources/lists.css">
+    <link rel="stylesheet" href="../resources/lists.css"> 
     <title>StockPille</title>
 </head>
 <body>
     <header class="header">
-        <h1>StockPille <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Imagem" width="50px" height="50px"></h1>
-        <div class="header">
-            <div id="user-info">
-                <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário" />
-                <span id="user-name">Alguma coisa errada ocorrue</span> 
-            </div>
+        <button id="hamburger-btn" aria-label="Abrir menu">
+            &#9776; 
+        </button>
+        <div class="header-title-container">
+            <h1>StockPille <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Logo StockPille" width="40px" height="40px"></h1>
+        </div>
+        <div id="user-info">
+            <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário" />
+            <span id="user-name">Usuário</span> 
         </div>
     </header>
-    
-    
+
     <div class="container">
-        <nav class="sidebar"> 
-            <h2 href="#" onclick="sh8owHome()">Menu</h2> 
+        <nav class="sidebar" id="sidebar"> 
+            <h2 onclick="showHome()">Menu</h2> 
             <ul>
                 <li><hr class="divider">
                     <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Geral</a>
                     <ul class="submenu" id="home-submenu">
-                        <li><a href="#" onclick="showProductList()">Itens</a></li>
-                        <li><a href="#" onclick="showLocationList()">Localizações</a></li>
-                        <li><a href="#" onclick="showUserList()">Usuários</a></li>
-                        <li><hr class="divider">
+                        <li><a href="#" onclick="showProductList(); closeSidebarOnMobile();">Itens</a></li>
+                        <li><a href="#" onclick="showLocationList(); closeSidebarOnMobile();">Localizações</a></li>
+                        <li><a href="#" onclick="showUserList(); closeSidebarOnMobile();">Usuários</a></li>
+                        <li><hr class="divider"></li>
                     </ul>
+                </li>
                 
-                    <li>
-                        <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
-                        <ul class="submenu" id="perfil-submenu">
-                            <li><a href="#" onclick="showAllocationForm()">Realizar Locação</a></li>
-                            <li><a href="#" onclick="showAllocationsList()">Ver Locações realizadas</a></li>
-                            <li><hr class="divider">
-                        </ul>
-                    </li>
+                <li>
+                    <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
+                    <ul class="submenu" id="perfil-submenu">
+                        <li><a href="#" onclick="showAllocationForm(); closeSidebarOnMobile();">Realizar Locação</a></li>
+                        <li><a href="#" onclick="showAllocationsList(); closeSidebarOnMobile();">Ver Locações</a></li>
+                        <li><hr class="divider"></li>
+                    </ul>
+                </li>
                 
-                    <li>
-                        <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
+                <li>
+                    <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
                     <ul class="submenu" id="config-submenu">
-                        <li><a href="#" onclick="showReportMenu()">Gerar Relatórios</a></li>
+                        <li><a href="#" onclick="showReportMenu(); closeSidebarOnMobile();">Gerar Relatórios</a></li>
                     </ul>
-                    </li>
-                
-                <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
-              
-                    <div class="sidebar-footer">
-                        <p>© 2024 StockPille</p>
-                    </div>
-        
+                </li>
+                <li><hr class="divider"></li> 
+                <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li> 
+                <div class="sidebar-footer">
+                    <p>© 2025 StockPille</p>
+                </div>
             </ul>
-            
         </nav>
 
         <main class="main-content" id="main-content">
             <h2>Bem-vindo!</h2>
-            <p></p>
+            <p>Selecione uma opção no menu para começar.</p>
         </main>
     </div>
 
-    </div>
-    <script src="../resources/home.js"></script>
-    <script src="../resources/user.js"></script>
-    <script src="../resources/forms/Productform.js"></script>
-    <script src="../resources/forms/Locationform.js"></script>
-    <script src="../resources/forms/register.js"></script>
-    <script src="../resources/userAllocationReports.js"></script>
-    <script src="../resources/itemAllocationReport.js"></script>
-    <script src="../resources/reportMenu.js"></script>
-    <script src="../resources/locationItemReport.js"></script>
-    <script src="../resources/forms/allocate.js"></script>
-    <script src="../resources/forms/allocationList.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="../resources/forms/role.js"></script>
-
+    <script src="../resources/js/home.js"></script>
+    <script src="../resources/js/user.js"></script>
+    <script src="../resources/forms/Productform.js"></script>
+    <script src="../resources/forms/Locationform.js"></script>
+    <script src="../resources/js/register.js"></script>
+    <script src="../resources/reports/userAllocationReports.js"></script>
+    <script src="../resources/reports/itemAllocationReport.js"></script>
+    <script src="../resources/js/reportMenu.js"></script>
+    <script src="../resources/reports/locationItemReport.js"></script>
+    <script src="../resources/js/allocate.js"></script>
+    <script src="../resources/js/allocationList.js"></script>
+    <script src="../resources/js/role.js"></script>
+    <script src="../resources/js/login.js"></script>
+    <script src="../resources/js/cookie.js"></script>
+    <script src="../resources/js/category.js"></script>
 </body>
+<script>
+    // JavaScript para o menu hambúrguer e toggle de submenus
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        if (hamburgerBtn && sidebar) {
+            hamburgerBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+        }
+    });
+
+    function closeSidebarOnMobile() {
+        const sidebar = document.getElementById('sidebar');
+        if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
+    }
+
+    if (typeof toggleSubmenu !== 'function') {
+        window.toggleSubmenu = function(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            if (submenu) {
+                submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+    }
+</script>
 </html>

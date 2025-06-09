@@ -5,7 +5,7 @@ function loginUser(username, password) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ name: username, password: password }) // Corrigido para 'name' se o seu backend esperar 'name'
     })
     .then(response => {
         if (response.ok) {
@@ -16,16 +16,9 @@ function loginUser(username, password) {
     })
     .then(data => {
         const token = data.token;
-
-        // Armazena o token como um cookie
-        document.cookie = `authToken=${token}; path=/`;
-
-        // Exibe o token na tela
-        displayAuthToken();
-
+        document.cookie = `token=${token}; path=/`;
         alert("Login realizado com sucesso!");
-        // Após o login bem-sucedido, você pode redirecionar para a lista de usuários
-        showUserList();
+        window.location.href = 'home.html'; // Redireciona para a página principal
     })
     .catch(error => {
         console.error("Erro no login:", error);
@@ -54,8 +47,6 @@ function showLoginForm() {
     document.getElementById("loginBtn").addEventListener("click", () => {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
-
-        // Chama a função de login com as credenciais
         loginUser(username, password);
     });
 }
@@ -78,7 +69,7 @@ function showUserList() {
 
     fetch("http://localhost:8080/user", {
         headers: {
-            "Authorization": `Bearer ${getCookie("authToken")}`
+            "Authorization": `Bearer ${getCookie("token")}`
         }
     })
     .then(response => response.json())
@@ -137,7 +128,7 @@ function showUserList() {
     });
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
-    document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm()); // Call showRoleForm()
+    document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm()); 
 }
 
 function showUserForm(userId = null) {
@@ -155,22 +146,19 @@ function showUserForm(userId = null) {
         </div>
         <div class="form-group">
             <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" ${userId ? '' : 'required'}>
+            <input type="password" id="password" name="password" ${userId ? 'placeholder="Deixe em branco para não alterar"' : 'required'}>
         </div>
         <div class="form-group">
-            <button id="register">${userId ? 'Atualizar Usuário' : 'Cadastrar Usuário'}</button>
+            <button id="registerBtn">${userId ? 'Atualizar Usuário' : 'Cadastrar Usuário'}</button>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = formHTML;
 
     const roleSelect = document.getElementById("role");
-    const registerButton = document.getElementById("register");
 
-    fetch("http://localhost:8080/roles", {
-        headers: {
-            "Authorization": `Bearer ${getCookie("authToken")}`
-        }
+    fetch("http://localhost:8080/role", {
+        headers: { "Authorization": `Bearer ${getCookie("token")}` }
     })
     .then(response => response.json())
     .then(data => {
@@ -178,7 +166,8 @@ function showUserForm(userId = null) {
         if (roles && Array.isArray(roles)) {
             roles.forEach(role => {
                 const option = document.createElement("option");
-                option.value = role.name;
+
+                option.value = role.id;
                 option.textContent = role.name;
                 roleSelect.appendChild(option);
             });
@@ -186,89 +175,61 @@ function showUserForm(userId = null) {
 
         if (userId) {
             fetch(`http://localhost:8080/user/${userId}`, {
-                headers: {
-                    "Authorization": `Bearer ${getCookie("authToken")}`
-                }
+                headers: { "Authorization": `Bearer ${getCookie("token")}` }
             })
             .then(response => response.json())
             .then(data => {
                 const user = data.data;
                 if (user) {
                     document.getElementById("username").value = user.name;
-                    document.getElementById("role").value = user.role; // Seleciona o cargo existente
+                    document.getElementById("role").value = user.roleId;
                 } else {
                     alert("Erro ao carregar dados do usuário.");
                 }
-            })
-            .catch(error => {
-                console.error("Erro ao carregar dados do usuário:", error);
-                alert("Erro ao carregar dados do usuário.");
             });
         }
-    })
-    .catch(error => {
-        console.error("Erro ao carregar cargos:", error);
-        alert("Erro ao carregar a lista de cargos.");
     });
 
-
-    registerButton.addEventListener("click", function() {
+    // Event listener para o botão de cadastro/atualização
+    document.getElementById("registerBtn").addEventListener("click", function() {
         const name = document.getElementById("username").value;
-        const roleSelectElement = document.getElementById("role");
-        const role = roleSelectElement.value;
+        const roleId = parseInt(document.getElementById("role").value, 10); // Garantir que é um número
         const password = document.getElementById("password").value;
-        const userData = userId ? { name, role } : { name, role, password };
 
-        if (!role) {
+        if (!roleId) {
             alert("Por favor, selecione um cargo para o usuário.");
-            return; // Impede a execução da requisição se nenhum cargo for selecionado
+            return;
         }
 
-        if (userId) {
-            fetch(`http://localhost:8080/user/${userId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getCookie("authToken")}`
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("Usuário atualizado com sucesso!");
-                    showUserList();
-                } else {
-                    throw new Error("Erro ao atualizar o usuário.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert("Erro ao atualizar o usuário. Tente novamente.");
-            });
-        } else {
-            fetch("http://localhost:8080/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getCookie("authToken")}`
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("Usuário cadastrado com sucesso!");
-                    showUserList();
-                } else {
-                    throw new Error("Erro ao cadastrar o usuário.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert("Erro ao cadastrar o usuário. Tente novamente.");
-            });
+        let userData = { name, roleId };
+        if (password) {
+            userData.password = password;
         }
+
+        const method = userId ? "PUT" : "POST";
+        const url = userId ? `http://localhost:8080/user/${userId}` : "http://localhost:8080/user";
+
+        fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${getCookie("token")}`
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert(`Usuário ${userId ? 'atualizado' : 'cadastrado'} com sucesso!`);
+                showUserList(); // Voltar para a lista
+            } else {
+                throw new Error(`Erro ao ${userId ? 'atualizar' : 'cadastrar'} o usuário.`);
+            }
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+            alert(error.message);
+        });
     });
-
 }
 
 function deleteUser(userId) {
@@ -277,7 +238,7 @@ function deleteUser(userId) {
         fetch(`http://localhost:8080/user/${userId}`, {
             method: "DELETE",
             headers: {
-                "Authorization": `Bearer ${getCookie("authToken")}`
+                "Authorization": `Bearer ${getCookie("token")}`
             }
         })
         .then(response => {
@@ -295,16 +256,3 @@ function deleteUser(userId) {
     }
 }
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-function displayAuthToken() {
-    const token = getCookie("authToken");
-    const tokenDisplay = document.getElementById("tokenDisplay");
-    if (tokenDisplay) {
-        tokenDisplay.textContent = `Token de Autenticação: ${token}`;
-    }
-}

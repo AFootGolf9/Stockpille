@@ -90,6 +90,11 @@ function generatePDF() {
     const table = document.querySelector(".allocations-table");
     if (table) {
         const rows = table.querySelectorAll("tr");
+        if (rows.length <= 1) {
+            alert("Não há dados suficientes para gerar o PDF.");
+            return;
+        }
+
         const tableData = [];
         
         rows.forEach((row, index) => {
@@ -98,7 +103,7 @@ function generatePDF() {
             cells.forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            if (index !== 0) { 
+            if (index !== 0) {  // Ignora a primeira linha (cabeçalho)
                 tableData.push(rowData);
             }
         });
@@ -139,6 +144,8 @@ function generatePDF() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(text, 10, pageHeight - 10); 
+    } else {
+        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
     }
 
     // Salva o PDF gerado
