@@ -38,7 +38,10 @@ func main() {
 
 	path = path + "-" + time.Now().Format("2006-01-02_15-04-05") + ".log"
 
-	f, _ := os.Create(path)
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
 	gin.DefaultWriter = io.MultiWriter(f)
 
 	r := gin.Default()
