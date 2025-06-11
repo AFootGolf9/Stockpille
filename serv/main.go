@@ -45,8 +45,6 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(f)
 
 	r := gin.Default()
-	// r := gin.New()
-	// r.Use(gin.Recovery())
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
