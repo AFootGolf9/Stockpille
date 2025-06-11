@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"os"
 	"stockpille/controller"
 	"stockpille/db"
 	"stockpille/entity"
@@ -9,6 +11,7 @@ import (
 	"stockpille/repository/entityRepository"
 	"stockpille/routes"
 	"stockpille/service"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -25,12 +28,40 @@ func main() {
 
 	service.Start()
 
+	gin.DisableConsoleColor()
+
+	os.Mkdir("logs", os.ModePerm)
+
+	// log file with timestamp
+
+	path := "logs/gin"
+
+	path = path + "-" + time.Now().Format("2006-01-02_15-04-05") + ".log"
+
+	f, _ := os.Create(path)
+	gin.DefaultWriter = io.MultiWriter(f)
+
 	r := gin.Default()
+	// r := gin.New()
+	// r.Use(gin.Recovery())
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
+
+	// // create a writer to log to a file
+
+	// os.MkdirAll("logs", os.ModePerm)
+	// f, err := os.OpenFile("logs/gin.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// r.Use(logger.SetLogger(
+	// 	logger.WithUTC(true),
+	// 	logger.WithWriter(f),
+	// ))
 
 	r.POST("/user/login", controller.Login)
 
