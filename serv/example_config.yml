@@ -1,0 +1,6 @@
+host: "host"
+port: "666"
+user: "admin"
+password: "admin"
+dbname: "stockpille"
+ssl: "disable"
