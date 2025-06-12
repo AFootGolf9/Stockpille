@@ -1,114 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../resources/home.css">
-    <link rel="stylesheet" href="../resources/lists.css"> 
-    <title>StockPille</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../resources/home.css" />
+  <link rel="stylesheet" href="../resources/lists.css" />
+  <title>StockPille</title>
 </head>
 <body>
-    <header class="header">
-        <button id="hamburger-btn" aria-label="Abrir menu">
-            &#9776; 
-        </button>
-        <div class="header-title-container">
-            <h1>StockPille <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Logo StockPille" width="40px" height="40px"></h1>
-        </div>
-        <div id="user-info">
-            <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário" />
-            <span id="user-name">Usuário</span> 
-        </div>
-    </header>
-
-    <div class="container">
-        <nav class="sidebar" id="sidebar"> 
-            <h2 onclick="showHome()">Menu</h2> 
-            <ul>
-                <li><hr class="divider">
-                    <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Geral</a>
-                    <ul class="submenu" id="home-submenu">
-                        <li><a href="#" onclick="showProductList(); closeSidebarOnMobile();">Itens</a></li>
-                        <li><a href="#" onclick="showLocationList(); closeSidebarOnMobile();">Localizações</a></li>
-                        <li><a href="#" onclick="showUserList(); closeSidebarOnMobile();">Usuários</a></li>
-                        <li><hr class="divider"></li>
-                    </ul>
-                </li>
-                
-                <li>
-                    <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
-                    <ul class="submenu" id="perfil-submenu">
-                        <li><a href="#" onclick="showAllocationForm(); closeSidebarOnMobile();">Realizar Locação</a></li>
-                        <li><a href="#" onclick="showAllocationsList(); closeSidebarOnMobile();">Ver Locações</a></li>
-                        <li><hr class="divider"></li>
-                    </ul>
-                </li>
-                
-                <li>
-                    <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
-                    <ul class="submenu" id="config-submenu">
-                        <li><a href="#" onclick="showReportMenu(); closeSidebarOnMobile();">Gerar Relatórios</a></li>
-                    </ul>
-                </li>
-                <li><hr class="divider"></li> 
-                <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li> 
-                <div class="sidebar-footer">
-                    <p>© 2025 StockPille</p>
-                </div>
-            </ul>
-        </nav>
-
-        <main class="main-content" id="main-content">
-            <h2>Bem-vindo!</h2>
-            <p>Selecione uma opção no menu para começar.</p>
-        </main>
+  <header class="header">
+    <button id="hamburger-btn" aria-label="Abrir menu">&#9776;</button>
+    <div class="header-title-container">
+      <h1>
+        StockPille
+        <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Logo StockPille" width="40" height="40"/>
+      </h1>
     </div>
+    <div id="user-info">
+      <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário"/>
+      <span id="user-name">Usuário</span>
+    </div>
+  </header>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="../resources/js/home.js"></script>
-    <script src="../resources/js/user.js"></script>
-    <script src="../resources/forms/Productform.js"></script>
-    <script src="../resources/forms/Locationform.js"></script>
-    <script src="../resources/js/register.js"></script>
-    <script src="../resources/reports/userAllocationReports.js"></script>
-    <script src="../resources/reports/itemAllocationReport.js"></script>
-    <script src="../resources/js/reportMenu.js"></script>
-    <script src="../resources/reports/locationItemReport.js"></script>
-    <script src="../resources/js/allocate.js"></script>
-    <script src="../resources/js/allocationList.js"></script>
-    <script src="../resources/js/role.js"></script>
-    <script src="../resources/js/login.js"></script>
-    <script src="../resources/js/cookie.js"></script>
-    <script src="../resources/js/category.js"></script>
-</body>
-<script>
-    // JavaScript para o menu hambúrguer e toggle de submenus
+  <div class="container">
+    <nav class="sidebar" id="sidebar">
+      <h2 onclick="showHome()">Menu</h2>
+      <ul>
+        <li>
+          <hr class="divider" />
+          <a href="#" class="custom-link" onclick="toggleSubmenu('home-submenu')">Geral</a>
+          <ul class="submenu" id="home-submenu">
+            <li><a href="#" onclick="showProductList(); closeSidebarOnMobile();">Itens</a></li>
+            <li><a href="#" onclick="showLocationList(); closeSidebarOnMobile();">Localizações</a></li>
+            <li><a href="#" onclick="showUserList(); closeSidebarOnMobile();">Usuários</a></li>
+            <li><hr class="divider"/></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#" class="custom-link" onclick="toggleSubmenu('perfil-submenu')">Locações</a>
+          <ul class="submenu" id="perfil-submenu">
+            <li><a href="#" onclick="showAllocationForm(); closeSidebarOnMobile();">Realizar Locação</a></li>
+            <li><a href="#" onclick="showAllocationsList(); closeSidebarOnMobile();">Ver Locações</a></li>
+            <li><hr class="divider"/></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#" class="custom-link" onclick="toggleSubmenu('config-submenu')">Relatórios</a>
+          <ul class="submenu" id="config-submenu">
+            <li><a href="#" onclick="showReportMenu(); closeSidebarOnMobile();">Gerar Relatórios</a></li>
+          </ul>
+        </li>
+
+        <li><hr class="divider"/></li>
+        <li><a class="custom-link-exit" href="../pages/login.html">Logout</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <p>© 2025 StockPille</p>
+      </div>
+    </nav>
+
+    <main class="main-content" id="main-content">
+      <h2>Bem-vindo!</h2>
+      <p>Selecione uma opção no menu para começar.</p>
+    </main>
+  </div>
+
+  <!-- Bibliotecas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Scripts do sistema -->
+  <script src="../resources/js/home.js"></script>
+  <script src="../resources/js/user.js"></script>
+  <script src="../resources/forms/Productform.js"></script>
+  <script src="../resources/forms/Locationform.js"></script>
+  <script src="../resources/js/register.js"></script>
+  <script src="../resources/reports/userAllocationReports.js"></script>
+  <script src="../resources/reports/itemAllocationReport.js"></script>
+  <script src="../resources/js/reportMenu.js"></script>
+  <script src="../resources/reports/locationItemReport.js"></script>
+  <script src="../resources/js/allocate.js"></script>
+  <script src="../resources/js/allocationList.js"></script>
+  <script src="../resources/js/role.js"></script>
+  <script src="../resources/js/login.js"></script>
+  <script src="../resources/js/cookie.js"></script>
+  <script src="../resources/js/category.js"></script>
+
+  <!-- Script do layout responsivo e proteção -->
+  <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const sidebar = document.getElementById('sidebar');
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebar = document.getElementById('sidebar');
 
-        if (hamburgerBtn && sidebar) {
-            hamburgerBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-            });
-        }
+      if (hamburgerBtn && sidebar) {
+        hamburgerBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      const userNameElement = document.getElementById("user-name");
+      if (userNameElement) {
+        // Aqui pode vir a chamada de API se quiser:
+        // fetch('/user/profile').then(r => r.json()).then(data => userNameElement.textContent = data.nome);
+        userNameElement.textContent = "Usuário"; // Default
+      }
     });
 
     function closeSidebarOnMobile() {
-        const sidebar = document.getElementById('sidebar');
-        if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
-            sidebar.classList.remove('open');
-        }
+      const sidebar = document.getElementById("sidebar");
+      if (window.innerWidth < 768 && sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+      }
     }
 
     if (typeof toggleSubmenu !== 'function') {
-        window.toggleSubmenu = function(submenuId) {
-            const submenu = document.getElementById(submenuId);
-            if (submenu) {
-                submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
-            }
+      window.toggleSubmenu = function(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        if (submenu) {
+          submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
         }
+      };
     }
-</script>
+
+    if (typeof showHome !== 'function') {
+      window.showHome = function() {
+        const content = document.getElementById("main-content");
+        if (content) {
+          content.innerHTML = `
+            <h2>Bem-vindo!</h2>
+            <p>Esta é a área principal. Selecione uma opção no menu.</p>
+          `;
+        }
+      };
+    }
+  </script>
+</body>
 </html>

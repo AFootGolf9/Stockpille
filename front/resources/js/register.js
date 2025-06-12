@@ -1,11 +1,10 @@
 function loginUser(username, password) {
-    // Envia uma solicitação de login com as credenciais
     fetch("http://localhost:8080/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ name: username, password: password }) // Corrigido para 'name' se o seu backend esperar 'name'
+        body: JSON.stringify({ name: username, password: password })
     })
     .then(response => {
         if (response.ok) {
@@ -18,14 +17,13 @@ function loginUser(username, password) {
         const token = data.token;
         document.cookie = `token=${token}; path=/`;
         alert("Login realizado com sucesso!");
-        window.location.href = 'home.html'; // Redireciona para a página principal
+        window.location.href = 'home.html';
     })
     .catch(error => {
         console.error("Erro no login:", error);
         alert("Erro ao fazer login. Tente novamente.");
     });
 }
-
 
 function showLoginForm() {
     const loginHTML = `
@@ -69,7 +67,7 @@ function showUserList() {
 
     fetch("http://localhost:8080/user", {
         headers: {
-            "Authorization": `Bearer ${getCookie("token")}`
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -128,7 +126,7 @@ function showUserList() {
     });
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
-    document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm()); 
+    document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
 }
 
 function showUserForm(userId = null) {
@@ -158,7 +156,7 @@ function showUserForm(userId = null) {
     const roleSelect = document.getElementById("role");
 
     fetch("http://localhost:8080/role", {
-        headers: { "Authorization": `Bearer ${getCookie("token")}` }
+        headers: { "Authorization": getCookie("token") }
     })
     .then(response => response.json())
     .then(data => {
@@ -166,7 +164,6 @@ function showUserForm(userId = null) {
         if (roles && Array.isArray(roles)) {
             roles.forEach(role => {
                 const option = document.createElement("option");
-
                 option.value = role.id;
                 option.textContent = role.name;
                 roleSelect.appendChild(option);
@@ -175,7 +172,7 @@ function showUserForm(userId = null) {
 
         if (userId) {
             fetch(`http://localhost:8080/user/${userId}`, {
-                headers: { "Authorization": `Bearer ${getCookie("token")}` }
+                headers: { "Authorization": getCookie("token") }
             })
             .then(response => response.json())
             .then(data => {
@@ -190,10 +187,9 @@ function showUserForm(userId = null) {
         }
     });
 
-    // Event listener para o botão de cadastro/atualização
     document.getElementById("registerBtn").addEventListener("click", function() {
         const name = document.getElementById("username").value;
-        const roleId = parseInt(document.getElementById("role").value, 10); // Garantir que é um número
+        const roleId = parseInt(document.getElementById("role").value, 10);
         const password = document.getElementById("password").value;
 
         if (!roleId) {
@@ -213,14 +209,14 @@ function showUserForm(userId = null) {
             method: method,
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${getCookie("token")}`
+                "Authorization": getCookie("token")
             },
             body: JSON.stringify(userData)
         })
         .then(response => {
             if (response.ok) {
                 alert(`Usuário ${userId ? 'atualizado' : 'cadastrado'} com sucesso!`);
-                showUserList(); // Voltar para a lista
+                showUserList();
             } else {
                 throw new Error(`Erro ao ${userId ? 'atualizar' : 'cadastrar'} o usuário.`);
             }
@@ -238,7 +234,7 @@ function deleteUser(userId) {
         fetch(`http://localhost:8080/user/${userId}`, {
             method: "DELETE",
             headers: {
-                "Authorization": `Bearer ${getCookie("token")}`
+                "Authorization": getCookie("token")
             }
         })
         .then(response => {
@@ -255,4 +251,3 @@ function deleteUser(userId) {
         });
     }
 }
-

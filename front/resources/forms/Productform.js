@@ -29,14 +29,14 @@ function showProductList() {
 
     const productSearch = document.getElementById("productSearch");
     const categoryFilter = document.getElementById("categoryFilter");
-    const productListContentArea = document.getElementById("product-list-content-area"); // Referência ao novo container
+    const productListContentArea = document.getElementById("product-list-content-area");
     let allProducts = [];
-    let categoryMap = {}; // Mapa para nomes de categorias
+    let categoryMap = {};
 
-    // Carregar categorias para o filtro e para o mapa
+    // Carregar categorias para o filtro e mapa
     fetch("http://localhost:8080/category", {
         method: "GET",
-        headers: { "Authorization": `Bearer ${getToken()}` }
+        headers: { "Authorization": getToken() }
     })
     .then(response => response.json())
     .then(categoriesData => {
@@ -47,7 +47,7 @@ function showProductList() {
                 option.value = category.id;
                 option.textContent = category.name;
                 categoryFilter.appendChild(option);
-                categoryMap[category.id] = category.name; // Adiciona ao mapa
+                categoryMap[category.id] = category.name;
             });
         }
     })
@@ -56,7 +56,7 @@ function showProductList() {
     // Carregar produtos
     fetch("http://localhost:8080/item", {
         method: "GET",
-        headers: { "Authorization": `Bearer ${getToken()}` }
+        headers: { "Authorization": getToken() }
     })
     .then(response => response.text())
     .then(text => {
@@ -131,7 +131,7 @@ function showProductList() {
 
                 fetch(`http://localhost:8080/item/quantity/${product.sku}`, {
                     method: "GET",
-                    headers: { "Authorization": `Bearer ${getToken()}` }
+                    headers: { "Authorization": getToken() }
                 })
                 .then(response => response.json())
                 .then(quantityData => {
@@ -166,7 +166,6 @@ function showProductList() {
         }
     }
 
-    // Listeners para os botões de ação do cabeçalho (removida duplicata)
     document.getElementById("createProductBtn").addEventListener("click", function() { showProductForm(); });
     document.getElementById("createCategoryBtn").addEventListener("click", function() { showCategoryForm(); });
     document.getElementById("listCategoryBtn").addEventListener("click", function() { showCategoryList(); });
@@ -185,9 +184,7 @@ function tryParseJSON(text) {
     }
 }
 
-// Revertendo showProductForm para mais próximo do original que você enviou
 function showProductForm(productId = null) {
-    // HTML do formulário como no original, sem SKU explícito ou botões de cancelar adicionados por mim
     let formHTML = `
         <h2>${productId ? 'Editar Produto' : 'Cadastrar Produto'}</h2>
         <div class="form-group">
@@ -207,17 +204,17 @@ function showProductForm(productId = null) {
         <div class="form-group">
             <button id="registerProductBtn">${productId ? 'Atualizar Produto' : 'Cadastrar Produto'}</button>
         </div>
-    `; // SKU não está aqui, será parte do productData enviado, mas não um campo visível/editável (a menos que seu backend o gere ou já exista no item)
+    `;
 
     document.getElementById("main-content").innerHTML = formHTML;
 
     const categorySelect = document.getElementById("category");
-    const nameInput = document.getElementById("name"); // Para preencher em modo de edição
-    const descriptionInput = document.getElementById("description"); // Para preencher
+    const nameInput = document.getElementById("name");
+    const descriptionInput = document.getElementById("description");
 
     fetch("http://localhost:8080/category", {
         method: "GET",
-        headers: { "Authorization": `Bearer ${getToken()}` }
+        headers: { "Authorization": getToken() }
     })
     .then(response => response.json())
     .then(categoriesData => {
@@ -231,10 +228,10 @@ function showProductForm(productId = null) {
             });
         }
 
-        if (productId) { // Se for edição, carregar dados do produto
+        if (productId) {
             fetch(`http://localhost:8080/item/${productId}`, {
                 method: "GET",
-                headers: { "Authorization": `Bearer ${getToken()}` }
+                headers: { "Authorization": getToken() }
             })
             .then(response => response.json())
             .then(productResponse => {
@@ -245,133 +242,161 @@ function showProductForm(productId = null) {
                     if (product.category_id) {
                         categorySelect.value = product.category_id;
                     }
-                    // O SKU (productId) é conhecido, mas não há campo para ele no formHTML acima.
-                    // Ele será usado na URL do PUT.
-                } else {
-                    alert("Produto não encontrado para edição.");
-                    showProductList();
                 }
             })
-            .catch(error => console.error("Erro ao carregar dados do produto para edição:", error));
+            .catch(error => {
+                console.error("Erro ao carregar produto para edição:", error);
+            });
         }
     })
-    .catch(error => console.error("Erro ao carregar categorias para o formulário:", error));
+    .catch(error => console.error("Erro ao carregar categorias para formulário:", error));
 
     document.getElementById("registerProductBtn").addEventListener("click", function() {
-        const name = document.getElementById("name").value;
-        const description = document.getElementById("description").value;
-        const categoryId = document.getElementById("category").value;
-        
-        // O SKU não é pego do formulário, pois não foi adicionado um campo para ele.
-        // Se for um novo produto, o backend deve gerar o SKU.
-        // Se for edição, o SKU é `productId`.
-        const productData = { name, description, category_id: categoryId };
-        if (productId) { // Se for PUT, o backend pode esperar o SKU ou identificá-lo pela URL
-            // Se o seu backend PRECISA do SKU no corpo do PUT, você pode adicioná-lo aqui:
-            // productData.sku = productId; (Mas geralmente o ID na URL é suficiente)
+        const name = nameInput.value.trim();
+        const description = descriptionInput.value.trim();
+        const category = categorySelect.value;
+
+        if (!name || !description || !category) {
+            alert("Por favor, preencha todos os campos.");
+            return;
         }
 
+        const productData = {
+            name: name,
+            description: description,
+            category_id: category
+        };
 
-        const method = productId ? "PUT" : "POST";
-        const url = productId ? `http://localhost:8080/item/${productId}` : "http://localhost:8080/item";
+        let url = "http://localhost:8080/item";
+        let method = "POST";
+        if (productId) {
+            url += `/${productId}`;
+            method = "PUT";
+        }
 
         fetch(url, {
             method: method,
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${getToken()}`
+                "Authorization": getToken()
             },
             body: JSON.stringify(productData)
         })
-        .then(response => {
-            if (response.ok) {
-                alert(`Produto ${productId ? 'atualizado' : 'cadastrado'} com sucesso!`);
-                showProductList();
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Erro: " + data.error);
             } else {
-                return response.json().then(data => {
-                    throw new Error(`Erro ao ${productId ? 'atualizar' : 'cadastrar'} o produto: ${data.message || 'Erro desconhecido'}`);
-                });
+                alert(productId ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
+                showProductList();
             }
         })
         .catch(error => {
-            console.error("Erro:", error);
-            alert(error.message);
+            console.error("Erro ao salvar produto:", error);
+            alert("Erro ao salvar produto.");
         });
     });
 }
 
 function deleteProduct(productId) {
-    const confirmDelete = confirm("Tem certeza que deseja excluir este produto?");
-    if (confirmDelete) {
-        fetch(`http://localhost:8080/item/${productId}`, {
-            method: "DELETE",
-            headers: { "Authorization": `Bearer ${getToken()}` }
-        })
-        .then(response => {
-            if (response.ok) {
-                alert("Produto excluído com sucesso!");
-                showProductList();
-            } else {
-                return response.json().then(data => {
-                    throw new Error(`Erro ao excluir o produto: ${data.message || 'Erro desconhecido'}`);
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Erro:", error);
-            alert(error.message);
-        });
+    if (!confirm("Tem certeza que deseja excluir este produto?")) {
+        return;
     }
-}
 
-function showCategoryForm() {
-    const formHTML = `
-        <h2>Criar Nova Categoria</h2>
-        <form id="category-form">
-            <div class="form-group">
-                <label for="category-name">Nome da Categoria:</label>
-                <input type="text" id="category-name" name="category-name" required>
-            </div>
-            <button type="submit">Criar Categoria</button>
-        </form>
-        <div id="category-message"></div>
-    `;
-    document.getElementById("main-content").innerHTML = formHTML;
-
-    const categoryForm = document.getElementById("category-form");
-    categoryForm.addEventListener("submit", function(event) {
-        event.preventDefault();
-        createCategory();
+    fetch(`http://localhost:8080/item/${productId}`, {
+        method: "DELETE",
+        headers: { "Authorization": getToken() }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("Erro ao excluir produto: " + data.error);
+        } else {
+            alert("Produto excluído com sucesso.");
+            showProductList();
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao excluir produto:", error);
+        alert("Erro ao excluir produto.");
     });
 }
 
-async function createCategory() {
-    const name = document.getElementById("category-name").value;
-    if (!name) {
-        alert("Por favor, preencha o nome da categoria.");
-        return;
-    }
-    try {
-        const response = await fetch("http://localhost:8080/category", {
+function showCategoryForm() {
+    let formHTML = `
+        <h2>Cadastrar Categoria</h2>
+        <div class="form-group">
+            <label for="categoryName">Nome da Categoria:</label>
+            <input type="text" id="categoryName" name="categoryName" required>
+        </div>
+        <div class="form-group">
+            <button id="registerCategoryBtn">Cadastrar Categoria</button>
+        </div>
+    `;
+
+    document.getElementById("main-content").innerHTML = formHTML;
+
+    document.getElementById("registerCategoryBtn").addEventListener("click", function() {
+        const name = document.getElementById("categoryName").value.trim();
+        if (!name) {
+            alert("Por favor, insira o nome da categoria.");
+            return;
+        }
+
+        fetch("http://localhost:8080/category", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${getToken()}`
+                "Authorization": getToken()
             },
             body: JSON.stringify({ name: name }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Erro: " + data.error);
+            } else {
+                alert("Categoria cadastrada com sucesso.");
+                showProductList();
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao cadastrar categoria:", error);
+            alert("Erro ao cadastrar categoria.");
         });
-        const data = await response.json().catch(() => ({})); // Evita erro se não houver corpo JSON
-        if (response.ok) {
-            alert("Categoria criada com sucesso!" + (data.message ? ` ${data.message}` : ''));
-            showProductList();
-        } else {
-            alert("Erro ao criar categoria: " + (data.message || 'Erro desconhecido'));
-        }
-    } catch (error) {
-        console.error("Erro ao criar categoria:", error);
-        alert("Erro ao criar categoria.");
-    }
+    });
 }
 
-// Se showCategoryList não estiver definida em outro lugar, você precisará dela:
-// function showCategoryList() { /* ... sua lógica para listar categorias ... */ }
+function showCategoryList() {
+    let html = `
+        <h2>Lista de Categorias</h2>
+        <div id="category-list-content-area">Carregando categorias...</div>
+    `;
+
+    document.getElementById("main-content").innerHTML = html;
+
+    fetch("http://localhost:8080/category", {
+        method: "GET",
+        headers: { "Authorization": getToken() }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const categories = data.data;
+        if (!categories || categories.length === 0) {
+            document.getElementById("category-list-content-area").innerHTML = "<p>Nenhuma categoria cadastrada.</p>";
+            return;
+        }
+
+        let listHTML = `<ul class="category-list">`;
+        categories.forEach(category => {
+            listHTML += `<li>${category.name}</li>`;
+        });
+        listHTML += `</ul>`;
+
+        document.getElementById("category-list-content-area").innerHTML = listHTML;
+    })
+    .catch(error => {
+        console.error("Erro ao carregar categorias:", error);
+        document.getElementById("category-list-content-area").innerHTML = `<p>Erro ao carregar categorias.</p>`;
+    });
+}
