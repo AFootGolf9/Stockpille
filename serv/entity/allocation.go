@@ -1,5 +1,7 @@
 package entity
 
+import "errors"
+
 type Allocation struct {
 	Id         int `json:"id"`
 	ItemId     int `json:"item_id"`
@@ -34,15 +36,17 @@ func (a *Allocation) IsPersisted() bool {
 	return true
 }
 
-func (a *Allocation) Validate(id int) {
+func (a *Allocation) Validate(id int) error {
 	if a.ItemId == 0 {
-		panic("Item is required")
+		return errors.New("Item is required")
 	}
 	if a.LocationId == 0 {
-		panic("Location is required")
+		return errors.New("Location is required")
 	}
 
 	a.UserId = id
+
+	return nil
 }
 
 func (a *Allocation) ValidateUpdate() {

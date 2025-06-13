@@ -5,13 +5,10 @@ import (
 	"stockpille/repository/entityRepository"
 )
 
-func New(object entity.Entity, userId int) {
-	object.Validate(userId)
+func New(object entity.Entity, userId int) error {
 	err := entityRepository.Insert(object)
 
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 
 func Get(object entity.Entity, allowed string, userId int) (entity.Entity, error) {
