@@ -70,7 +70,7 @@ function showRoleForm() {
 }
 
 function createRole() {
-    const roleName = document.getElementById("roleName").value;
+    const roleName = document.getElementById("roleName").value.toUpperCase();
     if (!roleName) {
         alert("Por favor, insira o nome do cargo.");
         return;
@@ -78,7 +78,7 @@ function createRole() {
 
     const permissionsMap = {};
     document.querySelectorAll('.permission-checkbox:checked').forEach(checkbox => {
-        const table = checkbox.getAttribute('data-table');
+        const table = checkbox.getAttribute('data-table').toLowerCase();
         const permission = checkbox.getAttribute('data-permission');
         if (!permissionsMap[table]) {
             permissionsMap[table] = '';
@@ -88,21 +88,24 @@ function createRole() {
 
     const permissionsPayload = Object.keys(permissionsMap).map(table => {
         return {
-            Table: table,
-            Permission: permissionsMap[table]
+            table: table,
+            permission: permissionsMap[table]
         };
     });
 
     const roleData = {
         name: roleName,
-        permission: permissionsPayload
+        permission: permissionsPayload  // Note: singular 'permission'
     };
 
-    fetch("http://localhost:8080/permission", {
+    console.log("Payload para criar role:", roleData);
+    console.log("Token:", getCookie("token"));
+
+    fetch("http://localhost:8080/role-permission", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": getCookie("token")  // REMOVIDO Bearer aqui
+            "Authorization": getCookie("token")
         },
         body: JSON.stringify(roleData)
     })
@@ -121,6 +124,8 @@ function createRole() {
         alert(error.message);
     });
 }
+
+
 
 function listExistingRoles() {
     fetch("http://localhost:8080/role", {
@@ -146,3 +151,4 @@ function listExistingRoles() {
         document.getElementById("existingRoles").innerHTML = "<p>Erro ao carregar cargos.</p>";
     });
 }
+

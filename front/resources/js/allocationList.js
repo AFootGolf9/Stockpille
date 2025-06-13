@@ -3,6 +3,11 @@ function getToken() {
     return localStorage.getItem('authToken'); 
 }
 
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
 function showAllocationsList() {
     const allocationsListHTML = `
         <div class="allocations-header">
@@ -18,7 +23,7 @@ function showAllocationsList() {
     fetch("http://localhost:8080/allocation", {
         method: "GET",
         headers: {
-            "Authorization": getToken() // token puro, sem "Bearer "
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -33,7 +38,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/item/${allocation.item_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": getToken() // sem "Bearer "
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );
@@ -41,7 +46,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/user/${allocation.user_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": getToken() // sem "Bearer "
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );
@@ -49,7 +54,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/location/${allocation.location_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": getToken() // sem "Bearer "
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );

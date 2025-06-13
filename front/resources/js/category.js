@@ -8,7 +8,7 @@ function showCategoryList() {
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: {
-            "Authorization": getToken() // token puro
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -60,7 +60,7 @@ function updateCategory(id) {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": getToken() // token puro
+            "Authorization": getCookie("token")
         },
         body: JSON.stringify({ name: newName })
     })
@@ -85,7 +85,7 @@ function deleteCategory(id) {
     fetch(`http://localhost:8080/category/${id}`, {
         method: "DELETE",
         headers: {
-            "Authorization": getToken() // token puro
+            "Authorization": getCookie("token")
         }
     })
     .then(response => {

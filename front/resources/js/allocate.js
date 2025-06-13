@@ -1,6 +1,5 @@
 function getToken() {
-    // Retorna o token diretamente, sem o prefixo "Bearer "
-    return localStorage.getItem('authToken'); // ou 'token', conforme você armazena
+    return localStorage.getItem('authToken');
 }
 
 function showAllocationForm() {
@@ -38,7 +37,7 @@ function loadItems() {
     fetch("http://localhost:8080/item", {
         method: "GET",
         headers: {
-            "Authorization": getToken()  // sem o 'Bearer ' aqui
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -65,7 +64,7 @@ function loadLocations() {
     fetch("http://localhost:8080/location", {
         method: "GET",
         headers: {
-            "Authorization": getToken()  // sem o 'Bearer ' aqui
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -91,7 +90,7 @@ function loadLocations() {
 function allocateProduct() {
     const itemId = document.getElementById("itemSelect").value;
     const locationId = document.getElementById("locationSelect").value;
-    const token = getToken();
+    const token = getCookie("token");
     console.log("Produto selecionado:", itemId);
     console.log("Locação selecionada:", locationId);
     console.log("Token:", token);
@@ -105,7 +104,7 @@ function allocateProduct() {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": token  // sem o 'Bearer ' aqui
+            "Authorization": getCookie("token")
         },
         body: JSON.stringify({
             item_id: parseInt(itemId),
