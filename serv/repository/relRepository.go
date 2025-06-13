@@ -89,8 +89,8 @@ func RelItemByCategory() map[string]int {
 func RelUserByRole() map[string]int {
 	// select r.name, count(u.role_id) from role r inner join user_data u on r.id = u.role_id group by r.id;
 
-	rows, err := db.Query("SELECT r.name, count(u.role_id) FROM role r " +
-		"INNER JOIN user_data u ON r.id = u.role_id GROUP BY r.id;")
+	rows, err := db.Query("SELECT r.name, count(u.roleid) FROM role r " +
+		"INNER JOIN user_data u ON r.id = u.roleid GROUP BY r.id;")
 	if err != nil {
 		panic(err)
 	}
