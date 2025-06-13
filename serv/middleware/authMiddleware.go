@@ -13,7 +13,10 @@ func AuthMiddleware() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 
 		if token == "" {
-			c.Set("auth", false)
+			c.JSON(401, gin.H{
+				"error": "Unauthorized: No token provided",
+			})
+			c.Abort()
 			return
 		}
 

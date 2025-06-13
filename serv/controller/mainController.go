@@ -147,7 +147,36 @@ func postController(object entity.Entity, c *gin.Context) {
 		return
 	}
 
-	service.New(object, user.Id)
+	err = object.Validate(user.Id)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = service.New(object, user.Id)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "violates foreign key constraint") {
+			c.JSON(400, gin.H{
+				"error": "Invalid foreign key",
+			})
+			return
+		}
+		if strings.Contains(err.Error(), "violates unique constraint") {
+			c.JSON(400, gin.H{
+				"error": "Duplicate entry",
+			})
+			return
+		}
+		println(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
 	c.JSON(200, gin.H{
 		"status": "Entry created, lad",
 	})

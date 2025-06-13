@@ -42,7 +42,7 @@ func CreatePermission(c *gin.Context) {
 		return
 	}
 
-	if !strings.Contains(permission, "c") && !strings.Contains(permission, "C") {
+	if !strings.Contains(permission, "w") && !strings.Contains(permission, "W") {
 		c.JSON(403, gin.H{
 			"error": "Forbidden",
 		})
