@@ -51,19 +51,6 @@ func main() {
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
 
-	// // create a writer to log to a file
-
-	// os.MkdirAll("logs", os.ModePerm)
-	// f, err := os.OpenFile("logs/gin.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// r.Use(logger.SetLogger(
-	// 	logger.WithUTC(true),
-	// 	logger.WithWriter(f),
-	// ))
-
 	r.POST("/user/login", controller.Login)
 
 	r.Use(middleware.AuthMiddleware())

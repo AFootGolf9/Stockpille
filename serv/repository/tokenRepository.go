@@ -22,6 +22,7 @@ func GetUserIdByToken(token string) int {
 }
 
 func NewToken(token string, userId int) {
+	db.Exec("DELETE FROM token WHERE user_id = $1", userId)
 	_, err := db.Exec("INSERT INTO token (token, user_id) VALUES ($1, $2)", token, userId)
 
 	if err != nil {
