@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"os"
 	"stockpille/controller"
 	"stockpille/db"
 	"stockpille/entity"
@@ -9,6 +11,7 @@ import (
 	"stockpille/repository/entityRepository"
 	"stockpille/routes"
 	"stockpille/service"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,6 +27,22 @@ func main() {
 	repository.SetDB(database)
 
 	service.Start()
+
+	gin.DisableConsoleColor()
+
+	os.Mkdir("logs", os.ModePerm)
+
+	// log file with timestamp
+
+	path := "logs/gin"
+
+	path = path + "-" + time.Now().Format("2006-01-02_15-04-05") + ".log"
+
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	gin.DefaultWriter = io.MultiWriter(f)
 
 	r := gin.Default()
 
@@ -54,9 +73,9 @@ func main() {
 	r.GET("/rel/itembycategory", controller.RelItemByCategory)
 	r.GET("/rel/userbyrole", controller.RelUserByRole)
 
-	r.POST("/role-permission", controller.CreatePermission)
-	r.PUT("/role-permission", controller.UpdatePermission)
-	r.GET("/role-permission", controller.GetPermission)
+	r.POST("/role-permision", controller.CreatePermission)
+	r.PUT("/role-permision", controller.UpdatePermission)
+	r.GET("/role-permision", controller.GetPermission)
 
 	// https://github.com/gin-gonic/gin/blob/v1.10.0/docs/doc.md#custom-middleware
 

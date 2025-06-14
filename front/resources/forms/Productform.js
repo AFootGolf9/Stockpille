@@ -1,4 +1,3 @@
-
 function showProductList() {
     const productListHTML = `
         <div class="product-section-header">
@@ -30,7 +29,7 @@ function showProductList() {
     let allProducts = [];
     let categoryMap = {};
 
-    // Carregar categorias e preencher select/map
+    // Primeiro: carregar categorias
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
@@ -47,13 +46,12 @@ function showProductList() {
                 categoryMap[cat.id] = cat.name;
             });
         }
-    })
-    .catch(err => console.error("Erro ao carregar categorias:", err));
 
-    // Carregar produtos
-    fetch("http://localhost:8080/item", {
-        method: "GET",
-        headers: { "Authorization": getCookie("token") }
+        // Só depois de carregar as categorias, carregar os produtos
+        return fetch("http://localhost:8080/item", {
+            method: "GET",
+            headers: { "Authorization": getCookie("token") }
+        });
     })
     .then(res => res.text())
     .then(text => {
@@ -72,21 +70,22 @@ function showProductList() {
         }
     })
     .catch(err => {
-        console.error("Erro ao carregar produtos:", err);
+        console.error("Erro ao carregar dados:", err);
         productListContentArea.innerHTML = `<p>Erro: ${err.message}</p>`;
     });
-function filterProducts() {
-    const term = productSearch.value.toLowerCase();
-    const catId = categoryFilter.value;
-    const filtered = allProducts.filter(p => {
-        const nameStr = p.name ? p.name.toLowerCase() : "";
-        const skuStr = p.sku != null ? String(p.sku).toLowerCase() : "";
-        const nameMatch = nameStr.includes(term) || skuStr.includes(term);
-        const catMatch = !catId || p.category_id == catId;
-        return nameMatch && catMatch;
-    });
-    renderTable(filtered);
-}
+
+    function filterProducts() {
+        const term = productSearch.value.toLowerCase();
+        const catId = categoryFilter.value;
+        const filtered = allProducts.filter(p => {
+            const nameStr = p.name ? p.name.toLowerCase() : "";
+            const skuStr = p.sku != null ? String(p.sku).toLowerCase() : "";
+            const nameMatch = nameStr.includes(term) || skuStr.includes(term);
+            const catMatch = !catId || p.category_id == catId;
+            return nameMatch && catMatch;
+        });
+        renderTable(filtered);
+    }
 
     function renderTable(products) {
         let html = `
@@ -118,7 +117,7 @@ function filterProducts() {
         html += "</tbody></table>";
         productListContentArea.innerHTML = html;
 
-        // Puxar quantidades
+        // Buscar quantidades
         products.forEach(p => {
             fetch(`http://localhost:8080/item/quantity/${p.sku}`, {
                 method: "GET",
@@ -136,7 +135,7 @@ function filterProducts() {
             });
         });
 
-        // Eventos editar/excluir
+        // Eventos de edição/exclusão
         document.querySelector(".product-table").addEventListener("click", e => {
             const id = e.target.getAttribute("data-id");
             if (e.target.classList.contains("editBtn")) showProductForm(id);
@@ -161,6 +160,9 @@ function tryParseJSON(text) {
 
 function showProductForm(productId = null) {
     const isEdit = Boolean(productId);
+    let currentSku = null;
+    let currentUserId = null;
+
     document.getElementById("main-content").innerHTML = `
         <h2>${isEdit ? 'Editar Produto' : 'Cadastrar Produto'}</h2>
         <div class="form-group"><label>Nome:</label><input id="name" required></div>
@@ -186,6 +188,7 @@ function showProductForm(productId = null) {
             const opt = new Option(cat.name, cat.id);
             catSelect.add(opt);
         });
+
         if (isEdit) {
             fetch(`http://localhost:8080/item/${productId}`, {
                 method: "GET",
@@ -193,9 +196,12 @@ function showProductForm(productId = null) {
             })
             .then(res => res.json())
             .then(prod => {
-                nameInput.value = prod.data.name || '';
-                descInput.value = prod.data.description || '';
-                catSelect.value = prod.data.category_id || '';
+                const item = prod.data;
+                nameInput.value = item.name || '';
+                descInput.value = item.description || '';
+                catSelect.value = item.category_id || '';
+                currentSku = item.sku;
+                currentUserId = item.user_id;
             })
             .catch(err => alert("Erro ao carregar produto: " + err.message));
         }
@@ -206,15 +212,34 @@ function showProductForm(productId = null) {
         const name = nameInput.value.trim();
         const desc = descInput.value.trim();
         const catId = catSelect.value;
-        if (!name || !desc || !catId) return alert("Preencha todos os campos.");
 
-        const data = { name, description: desc, category_id: catId };
+        if (!name || !desc || !catId) {
+            alert("Preencha todos os campos.");
+            return;
+        }
+
+        const data = {
+            name,
+            description: desc,
+            category_id: parseInt(catId)
+        };
+
         let url = "http://localhost:8080/item";
         let method = "POST";
+
         if (isEdit) {
+            if (!currentSku || !currentUserId) {
+                alert("Erro interno: dados do produto não carregados.");
+                return;
+            }
+
+            data.sku = parseInt(currentSku);
+            data.user_id = parseInt(currentUserId);
+
             url += `/${productId}`;
             method = "PUT";
         }
+
         fetch(url, {
             method,
             headers: {
@@ -224,14 +249,13 @@ function showProductForm(productId = null) {
             body: JSON.stringify(data)
         })
         .then(res => {
-            if (!res.ok) throw new Error("Produto salvo com sucesso!");
+            if (!res.ok) throw new Error("Erro ao salvar produto.");
             alert("Produto salvo com sucesso!");
             showProductList();
         })
         .catch(err => alert(err.message));
     });
 }
-
 function deleteProduct(productId) {
     if (!confirm("Excluir produto?")) return;
     fetch(`http://localhost:8080/item/${productId}`, {

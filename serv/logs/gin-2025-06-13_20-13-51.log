@@ -1,0 +1,52 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /user/login               --> stockpille/controller.Login (4 handlers)
+[GIN-debug] GET    /user/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /user                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /user                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /user/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /user/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /item/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /item                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /item                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /item/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /item/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /location/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /location                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /location                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /location/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /location/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /allocation/:id           --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /allocation               --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /allocation               --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /allocation/:id           --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /allocation/:id           --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /role/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /role                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /role                     --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /role/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /role/:id                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /category/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func1 (5 handlers)
+[GIN-debug] GET    /category                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func2 (5 handlers)
+[GIN-debug] POST   /category                 --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func3 (5 handlers)
+[GIN-debug] PUT    /category/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func4 (5 handlers)
+[GIN-debug] DELETE /category/:id             --> stockpille/routes.(*RouteSeter).SetCRUD.MakeController.func5 (5 handlers)
+[GIN-debug] GET    /item/quantity/:id        --> stockpille/controller.GetItemQuantity (5 handlers)
+[GIN-debug] GET    /user/validate            --> stockpille/controller.ValidateToken (5 handlers)
+[GIN-debug] GET    /rel/allocbyuser          --> stockpille/controller.RelAllocByUser (5 handlers)
+[GIN-debug] GET    /rel/allocbyitem          --> stockpille/controller.RelAllocByItem (5 handlers)
+[GIN-debug] GET    /rel/itembylocation       --> stockpille/controller.RelItemByLocation (5 handlers)
+[GIN-debug] GET    /rel/itembycategory       --> stockpille/controller.RelItemByCategory (5 handlers)
+[GIN-debug] GET    /rel/userbyrole           --> stockpille/controller.RelUserByRole (5 handlers)
+[GIN-debug] POST   /role-permision           --> stockpille/controller.CreatePermission (5 handlers)
+[GIN-debug] PUT    /role-permision           --> stockpille/controller.UpdatePermission (5 handlers)
+[GIN-debug] GET    /role-permision           --> stockpille/controller.GetPermission (5 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Environment variable PORT is undefined. Using port :8080 by default
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2025/06/13 - 20:14:05 | 500 |      6.0162ms |             ::1 | GET      "/rel/userbyrole"
