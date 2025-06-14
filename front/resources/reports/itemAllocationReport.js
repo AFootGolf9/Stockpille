@@ -4,7 +4,6 @@ function showItemAllocationReport() {
         <div id="item-allocation-report-result">
             <p>Carregando relatório...</p>
         </div>
-        <!-- Botão de Gerar PDF -->
         <div id="button-container">
             <button id="generate-pdf" onclick="generateItemAllocationPDF()">Gerar PDF</button>
         </div>
@@ -17,15 +16,12 @@ function showItemAllocationReport() {
         .then(itemData => {
             console.log("Relatório de itens mais locados:", itemData); 
             
-            if (itemData && itemData.data && Object.keys(itemData.data).length > 0) {
-                // Processa os dados e monta o relatório
-                const results = Object.keys(itemData.data).map(itemName => {
-                    const totalAllocations = itemData.data[itemName] || 0; 
-                    return {
-                        item: itemName,
-                        totalAllocations: totalAllocations
-                    };
-                });
+            if (itemData && Object.keys(itemData).length > 0) {
+                const results = Object.entries(itemData).map(([itemName, total]) => ({
+                    item: itemName,
+                    totalAllocations: total || 0
+                }));
+
                 results.sort((a, b) => b.totalAllocations - a.totalAllocations);
 
                 const tableHTML = `
@@ -46,6 +42,7 @@ function showItemAllocationReport() {
                         </tbody>
                     </table>
                 `;
+
                 document.getElementById("item-allocation-report-result").innerHTML = tableHTML;
             } else {
                 document.getElementById("item-allocation-report-result").innerHTML = "<p>Nenhum item encontrado.</p>";
@@ -53,9 +50,10 @@ function showItemAllocationReport() {
         })
         .catch(error => {
             console.error("Erro ao carregar o relatório de itens mais locados:", error);
-            document.getElementById("item-allocation-report-result").innerHTML = `<p>Erro ao carregar o relatório de itens: ${error.message}</p>`;
+            document.getElementById("item-allocation-report-result").innerHTML = `<p>Erro ao carregar o relatório: ${error.message}</p>`;
         });
 }
+
 
 function generateItemAllocationPDF() {
     const { jsPDF } = window.jspdf;
@@ -68,19 +66,15 @@ function generateItemAllocationPDF() {
     const table = document.querySelector(".allocations-table");
     if (table) {
         const rows = table.querySelectorAll("tr");
-        if (rows.length <= 1) {
-            alert("Não há dados suficientes para gerar o PDF.");
-            return;
-        }
-
         const tableData = [];
+
         rows.forEach((row, index) => {
             const cells = row.querySelectorAll("td, th");
             const rowData = [];
             cells.forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            if (index !== 0) { // Ignora a primeira linha (cabeçalho)
+            if (index !== 0) { 
                 tableData.push(rowData);
             }
         });
@@ -120,8 +114,6 @@ function generateItemAllocationPDF() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(text, 10, pageHeight - 10); 
-    } else {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
     }
 
     doc.save("relatorio_itens_locados.pdf");

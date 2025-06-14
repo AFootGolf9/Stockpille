@@ -7,19 +7,19 @@
     gap: 15px;
     margin-bottom: 20px;
     align-items: center;
-    padding: 15px; /* Aumentei um pouco o padding */
-    background-color: #f8f9fa; /* Tom de cinza um pouco mais claro */
+    padding: 15px;
+    background-color: #f8f9fa;
     border-radius: 8px;
-    border: 1px solid #dee2e6; /* Borda sutil */
+    border: 1px solid #dee2e6;
 }
 
 .product-filter input[type="text"],
 .product-filter select {
     padding: 10px;
-    border: 1px solid #ced4da; /* Tom de borda padrão */
+    border: 1px solid #ced4da;
     border-radius: 6px;
     font-size: 16px;
-    background-color: #fff; /* Fundo branco para campos */
+    background-color: #fff;
 }
 
 .product-filter input[type="text"] {
@@ -27,62 +27,61 @@
 }
 
 .product-filter select {
-    width: auto; /* Ajusta a largura ao conteúdo, mas pode precisar de min-width */
-    min-width: 150px; /* Garante uma largura mínima usável */
+    width: auto;
+    min-width: 150px;
 }
 
 /* Tabelas Gerais - Estilo base comum */
 .product-table, .location-table, .user-table, .allocations-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px; /* Margem padrão para todas as tabelas */
+    margin-top: 20px;
 }
 
+/* --- ALTERAÇÃO APLICADA AQUI --- */
 .product-table th, .product-table td,
 .location-table th, .location-table td,
 .user-table th, .user-table td,
 .allocations-table th, .allocations-table td {
-    border: 1px solid #dee2e6; /* Borda mais clara */
-    padding: 12px; /* Padding padrão aumentado */
+    border: 1px solid #dee2e6;
+    padding: 3px; /* Reduzido de 12px para diminuir a altura (espessura) */
     text-align: left;
-    font-size: 15px; /* Fonte base para tabelas */
+    font-size: 14px; /* Reduzido de 15px para um visual mais compacto */
 }
 
 .product-table th,
 .location-table th,
 .user-table th,
 .allocations-table th {
-    background-color: #007bff; /* Azul padrão bootstrap-like */
+    background-color: #007bff;
     font-weight: bold;
-    color: white; /* Garante texto branco para contraste */
+    color: white;
 }
 
 .product-table tr:nth-child(even),
 .location-table tr:nth-child(even),
 .user-table tr:nth-child(even),
 .allocations-table tr:nth-child(even) {
-    background-color: #f8f9fa; /* Fundo alternado mais claro */
+    background-color: #f8f9fa;
 }
 
 .product-table tr:hover,
 .location-table tr:hover,
 .user-table tr:hover,
 .allocations-table tr:hover {
-    background-color: #e9ecef; /* Hover sutil */
+    background-color: #e9ecef;
 }
 
 /* Ajustes específicos, se #product-list for um container da tabela */
-#product-list { /* Se for um container que recebe a tabela */
+#product-list {
     margin-top: 0;
-    /* Se #product-list for o container da tabela e precisar de rolagem: */
-    /* overflow-x: auto; */ /* Veja .product-list-container abaixo */
 }
 
 /* Containers específicos para listas com rolagem */
-.product-list-container, .allocations-list-container { /* Use estas classes para envolver as tabelas se necessário */
-    max-height: 700px; /* Altura máxima antes da rolagem vertical */
-    overflow-y: auto; /* Rolagem vertical */
-    overflow-x: hidden; /* Inicialmente não permite rolagem horizontal no container */
+.product-list-container, .allocations-list-container {
+    max-height: 700px;
+    overflow-y: auto;
+    overflow-x: hidden;
     border: 1px solid #dee2e6;
     margin-top: 5px;
     background-color: white;
@@ -90,9 +89,9 @@
 
 /* Para itens de lista clicáveis dentro desses containers (exemplo, se não for tabela) */
 .product-item {
-    padding: 10px; /* Padding aumentado */
+    padding: 8px 10px; /* Padding vertical reduzido */
     cursor: pointer;
-    border-bottom: 1px solid #eee; /* Divisor leve */
+    border-bottom: 1px solid #eee;
 }
 .product-item:last-child {
     border-bottom: none;
@@ -113,7 +112,7 @@
 }
 
 #location-list button:hover, #allocations-list button:hover {
-    background-color: #002a54; /* Tom mais escuro para hover */
+    background-color: #002a54;
 }
 
 
@@ -123,51 +122,51 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 10px; /* Espaço antes da borda */
-    border-bottom: 1px solid #dee2e6; /* Linha divisória */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .user-header h2, .allocations-header h2 {
     margin: 0;
-    font-size: 22px; /* Ajustado */
-    color: #343a40; /* Cor de título escura */
+    font-size: 22px;
+    color: #343a40;
 }
 
-.user-header button, .allocations-header button { /* Estilo para botões dentro desses headers */
-    background-color: #002a54; /* Verde para "adicionar" ou ação primária */
+.user-header button, .allocations-header button {
+    background-color: #002a54;
     color: white;
     border: none;
-    padding: 10px 18px; /* Padding ajustado */
+    padding: 10px 18px;
     font-size: 15px;
     cursor: pointer;
     border-radius: 5px;
 }
 
 .user-header button:hover, .allocations-header button:hover {
-    background-color: #002a54; /* Verde mais escuro */
+    background-color: #002a54;
 }
 
 
 /* Estilos para Formulários (geralmente dentro de modals ou seções específicas) */
-form h2 { /* Título dentro de um formulário */
+form h2 {
     font-size: 22px;
     margin-bottom: 20px;
     color: #343a40;
 }
 
 .form-group {
-    margin-bottom: 18px; /* Espaçamento entre grupos de formulário */
+    margin-bottom: 18px;
 }
 
 .form-group label {
     font-size: 15px;
     display: block;
     margin-bottom: 6px;
-    font-weight: 600; /* Rótulos um pouco mais destacados */
-    color: #495057; /* Cor para rótulos */
+    font-weight: 600;
+    color: #495057;
 }
 
-.form-group input[type="text"], /* Aplicar a todos os inputs relevantes */
+.form-group input[type="text"],
 .form-group input[type="password"],
 .form-group input[type="email"],
 .form-group input[type="number"],
@@ -182,10 +181,10 @@ form h2 { /* Título dentro de um formulário */
     background-color: #fff;
 }
 .form-group textarea {
-    min-height: 80px; /* Altura mínima para textareas */
+    min-height: 80px;
 }
 
-.form-group button, form > button { /* Botão de submit principal do formulário */
+.form-group button, form > button {
     background-color: #002a54;
     color: white;
     padding: 12px 20px;
@@ -197,31 +196,31 @@ form h2 { /* Título dentro de um formulário */
 }
 
 .form-group button:hover, form > button:hover {
-    background-color: #0056b3; /* Azul mais escuro */
+    background-color: #0056b3;
 }
 
 /* Mensagem de erro */
 .error-message {
-    color: #dc3545; /* Vermelho bootstrap-like para erros */
+    color: #dc3545;
     font-size: 14px;
     margin-top: 5px;
 }
 
 /* Estilo geral para Select (se não estiver dentro de .form-group ou .product-filter) */
 select {
-    width: 100%; /* Por padrão, ocupa a largura disponível */
-    padding: 10px; /* Padding padrão */
+    width: 100%;
+    padding: 10px;
     margin-top: 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 15px; /* Fonte padrão */
+    font-size: 15px;
 }
 
 /* Estilo geral para Botão (se não coberto por regras mais específicas) */
-button.btn-generic { /* Adicionei uma classe para evitar conflitos com botões de sistema/HTML puro */
+button.btn-generic {
     padding: 10px 18px;
     margin-top: 10px;
-    background-color: #6c757d; /* Cinza secundário */
+    background-color: #6c757d;
     color: white;
     border: none;
     border-radius: 4px;
@@ -230,18 +229,18 @@ button.btn-generic { /* Adicionei uma classe para evitar conflitos com botões d
 }
 
 button.btn-generic:hover {
-    background-color: #545b62; /* Cinza mais escuro */
+    background-color: #545b62;
 }
 
 /* Botão Gerar PDF */
 #button-container {
-    margin-top: 20px; /* Aumentei um pouco a distância */
-    text-align: right; /* Alinhar o botão à direita, se desejado */
+    margin-top: 20px;
+    text-align: right;
 }
 
 #generate-pdf {
     padding: 10px 20px;
-    background-color: #dc3545; /* Vermelho para ações destrutivas ou importantes como PDF */
+    background-color: #dc3545;
     color: white;
     border: none;
     border-radius: 5px;
@@ -250,7 +249,7 @@ button.btn-generic:hover {
 }
 
 #generate-pdf:hover {
-    background-color: #c82333; /* Vermelho mais escuro */
+    background-color: #c82333;
 }
 
 
@@ -259,32 +258,32 @@ button.btn-generic:hover {
 @media (max-width: 767.98px) {
     .product-filter {
         flex-direction: column;
-        align-items: stretch; /* Faz os itens ocuparem a largura total */
-        gap: 10px; /* Espaçamento reduzido quando empilhado */
+        align-items: stretch;
+        gap: 10px;
     }
 
     .product-filter input[type="text"],
     .product-filter select {
-        width: 100%; /* Ocupa toda a largura no mobile */
-        min-width: 0; /* Reseta min-width */
+        width: 100%;
+        min-width: 0;
     }
 
     /* Tabelas Responsivas: Adiciona rolagem horizontal */
-    .product-table-wrapper, /* Crie um div com esta classe envolvendo cada tabela */
+    .product-table-wrapper,
     .location-table-wrapper,
     .user-table-wrapper,
     .allocations-table-wrapper,
-    .product-list-container, /* Se já for um container com overflow-y */
+    .product-list-container,
     .allocations-list-container {
-        overflow-x: auto; /* Permite rolagem horizontal */
-        -webkit-overflow-scrolling: touch; /* Rolagem suave em iOS */
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Opcional: fazer as tabelas terem display block para forçar rolagem dentro do wrapper */
      .product-table, .location-table, .user-table, .allocations-table {
-        /* display: block; */ /* Descomente se o wrapper sozinho não for suficiente */
-        /* white-space: nowrap; */ /* Mantém o conteúdo da célula em uma linha */
-        /* min-width: 600px; */ /* Exemplo: força uma largura mínima para a tabela, induzindo rolagem */
+         /* display: block; */
+         /* white-space: nowrap; */
+         /* min-width: 600px; */
     }
 
 
@@ -292,23 +291,23 @@ button.btn-generic:hover {
     .location-table th, .location-table td,
     .user-table th, .user-table td,
     .allocations-table th, .allocations-table td {
-        padding: 8px; /* Padding reduzido em telas menores */
-        font-size: 14px; /* Fonte ligeiramente menor */
+        padding: 6px; /* Padding já estava reduzido, mantido */
+        font-size: 13px; /* Reduzido um pouco para consistência */
     }
 
     /* Ajustes para headers de seção */
     .user-header, .allocations-header {
         flex-direction: column;
-        align-items: flex-start; /* Alinha itens à esquerda */
-        gap: 10px; /* Espaço entre título e botão */
+        align-items: flex-start;
+        gap: 10px;
     }
 
     .user-header h2, .allocations-header h2 {
-        font-size: 20px; /* Tamanho de fonte reduzido */
+        font-size: 20px;
     }
 
     .user-header button, .allocations-header button {
-        width: 100%; /* Botão ocupa toda a largura */
+        width: 100%;
         text-align: center;
     }
 
@@ -325,25 +324,25 @@ button.btn-generic:hover {
     .form-group input[type="date"],
     .form-group textarea,
     .form-group select {
-        font-size: 14px; /* Fonte um pouco menor nos formulários */
+        font-size: 14px;
     }
 
     .form-group button, form > button {
-        width: 100%; /* Botões de formulário ocupam largura total */
+        width: 100%;
         padding: 12px 15px;
     }
 
     #generate-pdf {
-        width: 100%; /* Botão de PDF ocupa largura total */
+        width: 100%;
         margin-top: 15px;
     }
     #button-container {
-        text-align: center; /* Centraliza o botão no mobile */
+        text-align: center;
     }
 
     /* Ajuste para containers de lista com altura máxima */
     .product-list-container, .allocations-list-container {
-        max-height: 50vh; /* Exemplo: limita a altura a 50% da altura da viewport */
+        max-height: 50vh;
     }
 }
 
@@ -353,8 +352,8 @@ button.btn-generic:hover {
     .location-table th, .location-table td,
     .user-table th, .user-table td,
     .allocations-table th, .allocations-table td {
-        padding: 6px;
-        font-size: 13px;
+        padding: 5px;
+        font-size: 12px;
     }
 
     .user-header h2, .allocations-header h2, form h2 {

@@ -1,6 +1,5 @@
 function getToken() {
-    // Aqui você pode buscar o token do localStorage ou de um cookie, conforme sua implementação
-    return localStorage.getItem('authToken'); // Exemplo de token armazenado no localStorage
+    return localStorage.getItem('authToken');
 }
 
 function showAllocationForm() {
@@ -9,13 +8,13 @@ function showAllocationForm() {
         <div class="form-group">
             <label for="itemSelect">Selecione o Produto:</label>
             <select id="itemSelect" required>
-                <option value="">Selecione um Produto</option> <!-- opção inicial vazia -->
+                <option value="">Selecione um Produto</option>
             </select>
         </div>
         <div class="form-group">
             <label for="locationSelect">Selecione a Localização:</label>
             <select id="locationSelect" required>
-                <option value="">Selecione uma Localização</option> <!-- opção inicial vazia -->
+                <option value="">Selecione uma Localização</option>
             </select>
         </div>
         <div class="form-group">
@@ -38,7 +37,7 @@ function loadItems() {
     fetch("http://localhost:8080/item", {
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -65,7 +64,7 @@ function loadLocations() {
     fetch("http://localhost:8080/location", {
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -91,7 +90,7 @@ function loadLocations() {
 function allocateProduct() {
     const itemId = document.getElementById("itemSelect").value;
     const locationId = document.getElementById("locationSelect").value;
-    const token = getToken();
+    const token = getCookie("token");
     console.log("Produto selecionado:", itemId);
     console.log("Locação selecionada:", locationId);
     console.log("Token:", token);
@@ -105,7 +104,7 @@ function allocateProduct() {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": getCookie("token")
         },
         body: JSON.stringify({
             item_id: parseInt(itemId),

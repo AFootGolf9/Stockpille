@@ -1,6 +1,4 @@
 function showRoleForm() {
-    // Mapeamento de entidades do frontend para tabelas do backend.
-    // Adicione ou remova entidades conforme necessário.
     const entities = [
         { displayName: "Usuários", tableName: "user_data" },
         { displayName: "Cargos (Roles)", tableName: "role" },
@@ -10,10 +8,9 @@ function showRoleForm() {
         { displayName: "Alocações", tableName: "allocation" }
     ];
 
-    // Mapeamento das ações para as letras de permissão do backend.
     const actions = [
         { displayName: "Ver", permission: "R" },
-        { displayName: "Criar/Escrever", permission: "W" }, // Usando 'W' para ser consistente com mainController
+        { displayName: "Criar/Escrever", permission: "W" },
         { displayName: "Editar", permission: "U" },
         { displayName: "Excluir", permission: "D" }
     ];
@@ -72,21 +69,16 @@ function showRoleForm() {
     listExistingRoles();
 }
 
-
-/**
- * Coleta os dados do formulário, formata corretamente e envia para a API.
- */
 function createRole() {
-    const roleName = document.getElementById("roleName").value;
+    const roleName = document.getElementById("roleName").value.toUpperCase();
     if (!roleName) {
         alert("Por favor, insira o nome do cargo.");
         return;
     }
 
-    // Monta o objeto de permissões no formato que o backend espera
     const permissionsMap = {};
     document.querySelectorAll('.permission-checkbox:checked').forEach(checkbox => {
-        const table = checkbox.getAttribute('data-table');
+        const table = checkbox.getAttribute('data-table').toLowerCase();
         const permission = checkbox.getAttribute('data-permission');
         if (!permissionsMap[table]) {
             permissionsMap[table] = '';
@@ -94,25 +86,26 @@ function createRole() {
         permissionsMap[table] += permission;
     });
 
-    // Converte o mapa para o array de objetos final
     const permissionsPayload = Object.keys(permissionsMap).map(table => {
         return {
-            Table: table,
-            Permission: permissionsMap[table]
+            table: table,
+            permission: permissionsMap[table]
         };
     });
 
     const roleData = {
         name: roleName,
-        permission: permissionsPayload // Corrigido para 'permission' como no backend
+        permission: permissionsPayload  // Note: singular 'permission'
     };
 
-    // A rota para criar cargo e permissões é a que está em `rolePermission.go`
-    fetch("http://localhost:8080/permission", { // Verifique se esta é a rota correta no seu router
+    console.log("Payload para criar role:", roleData);
+    console.log("Token:", getCookie("token"));
+
+    fetch("http://localhost:8080/role-permission", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${getCookie("token")}`
+            "Authorization": getCookie("token")
         },
         body: JSON.stringify(roleData)
     })
@@ -124,7 +117,7 @@ function createRole() {
     })
     .then(() => {
         alert("Cargo criado com sucesso!");
-        showRoleForm(); // Recarrega o formulário e a lista
+        showRoleForm();
     })
     .catch(error => {
         console.error("Erro ao criar cargo:", error);
@@ -132,12 +125,11 @@ function createRole() {
     });
 }
 
-/**
- * Lista os cargos existentes. A exibição foi simplificada.
- */
+
+
 function listExistingRoles() {
-    fetch("http://localhost:8080/role", { // Assumindo que /role retorna todos os cargos
-        headers: { "Authorization": `Bearer ${getCookie("token")}` }
+    fetch("http://localhost:8080/role", {
+        headers: { "Authorization": getCookie("token") }  // REMOVIDO Bearer aqui
     })
     .then(response => response.json())
     .then(data => {
@@ -159,3 +151,4 @@ function listExistingRoles() {
         document.getElementById("existingRoles").innerHTML = "<p>Erro ao carregar cargos.</p>";
     });
 }
+

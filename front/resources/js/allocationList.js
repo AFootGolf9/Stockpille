@@ -1,6 +1,11 @@
 function getToken() {
-    // Aqui você pode buscar o token do localStorage ou de um cookie, conforme sua implementação
-    return localStorage.getItem('authToken'); // Exemplo de token armazenado no localStorage
+    // Retorna o token simples do localStorage
+    return localStorage.getItem('authToken'); 
+}
+
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
 }
 
 function showAllocationsList() {
@@ -18,7 +23,7 @@ function showAllocationsList() {
     fetch("http://localhost:8080/allocation", {
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+            "Authorization": getCookie("token")
         }
     })
     .then(response => response.json())
@@ -33,7 +38,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/item/${allocation.item_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );
@@ -41,7 +46,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/user/${allocation.user_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );
@@ -49,7 +54,7 @@ function showAllocationsList() {
                 fetch(`http://localhost:8080/location/${allocation.location_id}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${getToken()}` // Incluindo o token no cabeçalho
+                        "Authorization": getCookie("token")
                     }
                 }).then(res => res.json())
             );

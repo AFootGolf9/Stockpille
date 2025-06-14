@@ -1,3 +1,4 @@
+// Função para alternar a exibição de submenus
 function toggleSubmenu(id) {
     var submenu = document.getElementById(id);
     if (submenu.style.display === "none" || submenu.style.display === "") {
@@ -7,6 +8,7 @@ function toggleSubmenu(id) {
     }
 }
 
+// Função para exibir o conteúdo inicial da página
 function showHome() {
     document.getElementById("main-content").innerHTML = `
         <h2>Bem-vindo!</h2>
@@ -14,13 +16,7 @@ function showHome() {
     `;
 }
 
+// Evento para ações iniciais após carregamento do DOM
 document.addEventListener("DOMContentLoaded", () => {
-    // fetch("URL_DA_API_DO_USUARIO")
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         document.getElementById("user-name").textContent = data.nome || "Usuário";
-    //     })
-    //     .catch(error => console.error("Erro ao carregar dados do usuário:", error));
+    showHome(); // Exibe conteúdo padrão ao carregar a página
 });
-
-

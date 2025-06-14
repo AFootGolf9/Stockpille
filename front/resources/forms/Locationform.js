@@ -11,7 +11,12 @@ function showLocationList() {
 
     document.getElementById("main-content").innerHTML = locationListHTML;
 
-    fetch("http://localhost:8080/location")
+    fetch("http://localhost:8080/location", {
+        method: "GET",
+        headers: {
+            "Authorization": getCookie("token")
+        }
+    })
         .then(response => response.json())
         .then(data => {
             const locations = data.data;
@@ -84,9 +89,13 @@ function showLocationForm(locationId = null) {
 
     document.getElementById("main-content").innerHTML = formHTML;
 
-    // Carrega dados da locação, se for edição
     if (locationId) {
-        fetch(`http://localhost:8080/location/${locationId}`)
+        fetch(`http://localhost:8080/location/${locationId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": getCookie("token")
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 const location = data.data;
@@ -102,60 +111,42 @@ function showLocationForm(locationId = null) {
             });
     }
 
-    // Adiciona o evento de clique para enviar o formulário
     document.getElementById("registerLocationBtn").addEventListener("click", function() {
         const locationName = document.getElementById("locationName").value;
 
         if (!locationName) {
             alert("Por favor, informe o nome da localização.");
-            return; // Impede o envio do formulário
+            return;
         }
 
         const locationData = { name: locationName };
 
-        if (locationId) {
-            // Atualização de locação
-            fetch(`http://localhost:8080/location/${locationId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(locationData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("Localização atualizada com sucesso!");
-                    showLocationList();
-                } else {
-                    throw new Error("Erro ao atualizar a localização.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert("Erro ao atualizar a localização. Tente novamente.");
-            });
-        } else {
-            // Cadastro de nova locação
-            fetch("http://localhost:8080/location", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(locationData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("Localização cadastrada com sucesso!");
-                    showLocationList();
-                } else {
-                    throw new Error("Erro ao cadastrar a localização.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert("Erro ao cadastrar a localização. Tente novamente.");
-            });
-        }
+        const url = locationId
+            ? `http://localhost:8080/location/${locationId}`
+            : "http://localhost:8080/location";
+
+        const method = locationId ? "PUT" : "POST";
+
+        fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": getCookie("token")
+            },
+            body: JSON.stringify(locationData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert(locationId ? "Localização atualizada com sucesso!" : "Localização cadastrada com sucesso!");
+                showLocationList();
+            } else {
+                throw new Error(locationId ? "Erro ao atualizar a localização." : "Erro ao cadastrar a localização.");
+            }
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+            alert("Erro ao processar a localização. Tente novamente.");
+        });
     });
 }
 
@@ -163,7 +154,10 @@ function deleteLocation(locationId) {
     const confirmDelete = confirm("Tem certeza que deseja excluir esta localização?");
     if (confirmDelete) {
         fetch(`http://localhost:8080/location/${locationId}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                "Authorization": getCookie("token")
+            }
         })
         .then(response => {
             if (response.ok) {
