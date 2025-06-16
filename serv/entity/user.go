@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"errors"
 	"stockpille/repository"
 	"stockpille/util"
 	"strings"
@@ -37,26 +38,27 @@ func (u *User) IsPersisted() bool {
 	return true
 }
 
-func (u *User) Validate(id int) {
+func (u *User) Validate(id int) error {
 	if u.Name == "" {
-		panic("Name is required")
+		return errors.New("name is required")
 	}
 	if u.RoleId == -1 || u.RoleId == 0 {
-		panic("Role is required")
+		return errors.New("roleId is required")
 	}
 	if u.Password == "" {
-		panic("Password is required")
+		return errors.New("password is required")
 	}
 
 	roleId := repository.VerifyRole(u.RoleId)
 
 	if !roleId {
-		panic("Role not found")
+		return errors.New("role does not exist")
 	}
 
 	u.Password = util.Encript(u.Password)
 	u.Name = strings.ToUpper(u.Name)
 
+	return nil
 }
 
 func (u *User) ValidateUpdate() {

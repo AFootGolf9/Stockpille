@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"errors"
 	"stockpille/repository"
 	"strings"
 )
@@ -35,13 +36,15 @@ func (l *Location) IsPersisted() bool {
 	return true
 }
 
-func (l *Location) Validate(id int) {
+func (l *Location) Validate(id int) error {
 	if l.Name == "" {
-		panic("Name is required")
+		return errors.New("name is required")
 	}
 
 	l.UserId = id
 	l.Name = strings.ToUpper(l.Name)
+
+	return nil
 }
 
 func (l *Location) ValidateUpdate() {
