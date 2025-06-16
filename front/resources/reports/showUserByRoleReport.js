@@ -1,4 +1,11 @@
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
 function showUserByRoleReport() {
+  const token = getCookie('token'); // Pega o token do cookie chamado 'token'
+
   const reportHTML = `
     <h2>Relatório de Usuários por Função (Role)</h2>
     <div id="user-by-role-report-result">
@@ -14,7 +21,7 @@ function showUserByRoleReport() {
 
   fetch('http://localhost:8080/rel/userbyrole', {
     headers: {
-      "Authorization": getCookie("token")
+      "Authorization": token // Envia o token direto no header Authorization
     }
   })
   .then(res => {
@@ -55,6 +62,7 @@ function showUserByRoleReport() {
     document.getElementById('user-by-role-report-result').innerHTML = `<p>Falha ao carregar relatório: ${err.message}</p>`;
   });
 }
+
 
 function generateUserByRolePDF() {
   const { jsPDF } = window.jspdf;

@@ -101,7 +101,7 @@ function createRole() {
     console.log("Payload para criar role:", roleData);
     console.log("Token:", getCookie("token"));
 
-    fetch("http://localhost:8080/role-permission", {
+    fetch("http://localhost:8080/role-permision", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

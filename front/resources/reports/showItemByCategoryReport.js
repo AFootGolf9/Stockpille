@@ -1,3 +1,8 @@
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
 function showItemByCategoryReport() {
     const reportHTML = `
         <h2>Relatório de Itens por Categoria</h2>
@@ -11,47 +16,65 @@ function showItemByCategoryReport() {
 
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    fetch("http://localhost:8080/rel/itembycategory")
-        .then(response => response.json())
-        .then(data => {
-            console.log("Relatório de itens por categoria:", data);
+    const token = getCookie("token");
+    if (!token) {
+        document.getElementById("item-by-category-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
+        return;
+    }
 
-            if (data && Object.keys(data).length > 0) {
-                const results = Object.keys(data).map(categoryName => {
-                    const count = data[categoryName] || 0;
-                    return { category: categoryName, totalItems: count };
-                });
-
-                results.sort((a, b) => b.totalItems - a.totalItems);
-
-                const tableHTML = `
-                    <table class="allocations-table">
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Total de Itens</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${results.map(r => `
-                                <tr>
-                                    <td>${r.category}</td>
-                                    <td>${r.totalItems}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-
-                document.getElementById("item-by-category-report-result").innerHTML = tableHTML;
-            } else {
-                document.getElementById("item-by-category-report-result").innerHTML = "<p>Nenhuma categoria encontrada.</p>";
+    fetch("http://localhost:8080/rel/itembycategory", {
+        headers: {
+            "Authorization": token
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Não autorizado: Verifique seu login.');
             }
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de itens por categoria:", error);
-            document.getElementById("item-by-category-report-result").innerHTML = `<p>Erro ao carregar relatório: ${error.message}</p>`;
-        });
+            throw new Error('Erro na requisição: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Relatório de itens por categoria:", data);
+
+        if (data && Object.keys(data).length > 0) {
+            const results = Object.keys(data).map(categoryName => {
+                const count = data[categoryName] || 0;
+                return { category: categoryName, totalItems: count };
+            });
+
+            results.sort((a, b) => b.totalItems - a.totalItems);
+
+            const tableHTML = `
+                <table class="allocations-table">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Total de Itens</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(r => `
+                            <tr>
+                                <td>${r.category}</td>
+                                <td>${r.totalItems}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById("item-by-category-report-result").innerHTML = tableHTML;
+        } else {
+            document.getElementById("item-by-category-report-result").innerHTML = "<p>Nenhuma categoria encontrada.</p>";
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao carregar o relatório de itens por categoria:", error);
+        document.getElementById("item-by-category-report-result").innerHTML = `<p>Erro ao carregar relatório: ${error.message}</p>`;
+    });
 }
 
 function generateItemByCategoryPDF() {
@@ -73,7 +96,7 @@ function generateItemByCategoryPDF() {
             cells.forEach(cell => {
                 rowData.push(cell.textContent);
             });
-            if (index !== 0) { // Ignora o cabeçalho
+            if (index !== 0) {
                 tableData.push(rowData);
             }
         });

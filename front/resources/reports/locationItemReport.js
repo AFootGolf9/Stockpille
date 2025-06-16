@@ -1,3 +1,8 @@
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
 function showItemByLocationReport() {
     const reportHTML = `
         <h2>Relatório de Localizações com Mais Itens</h2>
@@ -10,55 +15,67 @@ function showItemByLocationReport() {
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    fetch("http://localhost:8080/rel/itembylocation")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
+    const token = getCookie("token");
+    if (!token) {
+        document.getElementById("item-by-location-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
+        return;
+    }
+
+    fetch("http://localhost:8080/rel/itembylocation", {
+        headers: {
+            "Authorization": token
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Não autorizado: Verifique seu login.');
             }
-            return response.json();
-        })
-        .then(locationData => {
-            console.log("Relatório de localizações com mais itens:", locationData); 
+            throw new Error('Erro na requisição: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(locationData => {
+        console.log("Relatório de localizações com mais itens:", locationData);
 
-            // Validação: locationData deve ser um objeto com pelo menos 1 chave
-            if (locationData && typeof locationData === "object" && Object.keys(locationData).length > 0) {
-                const results = Object.keys(locationData).map(locationName => {
-                    const totalItems = locationData[locationName] || 0;  
-                    return {
-                        location: locationName,
-                        totalItems: totalItems
-                    };
-                });
+        if (locationData && typeof locationData === "object" && Object.keys(locationData).length > 0) {
+            const results = Object.keys(locationData).map(locationName => {
+                const totalItems = locationData[locationName] || 0;
+                return {
+                    location: locationName,
+                    totalItems: totalItems
+                };
+            });
 
-                results.sort((a, b) => b.totalItems - a.totalItems);
+            results.sort((a, b) => b.totalItems - a.totalItems);
 
-                const tableHTML = `
-                    <table class="allocations-table">
-                        <thead>
+            const tableHTML = `
+                <table class="allocations-table">
+                    <thead>
+                        <tr>
+                            <th>Localização</th>
+                            <th>Total de Itens</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(result => `
                             <tr>
-                                <th>Localização</th>
-                                <th>Total de Itens</th>
+                                <td>${result.location}</td>
+                                <td>${result.totalItems}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${results.map(result => `
-                                <tr>
-                                    <td>${result.location}</td>
-                                    <td>${result.totalItems}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-                document.getElementById("item-by-location-report-result").innerHTML = tableHTML;
-            } else {
-                document.getElementById("item-by-location-report-result").innerHTML = "<p>Nenhuma localização encontrada.</p>";
-            }
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de localizações com mais itens:", error);
-            document.getElementById("item-by-location-report-result").innerHTML = `<p>Erro ao carregar o relatório de localizações: ${error.message}</p>`;
-        });
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById("item-by-location-report-result").innerHTML = tableHTML;
+        } else {
+            document.getElementById("item-by-location-report-result").innerHTML = "<p>Nenhuma localização encontrada.</p>";
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao carregar o relatório de localizações com mais itens:", error);
+        document.getElementById("item-by-location-report-result").innerHTML = `<p>Erro ao carregar o relatório de localizações: ${error.message}</p>`;
+    });
 }
 
 function generateItemByLocationPDF() {
@@ -118,7 +135,7 @@ function generateItemByLocationPDF() {
         },
     });
 
-    const pageCount = doc.internal.getNumberOfPages(); 
+    const pageCount = doc.internal.getNumberOfPages();
     doc.setFontSize(10);
     doc.setFont("helvetica");
     doc.text(`Página ${pageCount}`, 180, 285);
