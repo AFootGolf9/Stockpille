@@ -1,5 +1,3 @@
-/* lists.css */
-
 /* --- Estilos Base --- */
 
 .product-filter {
@@ -31,108 +29,84 @@
     min-width: 150px;
 }
 
-/* Tabelas Gerais - Estilo base comum */
-.product-table, .location-table, .user-table, .allocations-table {
+.generic-list-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-/* --- ALTERAÇÃO APLICADA AQUI --- */
-.product-table th, .product-table td,
-.location-table th, .location-table td,
-.user-table th, .user-table td,
-.allocations-table th, .allocations-table td {
+.generic-list-table th,
+.generic-list-table td {
     border: 1px solid #dee2e6;
-    padding: 3px; /* Reduzido de 12px para diminuir a altura (espessura) */
+    padding: 8px 12px;
     text-align: left;
-    font-size: 14px; /* Reduzido de 15px para um visual mais compacto */
+    font-size: 14px;
 }
 
-.product-table th,
-.location-table th,
-.user-table th,
-.allocations-table th {
-    background-color: #007bff;
+.generic-list-table th {
+    background-color: #143658;
     font-weight: bold;
     color: white;
 }
 
-.product-table tr:nth-child(even),
-.location-table tr:nth-child(even),
-.user-table tr:nth-child(even),
-.allocations-table tr:nth-child(even) {
+.generic-list-table tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-.product-table tr:hover,
-.location-table tr:hover,
-.user-table tr:hover,
-.allocations-table tr:hover {
+.generic-list-table tr:hover {
     background-color: #e9ecef;
 }
 
-/* Ajustes específicos, se #product-list for um container da tabela */
-#product-list {
-    margin-top: 0;
-}
-
-/* Containers específicos para listas com rolagem */
-.product-list-container, .allocations-list-container {
-    max-height: 700px;
-    overflow-y: auto;
-    overflow-x: hidden;
+.list-container {
     border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
     margin-top: 5px;
     background-color: white;
 }
 
-/* Para itens de lista clicáveis dentro desses containers (exemplo, se não for tabela) */
-.product-item {
-    padding: 8px 10px; /* Padding vertical reduzido */
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-}
-.product-item:last-child {
-    border-bottom: none;
-}
-.product-item:hover {
-    background-color: #f1f1f1;
-}
-
-
-/* Botões dentro de listas específicas (ex: #location-list button) */
-#location-list button, #allocations-list button {
-    padding: 10px 20px;
-    background-color: #007bff;
+/* Botões dentro de listas */
+.generic-list-table button {
+    padding: 6px 12px;
+    background-color: #143658;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    font-size: 13px;
 }
 
-#location-list button:hover, #allocations-list button:hover {
-    background-color: #002a54;
+.generic-list-table button:hover {
+    background-color: #0056b3;
 }
 
+.generic-list-table .deleteBtn {
+    background-color: #dc3545;
+}
 
-/* Headers de Seção (User, Allocations) */
-.user-header, .allocations-header {
+.generic-list-table .deleteBtn:hover {
+    background-color: #c82333;
+}
+
+/* Cabeçalhos e Formulários */
+.section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid #dee2e6;
 }
 
-.user-header h2, .allocations-header h2 {
+.section-header h2 {
     margin: 0;
     font-size: 22px;
     color: #343a40;
 }
 
-.user-header button, .allocations-header button {
+.section-header button, .header-actions button {
     background-color: #002a54;
     color: white;
     border: none;
@@ -142,12 +116,16 @@
     border-radius: 5px;
 }
 
-.user-header button:hover, .allocations-header button:hover {
-    background-color: #002a54;
+.section-header button:hover, .header-actions button:hover {
+    background-color: #001f3d;
 }
 
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
-/* Estilos para Formulários (geralmente dentro de modals ou seções específicas) */
 form h2 {
     font-size: 22px;
     margin-bottom: 20px;
@@ -166,11 +144,7 @@ form h2 {
     color: #495057;
 }
 
-.form-group input[type="text"],
-.form-group input[type="password"],
-.form-group input[type="email"],
-.form-group input[type="number"],
-.form-group input[type="date"],
+.form-group input,
 .form-group textarea,
 .form-group select {
     width: 100%;
@@ -179,81 +153,90 @@ form h2 {
     border: 1px solid #ced4da;
     border-radius: 5px;
     background-color: #fff;
-}
-.form-group textarea {
-    min-height: 80px;
+    box-sizing: border-box;
 }
 
-.form-group button, form > button {
-    background-color: #002a54;
-    color: white;
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+.form-actions button {
     padding: 12px 20px;
     font-size: 16px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
-    margin-top: 10px;
 }
 
-.form-group button:hover, form > button:hover {
-    background-color: #0056b3;
+#registerBtn, #registerProductBtn, #createRoleSubmitBtn, #registerLocationBtn, #updateCategoryBtn {
+    background-color: #002a54;
+    color: white;
 }
 
-/* Mensagem de erro */
-.error-message {
-    color: #dc3545;
-    font-size: 14px;
-    margin-top: 5px;
-}
-
-/* Estilo geral para Select (se não estiver dentro de .form-group ou .product-filter) */
-select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 15px;
-}
-
-/* Estilo geral para Botão (se não coberto por regras mais específicas) */
-button.btn-generic {
-    padding: 10px 18px;
-    margin-top: 10px;
+#backBtn {
     background-color: #6c757d;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 15px;
 }
 
-button.btn-generic:hover {
-    background-color: #545b62;
-}
+/* ============================= */
+/* === MENU DE RELATÓRIOS === */
+/* ============================= */
 
-/* Botão Gerar PDF */
-#button-container {
+.report-menu-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
     margin-top: 20px;
-    text-align: right;
 }
 
-#generate-pdf {
-    padding: 10px 20px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
+.report-card-button {
+    background-color: #143658;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    min-height: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     cursor: pointer;
-    font-size: 15px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid transparent;
 }
 
-#generate-pdf:hover {
-    background-color: #c82333;
+.report-card-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+.report-card-button:active {
+    transform: scale(0.97);
+}
 
-/* --- Media Queries para Responsividade --- */
+.report-card-button:focus {
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+}
+
+.report-card-button h3 {
+    margin: 0;
+    font-size: 1.15em;
+    font-weight: 600;
+}
+
+/* ========================== */
+/* === RESPONSIVIDADE === */
+/* ========================== */
 
 @media (max-width: 767.98px) {
     .product-filter {
@@ -268,95 +251,282 @@ button.btn-generic:hover {
         min-width: 0;
     }
 
-    /* Tabelas Responsivas: Adiciona rolagem horizontal */
-    .product-table-wrapper,
-    .location-table-wrapper,
-    .user-table-wrapper,
-    .allocations-table-wrapper,
-    .product-list-container,
-    .allocations-list-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Opcional: fazer as tabelas terem display block para forçar rolagem dentro do wrapper */
-     .product-table, .location-table, .user-table, .allocations-table {
-         /* display: block; */
-         /* white-space: nowrap; */
-         /* min-width: 600px; */
-    }
-
-
-    .product-table th, .product-table td,
-    .location-table th, .location-table td,
-    .user-table th, .user-table td,
-    .allocations-table th, .allocations-table td {
-        padding: 6px; /* Padding já estava reduzido, mantido */
-        font-size: 13px; /* Reduzido um pouco para consistência */
-    }
-
-    /* Ajustes para headers de seção */
-    .user-header, .allocations-header {
+    .section-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .section-header h2 {
+        font-size: 20px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
         gap: 10px;
     }
 
-    .user-header h2, .allocations-header h2 {
-        font-size: 20px;
-    }
-
-    .user-header button, .allocations-header button {
+    .header-actions button {
         width: 100%;
         text-align: center;
     }
 
-    /* Ajustes para formulários */
-    form h2 {
-        font-size: 20px;
+    .list-container {
+        overflow-x: initial;
+        border: none;
+        background-color: transparent;
+        margin-top: 0;
     }
 
-    .form-group label,
-    .form-group input[type="text"],
-    .form-group input[type="password"],
-    .form-group input[type="email"],
-    .form-group input[type="number"],
-    .form-group input[type="date"],
-    .form-group textarea,
-    .form-group select {
-        font-size: 14px;
+    .generic-list-table {
+        border: none;
     }
 
-    .form-group button, form > button {
+    .generic-list-table thead {
+        display: none;
+    }
+
+    .generic-list-table tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .generic-list-table tr:nth-child(even) {
+        background-color: #fff;
+    }
+
+    .generic-list-table td {
+        border: none;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
         width: 100%;
-        padding: 12px 15px;
     }
 
-    #generate-pdf {
+    .generic-list-table td:not(:last-child) {
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .generic-list-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #343a40;
+        padding-right: 10px;
+    }
+
+    .generic-list-table td[data-label="Item"],
+    .generic-list-table td[data-label="Nome"] {
         width: 100%;
-        margin-top: 15px;
-    }
-    #button-container {
-        text-align: center;
+        display: block;
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #143658;
+        padding-bottom: 8px;
     }
 
-    /* Ajuste para containers de lista com altura máxima */
-    .product-list-container, .allocations-list-container {
-        max-height: 50vh;
+    .generic-list-table td[data-label="Item"]::before,
+    .generic-list-table td[data-label="Nome"]::before {
+        display: none;
+    }
+
+    .generic-list-table td[data-label="SKU"],
+    .generic-list-table td[data-label="Quantidade"] {
+        width: 50%;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .generic-list-table td[data-label="SKU"] {
+        padding-right: 5px;
+        border-right: 2px solid #e9ecef;
+    }
+
+    .generic-list-table td[data-label="Quantidade"] {
+        padding-left: 5px;
+    }
+
+    .generic-list-table td[data-label="Ações"] {
+        justify-content: flex-end;
+        gap: 8px;
+        border-bottom: none;
+        padding-top: 8px;
+    }
+
+    .generic-list-table td[data-label="Ações"]::before {
+        display: none;
+    }
+
+    .generic-list-table td[data-label="Ações"]::after {
+        content: "";
+        flex-grow: 1;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions button {
+        width: 100%;
     }
 }
 
-/* Opcional: Ajustes para telas muito pequenas (ex: abaixo de 480px) */
-@media (max-width: 479.98px) {
-    .product-table th, .product-table td,
-    .location-table th, .location-table td,
-    .user-table th, .user-table td,
-    .allocations-table th, .allocations-table td {
-        padding: 5px;
-        font-size: 12px;
-    }
+/* ======================================================= */
+/* --- ESTILOS PARA FORMULÁRIO E LISTA DE CARGOS (ROLES) --- */
+/* ======================================================= */
 
-    .user-header h2, .allocations-header h2, form h2 {
-        font-size: 18px;
-    }
+/* Container geral para formulários e listas em estilo de card */
+.card-style {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* Tabela de Permissões */
+.permission-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.permission-table th,
+.permission-table td {
+    border: 1px solid #e9ecef;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.permission-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+}
+
+.permission-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: #343a40;
+}
+
+.permission-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Container para a tabela para permitir rolagem em telas pequenas */
+.table-responsive-container {
+    overflow-x: auto;
+}
+
+
+/* =============================================== */
+/* --- ESTILO DO INTERRUPTOR (TOGGLE SWITCH) --- */
+/* =============================================== */
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px; /* Largura do switch */
+    height: 28px; /* Altura do switch */
+}
+
+/* Esconde o checkbox padrão do navegador */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* O fundo do switch */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px; /* Para deixar as bordas redondas */
+    transition: .4s;
+}
+
+/* O círculo que desliza */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%; /* Para ser um círculo perfeito */
+    transition: .4s;
+}
+
+/* Estilo quando o checkbox está MARCADO (checked) */
+.toggle-switch input:checked + .slider {
+    background-color: #143658; /* Cor primária do tema */
+}
+
+.toggle-switch input:checked + .slider:before {
+    /* Move o círculo para a direita */
+    transform: translateX(22px);
+}
+
+/* ===================================== */
+/* --- LISTA DE CARGOS EXISTENTES --- */
+/* ===================================== */
+.styled-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.styled-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.styled-list-item:last-child {
+    border-bottom: none;
+}
+
+.styled-list-item span {
+    font-weight: 500;
+    color: #343a40;
+}
+
+/* Botão pequeno para ações na lista */
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-sm:hover {
+    background-color: #5a6268;
+}
+
+/* Botão secundário para "Voltar" */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
 }

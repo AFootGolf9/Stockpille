@@ -4,13 +4,17 @@ function getCookie(name) {
 }
 
 function showItemByCategoryReport() {
+    // ALTERAÇÃO APLICADA AQUI: Adicionado o botão "Voltar".
     const reportHTML = `
-        <h2>Relatório de Itens por Categoria</h2>
+        <div class="section-header">
+            <h2>Relatório de Itens por Categoria</h2>
+            <div>
+                <button class="btn-secondary" onclick="showReportMenu()">Voltar</button>
+                <button id="generate-pdf-category" onclick="generateItemByCategoryPDF()">Gerar PDF</button>
+            </div>
+        </div>
         <div id="item-by-category-report-result">
             <p>Carregando relatório...</p>
-        </div>
-        <div id="button-container" style="margin-top: 15px;">
-            <button id="generate-pdf-category" onclick="generateItemByCategoryPDF()">Gerar PDF</button>
         </div>
     `;
 
@@ -41,29 +45,30 @@ function showItemByCategoryReport() {
 
         if (data && Object.keys(data).length > 0) {
             const results = Object.keys(data).map(categoryName => {
-                const count = data[categoryName] || 0;
-                return { category: categoryName, totalItems: count };
+                return { category: categoryName, totalItems: data[categoryName] || 0 };
             });
 
             results.sort((a, b) => b.totalItems - a.totalItems);
 
             const tableHTML = `
-                <table class="allocations-table">
-                    <thead>
-                        <tr>
-                            <th>Categoria</th>
-                            <th>Total de Itens</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${results.map(r => `
+                <div class="list-container">
+                    <table class="generic-list-table">
+                        <thead>
                             <tr>
-                                <td>${r.category}</td>
-                                <td>${r.totalItems}</td>
+                                <th>Categoria</th>
+                                <th>Total de Itens</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${results.map(r => `
+                                <tr>
+                                    <td data-label="Categoria">${r.category}</td>
+                                    <td data-label="Total de Itens">${r.totalItems}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
 
             document.getElementById("item-by-category-report-result").innerHTML = tableHTML;
@@ -85,56 +90,31 @@ function generateItemByCategoryPDF() {
     doc.setFontSize(16);
     doc.text("Relatório de Itens por Categoria", 14, 20);
 
-    const table = document.querySelector(".allocations-table");
-    if (table) {
-        const rows = table.querySelectorAll("tr");
-        const tableData = [];
+    const table = document.querySelector(".generic-list-table");
+    if (!table) {
+        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        return;
+    }
 
-        rows.forEach((row, index) => {
-            const cells = row.querySelectorAll("td, th");
-            const rowData = [];
-            cells.forEach(cell => {
-                rowData.push(cell.textContent);
-            });
-            if (index !== 0) {
-                tableData.push(rowData);
-            }
-        });
+    doc.autoTable({
+        html: table,
+        startY: 30,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [20, 54, 88],
+            textColor: 255,
+            fontStyle: 'bold',
+        }
+    });
 
-        doc.autoTable({
-            head: [["Categoria", "Total de Itens"]],
-            body: tableData,
-            startY: 30,
-            theme: 'grid',
-            styles: {
-                font: 'helvetica',
-                fontSize: 12,
-                cellPadding: 5,
-                valign: 'middle',
-            },
-            headStyles: {
-                fillColor: [22, 160, 133],
-                textColor: 255,
-                fontStyle: 'bold',
-            },
-            bodyStyles: {
-                fillColor: [242, 242, 242],
-                textColor: 0,
-            },
-            alternateRowStyles: {
-                fillColor: [255, 255, 255],
-            },
-        });
-
-        const pageCount = doc.internal.getNumberOfPages();
-        doc.setFontSize(10);
-        doc.setFont("helvetica");
-        doc.text(`Página ${pageCount}`, 180, 285);
-
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
         const pageHeight = doc.internal.pageSize.getHeight();
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text("StockPille", 10, pageHeight - 10);
+        doc.text("StockPille", 14, pageHeight - 10);
+        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
     }
 
     doc.save("relatorio_itens_por_categoria.pdf");

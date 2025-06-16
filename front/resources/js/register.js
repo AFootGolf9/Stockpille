@@ -1,132 +1,104 @@
-function loginUser(username, password) {
-    fetch("http://localhost:8080/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name: username, password: password })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error("Falha ao fazer login. Verifique suas credenciais.");
-        }
-    })
-    .then(data => {
-        const token = data.token;
-        document.cookie = `token=${token}; path=/`;
-        alert("Login realizado com sucesso!");
-        window.location.href = 'home.html';
-    })
-    .catch(error => {
-        console.error("Erro no login:", error);
-        alert("Erro ao fazer login. Tente novamente.");
-    });
-}
-
-function showLoginForm() {
-    const loginHTML = `
-        <h2>Login</h2>
-        <div class="form-group">
-            <label for="username">Usuário:</label>
-            <input type="text" id="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Senha:</label>
-            <input type="password" id="password" required>
-        </div>
-        <button id="loginBtn">Entrar</button>
-        <div id="tokenDisplay"></div>
-    `;
-
-    document.getElementById("main-content").innerHTML = loginHTML;
-
-    document.getElementById("loginBtn").addEventListener("click", () => {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        loginUser(username, password);
-    });
-}
-
 function showUserList() {
+    // ALTERAÇÃO: Usando classes genéricas "section-header" e "header-actions".
     const userListHTML = `
-        <div class="user-header">
-            <h2>Lista de Usuários</h2>
-            <div class="user-actions">
-                <button id="createUserBtn">Criar Usuário</button>
-                <button id="createRoleBtn">Criar Cargo</button>
-            </div>
+    <div class="section-header">
+        <h2>Lista de Usuários</h2>
+        <div class="header-actions">
+            <button id="createUserBtn">Criar Usuário</button>
+            <button id="createRoleBtn">Criar Cargo</button>
+            <button id="listRolesBtn">Listar Cargos</button>
         </div>
-        <div id="user-list" class="user-list">
-            <p>Carregando usuários...</p>
-        </div>
-    `;
-
+    </div>
+    <div id="user-list">
+        <p>Carregando usuários...</p>
+    </div>
+    <div id="role-list" class="role-list" style="margin-top: 20px;"></div>`;
     document.getElementById("main-content").innerHTML = userListHTML;
 
-    fetch("http://localhost:8080/user", {
-        headers: {
-            "Authorization": getCookie("token")
-        }
+    fetch("http://localhost:8080/role", {
+        headers: { "Authorization": getCookie("token") }
     })
     .then(response => response.json())
-    .then(data => {
-        const users = data.data;
-        console.log("Resposta da API:", users);
-
-        const userListContainer = document.getElementById("user-list");
-
-        if (Array.isArray(users) && users.length > 0) {
-            const tableHTML = `
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Cargo</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(user => `
-                            <tr>
-                                <td>${user.name}</td>
-                                <td>${user.role}</td>
-                                <td>
-                                    <button class="editBtn" data-id="${user.id}">Editar</button>
-                                    <button class="deleteBtn" data-id="${user.id}">Excluir</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            userListContainer.innerHTML = tableHTML;
-
-            document.querySelectorAll(".editBtn").forEach(button => {
-                button.addEventListener("click", (event) => {
-                    const userId = event.target.getAttribute("data-id");
-                    showUserForm(userId);
-                });
+    .then(roleData => {
+        const roles = roleData.data;
+        const roleMap = {};
+        if (roles && Array.isArray(roles)) {
+            roles.forEach(role => {
+                roleMap[role.id] = role.name;
             });
-
-            document.querySelectorAll(".deleteBtn").forEach(button => {
-                button.addEventListener("click", (event) => {
-                    const userId = event.target.getAttribute("data-id");
-                    deleteUser(userId);
-                });
-            });
-        } else {
-            userListContainer.innerHTML = "<p>Nenhum usuário cadastrado.</p>";
         }
+
+        fetch("http://localhost:8080/user", {
+            headers: {
+                "Authorization": getCookie("token")
+            }
+        })
+        .then(response => response.json())
+        .then(userData => {
+            const users = userData.data;
+            const userListContainer = document.getElementById("user-list");
+
+            if (Array.isArray(users) && users.length > 0) {
+                // ALTERAÇÃO:
+                // 1. Tabela usa "generic-list-table" e está dentro de um "list-container".
+                // 2. Cada <td> tem o atributo "data-label" para responsividade.
+                const tableHTML = `
+                    <div class="list-container">
+                        <table class="generic-list-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Cargo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${users.map(user => `
+                                    <tr>
+                                        <td data-label="Nome">${user.name}</td>
+                                        <td data-label="Cargo">${roleMap[user.roleId] || "Sem cargo"}</td>
+                                        <td data-label="Ações">
+                                            <button class="editBtn" data-id="${user.id}">Editar</button>
+                                            <button class="deleteBtn" data-id="${user.id}">Excluir</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                userListContainer.innerHTML = tableHTML;
+
+                document.querySelectorAll(".editBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const userId = event.target.getAttribute("data-id");
+                        showUserForm(userId);
+                    });
+                });
+
+                document.querySelectorAll(".deleteBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const userId = event.target.getAttribute("data-id");
+                        deleteUser(userId);
+                    });
+                });
+            } else {
+                userListContainer.innerHTML = "<p>Nenhum usuário cadastrado.</p>";
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao carregar usuários:", error);
+            document.getElementById("user-list").innerHTML = "<p>Erro ao carregar usuários.</p>";
+        });
     })
     .catch(error => {
-        console.error("Erro ao carregar usuários:", error);
-        document.getElementById("user-list").innerHTML = "<p>Erro ao carregar usuários.</p>";
+        console.error("Erro ao carregar cargos:", error);
+        document.getElementById("user-list").innerHTML = "<p>Erro ao carregar cargos.</p>";
     });
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
     document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
+    document.getElementById("listRolesBtn").addEventListener("click", () => {showRoleList();}); // Supondo que você tenha a função showRoleList
 }
 
 function showUserForm(userId = null) {
@@ -146,12 +118,14 @@ function showUserForm(userId = null) {
             <label for="password">Senha:</label>
             <input type="password" id="password" name="password" ${userId ? 'placeholder="Deixe em branco para não alterar"' : 'required'}>
         </div>
-        <div class="form-group">
+        <div class="form-actions">
+            <button type="button" id="backBtn">Voltar</button>
             <button id="registerBtn">${userId ? 'Atualizar Usuário' : 'Cadastrar Usuário'}</button>
         </div>
     `;
-
     document.getElementById("main-content").innerHTML = formHTML;
+
+    document.getElementById("backBtn").addEventListener("click", showUserList);
 
     const roleSelect = document.getElementById("role");
 
@@ -219,6 +193,52 @@ function showUserForm(userId = null) {
                 showUserList();
             } else {
                 throw new Error(`Erro ao ${userId ? 'atualizar' : 'cadastrar'} o usuário.`);
+            }
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+            alert(error.message);
+        });
+    });
+}
+
+function showRoleForm() {
+    const formHTML = `
+        <h2>Cadastro de Cargo</h2>
+        <div class="form-group">
+            <label for="roleName">Nome do Cargo:</label>
+            <input type="text" id="roleName" name="roleName" required>
+        </div>
+        <div class="form-actions">
+            <button type="button" id="backBtn">Voltar</button>
+            <button id="createRoleSubmitBtn">Cadastrar Cargo</button>
+        </div>
+    `;
+    document.getElementById("main-content").innerHTML = formHTML;
+
+    document.getElementById("backBtn").addEventListener("click", showUserList);
+
+    document.getElementById("createRoleSubmitBtn").addEventListener("click", () => {
+        const name = document.getElementById("roleName").value;
+        if (!name) {
+            alert("Por favor, insira o nome do cargo.");
+            return;
+        }
+
+        fetch("http://localhost:8080/role", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": getCookie("token")
+            },
+            body: JSON.stringify({ name })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Cargo criado com sucesso!");
+                showUserList();
+            } else {
+                throw new Error("Erro ao criar o cargo.");
             }
         })
         .catch(error => {

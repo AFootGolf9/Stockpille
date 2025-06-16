@@ -4,13 +4,14 @@ function getCookie(name) {
 }
 
 function showAllocationReport() {
+    // ALTERAÇÃO APLICADA AQUI: Padronizando o cabeçalho da página.
     const reportHTML = `
-        <h2>Relatório de Locações por Usuários</h2>
+        <div class="section-header">
+            <h2>Relatório de Locações por Usuários</h2>
+            <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
+        </div>
         <div id="allocations-report-result">
             <p>Carregando relatório...</p>
-        </div>
-        <div id="button-container">
-            <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
         </div>
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
@@ -48,25 +49,28 @@ function showAllocationReport() {
                 totalAllocations: allocationData[user.name] || 0
             }));
 
-            results.sort((a, b) => b.totalAllocations - a.totalAllocations); // Ordena por total
+            results.sort((a, b) => b.totalAllocations - a.totalAllocations);
 
+            // ALTERAÇÕES APLICADAS AQUI: Usando o padrão de container, tabela e data-labels.
             const tableHTML = `
-                <table class="allocations-table">
-                    <thead>
-                        <tr>
-                            <th>Usuário</th>
-                            <th>Total de Locações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${results.map(result => `
+                <div class="list-container">
+                    <table class="generic-list-table">
+                        <thead>
                             <tr>
-                                <td>${result.user}</td>
-                                <td>${result.totalAllocations}</td>
+                                <th>Usuário</th>
+                                <th>Total de Locações</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${results.map(result => `
+                                <tr>
+                                    <td data-label="Usuário">${result.user}</td>
+                                    <td data-label="Total de Locações">${result.totalAllocations}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
             document.getElementById("allocations-report-result").innerHTML = tableHTML;
         })
@@ -91,67 +95,34 @@ function generatePDF() {
     doc.setFontSize(16);
     doc.text("Relatório de locações por usuários", 14, 20);
 
-    const table = document.querySelector(".allocations-table");
-    if (table) {
-        const rows = table.querySelectorAll("tr");
-        if (rows.length <= 1) {
-            alert("Não há dados suficientes para gerar o PDF.");
-            return;
+    // ALTERAÇÃO APLICADA AQUI: O seletor agora busca pela classe genérica e correta.
+    const table = document.querySelector(".generic-list-table");
+    if (!table) {
+        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        return;
+    }
+    
+    doc.autoTable({
+        html: table, // O método 'html' simplifica a extração de dados da tabela
+        startY: 30,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [20, 54, 88], // Cor do cabeçalho do nosso CSS
+            textColor: 255,
+            fontStyle: 'bold',
         }
-
-        const tableData = [];
-        
-        rows.forEach((row, index) => {
-            const cells = row.querySelectorAll("td, th");
-            const rowData = [];
-            cells.forEach(cell => {
-                rowData.push(cell.textContent);
-            });
-            if (index !== 0) {  // Ignora a primeira linha (cabeçalho)
-                tableData.push(rowData);
-            }
-        });
-
-        // Configuração da tabela no PDF
-        doc.autoTable({
-            head: [["Usuário", "Total de Locações"]],
-            body: tableData,
-            startY: 30,  // Posição onde a tabela começa
-            theme: 'grid',  // Tema para bordas visíveis
-            styles: {
-                font: 'helvetica',  // Fonte
-                fontSize: 12,       // Tamanho da fonte
-                cellPadding: 5,     // Espaçamento das células
-                valign: 'middle',   // Alinhamento vertical
-            },
-            headStyles: {
-                fillColor: [22, 160, 133],  // Cor do cabeçalho
-                textColor: 255,              // Cor do texto no cabeçalho
-                fontStyle: 'bold',           // Estilo da fonte do cabeçalho
-            },
-            bodyStyles: {
-                fillColor: [242, 242, 242],  // Cor de fundo das células
-                textColor: 0,                // Cor do texto
-            },
-            alternateRowStyles: {
-                fillColor: [255, 255, 255],  // Cor alternada das linhas
-            },
-        });
-
-        const pageCount = doc.internal.getNumberOfPages();  
-        doc.setFontSize(10);
-        doc.setFont("helvetica");
-        doc.text(`Página ${pageCount}`, 180, 285);
-
+    });
+    
+    // Adiciona rodapé em todas as páginas
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
         const pageHeight = doc.internal.pageSize.getHeight();
-        const text = "StockPille";
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(text, 10, pageHeight - 10); 
-    } else {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        doc.text("StockPille", 14, pageHeight - 10);
+        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
     }
 
-    // Salva o PDF gerado
-    doc.save("relatorio_locacoes.pdf");
+    doc.save("relatorio_locacoes_por_usuario.pdf");
 }

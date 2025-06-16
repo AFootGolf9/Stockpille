@@ -1,8 +1,9 @@
 function showProductList() {
+    // ALTERAÇÃO APLICADA AQUI: Usando a classe genérica "header-actions"
     const productListHTML = `
-        <div class="product-section-header">
+        <div class="section-header"> 
             <h2>Lista de Produtos</h2>
-            <div class="product-header-actions">
+            <div class="header-actions">
                 <button id="createProductBtn">Criar Produto</button>
                 <button id="createCategoryBtn">Criar Categoria</button>
                 <button id="listCategoryBtn">Listar Categorias</button>
@@ -14,7 +15,7 @@ function showProductList() {
                 <option value="">Todas as Categorias</option>
             </select>
         </div>
-        <div class="product-table-wrapper">
+        <div class="list-container"> 
             <div id="product-list-content-area">
                 <p>Carregando produtos...</p>
             </div>
@@ -29,7 +30,6 @@ function showProductList() {
     let allProducts = [];
     let categoryMap = {};
 
-    // Primeiro: carregar categorias
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
@@ -46,8 +46,6 @@ function showProductList() {
                 categoryMap[cat.id] = cat.name;
             });
         }
-
-        // Só depois de carregar as categorias, carregar os produtos
         return fetch("http://localhost:8080/item", {
             method: "GET",
             headers: { "Authorization": getCookie("token") }
@@ -89,7 +87,7 @@ function showProductList() {
 
     function renderTable(products) {
         let html = `
-            <table class="product-table">
+            <table class="generic-list-table">
                 <thead><tr>
                     <th>SKU</th><th>Item</th><th>Categoria</th>
                     <th>Descrição</th><th>Quantidade</th><th>Ações</th>
@@ -100,14 +98,15 @@ function showProductList() {
         } else {
             products.forEach(p => {
                 const catName = p.category_id ? (categoryMap[p.category_id] || 'Desconhecida') : 'Sem Categoria';
+                // ALTERAÇÃO APLICADA AQUI: Adicionados os "data-label" para a responsividade funcionar.
                 html += `
                     <tr>
-                        <td>${p.sku || '-'}</td>
-                        <td>${p.name}</td>
-                        <td>${catName}</td>
-                        <td>${p.description || '-'}</td>
-                        <td id="quantity-${p.sku}">Carregando...</td>
-                        <td>
+                        <td data-label="SKU">${p.sku || '-'}</td>
+                        <td data-label="Item">${p.name}</td>
+                        <td data-label="Categoria">${catName}</td>
+                        <td data-label="Descrição">${p.description || '-'}</td>
+                        <td data-label="Quantidade" id="quantity-${p.sku}">Carregando...</td>
+                        <td data-label="Ações">
                             <button class="editBtn" data-id="${p.sku}">Editar</button>
                             <button class="deleteBtn" data-id="${p.sku}">Excluir</button>
                         </td>
@@ -117,7 +116,6 @@ function showProductList() {
         html += "</tbody></table>";
         productListContentArea.innerHTML = html;
 
-        // Buscar quantidades
         products.forEach(p => {
             fetch(`http://localhost:8080/item/quantity/${p.sku}`, {
                 method: "GET",
@@ -129,18 +127,19 @@ function showProductList() {
                 if (cell) cell.textContent = qtd.quantity ?? "N/D";
             })
             .catch(err => {
-                console.error(`Erro quantidade ${p.sku}:`, err);
                 const cell = document.getElementById(`quantity-${p.sku}`);
                 if (cell) cell.textContent = "Erro";
             });
         });
 
-        // Eventos de edição/exclusão
-        document.querySelector(".product-table").addEventListener("click", e => {
-            const id = e.target.getAttribute("data-id");
-            if (e.target.classList.contains("editBtn")) showProductForm(id);
-            if (e.target.classList.contains("deleteBtn")) deleteProduct(id);
-        });
+        const table = productListContentArea.querySelector(".generic-list-table");
+        if (table) {
+            table.addEventListener("click", e => {
+                const id = e.target.getAttribute("data-id");
+                if (e.target.classList.contains("editBtn")) showProductForm(id);
+                if (e.target.classList.contains("deleteBtn")) deleteProduct(id);
+            });
+        }
     }
 
     document.getElementById("createProductBtn").addEventListener("click", () => showProductForm());
@@ -165,14 +164,21 @@ function showProductForm(productId = null) {
 
     document.getElementById("main-content").innerHTML = `
         <h2>${isEdit ? 'Editar Produto' : 'Cadastrar Produto'}</h2>
-        <div class="form-group"><label>Nome:</label><input id="name" required></div>
-        <div class="form-group"><label>Descrição:</label><textarea id="description" rows="4" required></textarea></div>
-        <div class="form-group">
-            <label>Categoria:</label>
-            <select id="category" required><option value="">Selecione</option></select>
-        </div>
-        <button id="registerProductBtn">${isEdit ? 'Atualizar' : 'Cadastrar'}</button>
+        <form>
+            <div class="form-group"><label>Nome:</label><input id="name" required></div>
+            <div class="form-group"><label>Descrição:</label><textarea id="description" rows="4" required></textarea></div>
+            <div class="form-group">
+                <label>Categoria:</label>
+                <select id="category" required><option value="">Selecione</option></select>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="backBtn">Voltar</button>
+                <button type="button" id="registerProductBtn">${isEdit ? 'Atualizar' : 'Cadastrar'}</button>
+            </div>
+        </form>
     `;
+
+    document.getElementById("backBtn").addEventListener("click", showProductList);
 
     const nameInput = document.getElementById("name");
     const descInput = document.getElementById("description");
@@ -232,10 +238,8 @@ function showProductForm(productId = null) {
                 alert("Erro interno: dados do produto não carregados.");
                 return;
             }
-
             data.sku = parseInt(currentSku);
             data.user_id = parseInt(currentUserId);
-
             url += `/${productId}`;
             method = "PUT";
         }
@@ -256,6 +260,7 @@ function showProductForm(productId = null) {
         .catch(err => alert(err.message));
     });
 }
+
 function deleteProduct(productId) {
     if (!confirm("Excluir produto?")) return;
     fetch(`http://localhost:8080/item/${productId}`, {
@@ -274,8 +279,12 @@ function showCategoryForm() {
     document.getElementById("main-content").innerHTML = `
         <h2>Cadastrar Categoria</h2>
         <div class="form-group"><label>Nome:</label><input id="name" required></div>
-        <button id="registerCategoryBtn">Cadastrar</button>
+        <div class="form-actions">
+             <button type="button" id="backBtn">Voltar</button>
+             <button id="registerCategoryBtn">Cadastrar</button>
+        </div>
     `;
+    document.getElementById("backBtn").addEventListener("click", showProductList);
     document.getElementById("registerCategoryBtn").addEventListener("click", () => {
         const name = document.getElementById("name").value.trim();
         if (!name) return alert("Nome é obrigatório.");
@@ -298,9 +307,14 @@ function showCategoryForm() {
 
 function showCategoryList() {
     document.getElementById("main-content").innerHTML = `
-        <h2>Lista de Categorias</h2>
+        <div class="section-header">
+              <h2>Lista de Categorias</h2>
+              <button id="backToProductsBtn">Voltar para Produtos</button>
+        </div>
         <div id="category-list-content-area"><p>Carregando...</p></div>
     `;
+    document.getElementById("backToProductsBtn").addEventListener("click", showProductList);
+
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
@@ -308,28 +322,44 @@ function showCategoryList() {
     .then(res => res.json())
     .then(data => {
         const cats = data.data || [];
+        const contentArea = document.getElementById("category-list-content-area");
         if (!cats.length) {
-            document.getElementById("category-list-content-area").innerHTML = "<p>Sem categorias.</p>";
+            contentArea.innerHTML = "<p>Sem categorias.</p>";
             return;
         }
-        let html = `<table><thead><tr><th>Nome</th><th>Ações</th></tr></thead><tbody>`;
+        
+        // ALTERAÇÃO APLICADA AQUI: Adicionados os "data-label" para a responsividade.
+        let html = `
+            <div class="list-container">
+                <table class="generic-list-table">
+                    <thead><tr><th>Nome</th><th>Ações</th></tr></thead>
+                    <tbody>
+        `;
         cats.forEach(cat => {
             html += `
                 <tr>
-                    <td>${cat.name}</td>
-                    <td>
+                    <td data-label="Nome">${cat.name}</td>
+                    <td data-label="Ações">
                         <button class="editCategoryBtn" data-id="${cat.id}">Editar</button>
                         <button class="deleteCategoryBtn" data-id="${cat.id}">Excluir</button>
                     </td>
                 </tr>`;
         });
-        html += `</tbody></table>`;
-        document.getElementById("category-list-content-area").innerHTML = html;
-        document.querySelector("table").addEventListener("click", e => {
-            const id = e.target.getAttribute("data-id");
-            if (e.target.classList.contains("editCategoryBtn")) showCategoryEditForm(id);
-            if (e.target.classList.contains("deleteCategoryBtn")) deleteCategory(id);
-        });
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        contentArea.innerHTML = html;
+        
+        const categoryTable = contentArea.querySelector(".generic-list-table");
+        if (categoryTable) {
+            categoryTable.addEventListener("click", e => {
+                const id = e.target.getAttribute("data-id");
+                if (e.target.classList.contains("editCategoryBtn")) showCategoryEditForm(id);
+                if (e.target.classList.contains("deleteCategoryBtn")) deleteCategory(id);
+            });
+        }
     })
     .catch(err => alert("Erro: " + err.message));
 }
@@ -346,8 +376,12 @@ function showCategoryEditForm(categoryId) {
         document.getElementById("main-content").innerHTML = `
             <h2>Editar Categoria</h2>
             <div class="form-group"><label>Nome:</label><input id="name" value="${cat.name}" required></div>
-            <button id="updateCategoryBtn">Atualizar</button>
+            <div class="form-actions">
+                <button type="button" id="backBtn">Voltar</button>
+                <button id="updateCategoryBtn">Atualizar</button>
+            </div>
         `;
+        document.getElementById("backBtn").addEventListener("click", showCategoryList);
         document.getElementById("updateCategoryBtn").addEventListener("click", () => {
             const newName = document.getElementById("name").value.trim();
             if (!newName) return alert("Nome é obrigatório.");
