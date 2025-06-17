@@ -73,6 +73,7 @@ func main() {
 	r.GET("/rel/itembycategory", controller.RelItemByCategory)
 	r.GET("/rel/userbyrole", controller.RelUserByRole)
 
+	r.GET("/role-permision/:id", controller.GetRolePermission)
 	r.POST("/role-permision", controller.CreatePermission)
 	r.PUT("/role-permision", controller.UpdatePermission)
 	r.GET("/role-permision", controller.GetPermission)
