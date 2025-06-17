@@ -524,3 +524,6 @@ Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-
 [GIN] 2025/06/17 - 12:15:37 | 200 |       535.6µs |             ::1 | GET      "/item/quantity/2"
 [GIN] 2025/06/17 - 12:15:37 | 200 |     26.7622ms |             ::1 | GET      "/item/quantity/3"
 [GIN] 2025/06/17 - 12:17:29 | 200 |       532.1µs |             ::1 | GET      "/user/validate"
+[GIN] 2025/06/17 - 12:17:29 | 200 |       517.3µs |             ::1 | GET      "/user/validate"
+[GIN] 2025/06/17 - 12:17:29 | 200 |       514.1µs |             ::1 | GET      "/user/validate"
+[GIN] 2025/06/17 - 12:17:30 | 200 |       1.197ms |             ::1 | GET      "/user/validate"
