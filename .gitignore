@@ -1,3 +1,4 @@
 config.yml
 *.exe
 launch.json
+*.log

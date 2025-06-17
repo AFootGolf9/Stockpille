@@ -32,7 +32,7 @@
 .generic-list-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+
 }
 
 .generic-list-table th,
@@ -570,4 +570,25 @@ form h2 {
     border: 1px solid #ffc1c1;
     background-color: #fff2f2;
     border-radius: 8px;
+}
+
+/* Adicione esta nova regra ao seu CSS */
+.btn-primary {
+    background-color: #002a54; /* Cor principal de ação */
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #001f3d;
+}
+
+/* Regra para quando o botão estiver desabilitado */
+.btn-primary:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
 }

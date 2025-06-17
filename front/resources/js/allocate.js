@@ -15,7 +15,7 @@ async function showAllocationForm() {
             </select>
         </div>
         <div class="form-group">
-            <button id="allocateBtn" disabled>Alocar Produto</button>
+            <button id="allocateBtn" class="btn-primary" disabled>Alocar Produto</button>
         </div>
     `;
 
