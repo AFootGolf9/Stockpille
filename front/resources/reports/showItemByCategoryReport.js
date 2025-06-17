@@ -1,31 +1,46 @@
-function showItemByCategoryReport() {
+// A função getCookie continua a mesma
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
+
+
+// REATORADO: Convertido para async/await para simplificar o código.
+async function showItemByCategoryReport() {
     const reportHTML = `
-        <h2>Relatório de Itens por Categoria</h2>
+        <div class="section-header">
+            <h2>Relatório de Itens por Categoria</h2>
+            <div>
+                <button class="btn-secondary" onclick="showReportMenu()">Voltar</button>
+                <button id="generate-pdf-category" onclick="generateItemByCategoryPDF()">Gerar PDF</button>
+            </div>
+        </div>
         <div id="item-by-category-report-result">
             <p>Carregando relatório...</p>
         </div>
-        <div id="button-container" style="margin-top: 15px;">
-            <button id="generate-pdf-category" onclick="generateItemByCategoryPDF()">Gerar PDF</button>
-        </div>
     `;
-
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    fetch("http://localhost:8080/rel/itembycategory")
-        .then(response => response.json())
-        .then(data => {
-            console.log("Relatório de itens por categoria:", data);
+    const reportResultContainer = document.getElementById("item-by-category-report-result");
 
-            if (data && Object.keys(data).length > 0) {
-                const results = Object.keys(data).map(categoryName => {
-                    const count = data[categoryName] || 0;
-                    return { category: categoryName, totalItems: count };
-                });
+    try {
+        // NOVO: Usa handleResponse para tratar erros e simplifica a chamada.
+        const reportData = await fetch("http://localhost:8080/rel/itembycategory", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
 
-                results.sort((a, b) => b.totalItems - a.totalItems);
+        if (reportData && Object.keys(reportData).length > 0) {
+            const results = Object.keys(reportData).map(categoryName => ({
+                category: categoryName,
+                totalItems: reportData[categoryName] || 0
+            }));
 
-                const tableHTML = `
-                    <table class="allocations-table">
+            results.sort((a, b) => b.totalItems - a.totalItems);
+
+            const tableHTML = `
+                <div class="list-container">
+                    <table class="generic-list-table">
                         <thead>
                             <tr>
                                 <th>Categoria</th>
@@ -35,25 +50,26 @@ function showItemByCategoryReport() {
                         <tbody>
                             ${results.map(r => `
                                 <tr>
-                                    <td>${r.category}</td>
-                                    <td>${r.totalItems}</td>
+                                    <td data-label="Categoria">${r.category}</td>
+                                    <td data-label="Total de Itens">${r.totalItems}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
-                `;
-
-                document.getElementById("item-by-category-report-result").innerHTML = tableHTML;
-            } else {
-                document.getElementById("item-by-category-report-result").innerHTML = "<p>Nenhuma categoria encontrada.</p>";
-            }
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de itens por categoria:", error);
-            document.getElementById("item-by-category-report-result").innerHTML = `<p>Erro ao carregar relatório: ${error.message}</p>`;
-        });
+                </div>
+            `;
+            reportResultContainer.innerHTML = tableHTML;
+        } else {
+            reportResultContainer.innerHTML = "<p>Nenhum dado de itens por categoria encontrado.</p>";
+        }
+    } catch (error) {
+        // ALTERADO: Captura qualquer erro e exibe uma mensagem clara na interface.
+        console.error("Erro ao carregar o relatório de itens por categoria:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
+// ALTERADO: A função generateItemByCategoryPDF agora usa notificação em vez de alert.
 function generateItemByCategoryPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -62,56 +78,32 @@ function generateItemByCategoryPDF() {
     doc.setFontSize(16);
     doc.text("Relatório de Itens por Categoria", 14, 20);
 
-    const table = document.querySelector(".allocations-table");
-    if (table) {
-        const rows = table.querySelectorAll("tr");
-        const tableData = [];
+    const table = document.querySelector(".generic-list-table");
+    if (!table) {
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
+        return;
+    }
 
-        rows.forEach((row, index) => {
-            const cells = row.querySelectorAll("td, th");
-            const rowData = [];
-            cells.forEach(cell => {
-                rowData.push(cell.textContent);
-            });
-            if (index !== 0) { // Ignora o cabeçalho
-                tableData.push(rowData);
-            }
-        });
+    doc.autoTable({
+        html: table,
+        startY: 30,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [20, 54, 88],
+            textColor: 255,
+            fontStyle: 'bold',
+        }
+    });
 
-        doc.autoTable({
-            head: [["Categoria", "Total de Itens"]],
-            body: tableData,
-            startY: 30,
-            theme: 'grid',
-            styles: {
-                font: 'helvetica',
-                fontSize: 12,
-                cellPadding: 5,
-                valign: 'middle',
-            },
-            headStyles: {
-                fillColor: [22, 160, 133],
-                textColor: 255,
-                fontStyle: 'bold',
-            },
-            bodyStyles: {
-                fillColor: [242, 242, 242],
-                textColor: 0,
-            },
-            alternateRowStyles: {
-                fillColor: [255, 255, 255],
-            },
-        });
-
-        const pageCount = doc.internal.getNumberOfPages();
-        doc.setFontSize(10);
-        doc.setFont("helvetica");
-        doc.text(`Página ${pageCount}`, 180, 285);
-
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
         const pageHeight = doc.internal.pageSize.getHeight();
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text("StockPille", 10, pageHeight - 10);
+        doc.text("StockPille", 14, pageHeight - 10);
+        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
     }
 
     doc.save("relatorio_itens_por_categoria.pdf");

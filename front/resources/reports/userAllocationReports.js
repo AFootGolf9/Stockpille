@@ -1,57 +1,52 @@
+// A função getCookie continua a mesma
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 }
 
-function showAllocationReport() {
+// REATORADO: Convertido para async/await e usa Promise.all para eficiência.
+async function showAllocationReport() {
+    // Adicionado um botão "Voltar" para uma melhor navegação
     const reportHTML = `
-        <h2>Relatório de Locações por Usuários</h2>
+        <div class="section-header">
+            <h2>Relatório de Locações por Usuários</h2>
+            <div>
+                <button class="btn-secondary" onclick="showReportMenu()">Voltar</button>
+                <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
+            </div>
+        </div>
         <div id="allocations-report-result">
             <p>Carregando relatório...</p>
-        </div>
-        <div id="button-container">
-            <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
         </div>
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("allocations-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("allocations-report-result");
 
-    fetch("http://localhost:8080/user", {
-        headers: { "Authorization": token }
-    })
-    .then(response => response.json())
-    .then(usersData => {
-        if (!usersData || !Array.isArray(usersData.data) || usersData.data.length === 0) {
-            document.getElementById("allocations-report-result").innerHTML = "<p>Nenhum usuário encontrado.</p>";
+    try {
+        // NOVO: Usa Promise.all para buscar dados de usuários e alocações simultaneamente.
+        const [usersResponse, allocationResponse] = await Promise.all([
+            fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
+            fetch("http://localhost:8080/rel/allocbyuser", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
+        ]);
+
+        const users = usersResponse?.data || [];
+        const allocationData = allocationResponse || {};
+
+        if (users.length === 0) {
+            reportResultContainer.innerHTML = "<p>Nenhum usuário encontrado para gerar o relatório.</p>";
             return;
         }
 
-        const users = usersData.data;
+        const results = users.map(user => ({
+            user: user.name,
+            totalAllocations: allocationData[user.name] || 0
+        }));
+        results.sort((a, b) => b.totalAllocations - a.totalAllocations);
 
-        fetch("http://localhost:8080/rel/allocbyuser", {
-            headers: { "Authorization": token }
-        })
-        .then(res => res.json())
-        .then(allocationData => {
-            if (!allocationData || Object.keys(allocationData).length === 0) {
-                document.getElementById("allocations-report-result").innerHTML = "<p>Nenhuma locação encontrada.</p>";
-                return;
-            }
-
-            const results = users.map(user => ({
-                user: user.name,
-                totalAllocations: allocationData[user.name] || 0
-            }));
-
-            results.sort((a, b) => b.totalAllocations - a.totalAllocations); // Ordena por total
-
-            const tableHTML = `
-                <table class="allocations-table">
+        const tableHTML = `
+            <div class="list-container">
+                <table class="generic-list-table">
                     <thead>
                         <tr>
                             <th>Usuário</th>
@@ -61,28 +56,25 @@ function showAllocationReport() {
                     <tbody>
                         ${results.map(result => `
                             <tr>
-                                <td>${result.user}</td>
-                                <td>${result.totalAllocations}</td>
+                                <td data-label="Usuário">${result.user}</td>
+                                <td data-label="Total de Locações">${result.totalAllocations}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
-            `;
-            document.getElementById("allocations-report-result").innerHTML = tableHTML;
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de locações:", error);
-            document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar o relatório de locações: ${error.message}</p>`;
-        });
+            </div>
+        `;
+        reportResultContainer.innerHTML = tableHTML;
 
-    })
-    .catch(error => {
-        console.error("Erro ao carregar os usuários:", error);
-        document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar os usuários: ${error.message}</p>`;
-    });
+    } catch (error) {
+        // ALTERADO: Um único catch para qualquer erro na busca de dados.
+        console.error("Erro ao carregar o relatório de locações:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
 
+// ALTERADO: A função generatePDF agora usa notificação em vez de alert.
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -91,67 +83,33 @@ function generatePDF() {
     doc.setFontSize(16);
     doc.text("Relatório de locações por usuários", 14, 20);
 
-    const table = document.querySelector(".allocations-table");
-    if (table) {
-        const rows = table.querySelectorAll("tr");
-        if (rows.length <= 1) {
-            alert("Não há dados suficientes para gerar o PDF.");
-            return;
+    const table = document.querySelector(".generic-list-table");
+    if (!table) {
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
+        return;
+    }
+    
+    doc.autoTable({
+        html: table,
+        startY: 30,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [20, 54, 88],
+            textColor: 255,
+            fontStyle: 'bold',
         }
-
-        const tableData = [];
-        
-        rows.forEach((row, index) => {
-            const cells = row.querySelectorAll("td, th");
-            const rowData = [];
-            cells.forEach(cell => {
-                rowData.push(cell.textContent);
-            });
-            if (index !== 0) {  // Ignora a primeira linha (cabeçalho)
-                tableData.push(rowData);
-            }
-        });
-
-        // Configuração da tabela no PDF
-        doc.autoTable({
-            head: [["Usuário", "Total de Locações"]],
-            body: tableData,
-            startY: 30,  // Posição onde a tabela começa
-            theme: 'grid',  // Tema para bordas visíveis
-            styles: {
-                font: 'helvetica',  // Fonte
-                fontSize: 12,       // Tamanho da fonte
-                cellPadding: 5,     // Espaçamento das células
-                valign: 'middle',   // Alinhamento vertical
-            },
-            headStyles: {
-                fillColor: [22, 160, 133],  // Cor do cabeçalho
-                textColor: 255,              // Cor do texto no cabeçalho
-                fontStyle: 'bold',           // Estilo da fonte do cabeçalho
-            },
-            bodyStyles: {
-                fillColor: [242, 242, 242],  // Cor de fundo das células
-                textColor: 0,                // Cor do texto
-            },
-            alternateRowStyles: {
-                fillColor: [255, 255, 255],  // Cor alternada das linhas
-            },
-        });
-
-        const pageCount = doc.internal.getNumberOfPages();  
-        doc.setFontSize(10);
-        doc.setFont("helvetica");
-        doc.text(`Página ${pageCount}`, 180, 285);
-
+    });
+    
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
         const pageHeight = doc.internal.pageSize.getHeight();
-        const text = "StockPille";
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(text, 10, pageHeight - 10); 
-    } else {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        doc.text("StockPille", 14, pageHeight - 10);
+        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
     }
 
-    // Salva o PDF gerado
-    doc.save("relatorio_locacoes.pdf");
+    doc.save("relatorio_locacoes_por_usuario.pdf");
 }

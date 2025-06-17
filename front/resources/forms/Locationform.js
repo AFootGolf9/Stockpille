@@ -1,32 +1,35 @@
+/**
+ * =================================================================
+ * FUNÇÕES DE LOCALIZAÇÃO (Refatoradas com o novo tratamento de erro)
+ * =================================================================
+ */
+
 function showLocationList() {
     const locationListHTML = `
-        <div class="location-header">
+        <div class="section-header">
             <h2>Lista de Localizações</h2>
             <button id="createLocationBtn">Criar</button>
         </div>
-        <div id="location-list" class="location-list">
+        <div id="location-list-container">
             <p>Carregando locações...</p>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = locationListHTML;
+    const locationListContainer = document.getElementById("location-list-container");
 
     fetch("http://localhost:8080/location", {
         method: "GET",
-        headers: {
-            "Authorization": getCookie("token")
-        }
+        headers: { "Authorization": getCookie("token") }
     })
-        .then(response => response.json())
-        .then(data => {
-            const locations = data.data;
-            console.log("Resposta da API:", locations);
-            
-            const locationListContainer = document.getElementById("location-list");
-
-            if (Array.isArray(locations) && locations.length > 0) {
-                const tableHTML = `
-                    <table class="location-table">
+    .then(handleResponse) // NOVO: Tratamento de erro centralizado
+    .then(data => {
+        const locations = data?.data || [];
+        
+        if (locations.length > 0) {
+            const tableHTML = `
+                <div class="list-container">
+                    <table class="generic-list-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -37,9 +40,9 @@ function showLocationList() {
                         <tbody>
                             ${locations.map(location => `
                                 <tr>
-                                    <td>${location.id}</td>
-                                    <td>${location.name}</td>
-                                    <td>
+                                    <td data-label="ID">${location.id}</td>
+                                    <td data-label="Nome">${location.name}</td>
+                                    <td data-label="Ações">
                                         <button class="editBtn" data-id="${location.id}">Editar</button>
                                         <button class="deleteBtn" data-id="${location.id}">Excluir</button>
                                     </td>
@@ -47,85 +50,82 @@ function showLocationList() {
                             `).join('')}
                         </tbody>
                     </table>
-                `;
-                locationListContainer.innerHTML = tableHTML;
+                </div>
+            `;
+            locationListContainer.innerHTML = tableHTML;
 
-                document.querySelectorAll(".editBtn").forEach(button => {
-                    button.addEventListener("click", (event) => {
-                        const locationId = event.target.getAttribute("data-id");
-                        showLocationForm(locationId);
-                    });
-                });
+            // REATORADO: Usando um único event listener para melhor performance.
+            locationListContainer.addEventListener('click', (event) => {
+                const target = event.target;
+                const locationId = target.getAttribute("data-id");
 
-                document.querySelectorAll(".deleteBtn").forEach(button => {
-                    button.addEventListener("click", (event) => {
-                        const locationId = event.target.getAttribute("data-id");
-                        deleteLocation(locationId);
-                    });
-                });
-            } else {
-                locationListContainer.innerHTML = "<p>Nenhuma locação cadastrada.</p>";
-            }
-        })
-        .catch(error => {
-            console.error("Erro ao carregar localizações:", error);
-            document.getElementById("location-list").innerHTML = "<p>Erro ao carregar locações.</p>";
-        });
+                if (target.classList.contains('editBtn')) {
+                    showLocationForm(locationId);
+                } else if (target.classList.contains('deleteBtn')) {
+                    deleteLocation(locationId);
+                }
+            });
+            
+        } else {
+            locationListContainer.innerHTML = "<p>Nenhuma locação cadastrada.</p>";
+        }
+    })
+    .catch(error => {
+        // ALTERADO: Exibe erro detalhado na interface
+        console.error("Erro ao carregar localizações:", error);
+        locationListContainer.innerHTML = `<p class="error-message">Não foi possível carregar as localizações: ${error.message}</p>`;
+    });
 
     document.getElementById("createLocationBtn").addEventListener("click", () => showLocationForm());
 }
 
 function showLocationForm(locationId = null) {
+    const isEdit = Boolean(locationId);
     const formHTML = `
-        <h2>${locationId ? 'Editar Localização' : 'Cadastro de Localização'}</h2>
+        <h2>${isEdit ? 'Editar Localização' : 'Cadastro de Localização'}</h2>
         <div class="form-group">
             <label for="locationName">Nome da Localização:</label>
             <input type="text" id="locationName" name="locationName" required>
         </div>
-        <div class="form-group">
-            <button id="registerLocationBtn">${locationId ? 'Atualizar Localização' : 'Cadastrar Localização'}</button>
+        <div class="form-actions">
+            <button type="button" id="backBtn">Voltar</button>
+            <button id="registerLocationBtn">${isEdit ? 'Atualizar' : 'Cadastrar'}</button>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = formHTML;
+    document.getElementById("backBtn").addEventListener("click", showLocationList);
+    const locationNameInput = document.getElementById("locationName");
 
-    if (locationId) {
+    if (isEdit) {
         fetch(`http://localhost:8080/location/${locationId}`, {
             method: "GET",
-            headers: {
-                "Authorization": getCookie("token")
+            headers: { "Authorization": getCookie("token") }
+        })
+        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(data => {
+            if (data?.data) {
+                locationNameInput.value = data.data.name;
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                const location = data.data;
-                if (location) {
-                    document.getElementById("locationName").value = location.name;
-                } else {
-                    alert("Erro ao carregar dados da localização.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro ao carregar dados da localização:", error);
-                alert("Erro ao carregar dados da localização.");
-            });
+        .catch(error => {
+            // ALTERADO: Usa notificação em vez de alert e volta para a lista
+            showNotification(`Erro ao carregar dados: ${error.message}`);
+            showLocationList();
+        });
     }
 
     document.getElementById("registerLocationBtn").addEventListener("click", function() {
-        const locationName = document.getElementById("locationName").value;
+        const locationName = locationNameInput.value.trim();
 
         if (!locationName) {
-            alert("Por favor, informe o nome da localização.");
+            showNotification("Por favor, informe o nome da localização.", "error");
             return;
         }
 
         const locationData = { name: locationName };
-
-        const url = locationId
-            ? `http://localhost:8080/location/${locationId}`
-            : "http://localhost:8080/location";
-
-        const method = locationId ? "PUT" : "POST";
+        const url = isEdit ? `http://localhost:8080/location/${locationId}` : "http://localhost:8080/location";
+        const method = isEdit ? "PUT" : "POST";
 
         fetch(url, {
             method: method,
@@ -135,41 +135,33 @@ function showLocationForm(locationId = null) {
             },
             body: JSON.stringify(locationData)
         })
-        .then(response => {
-            if (response.ok) {
-                alert(locationId ? "Localização atualizada com sucesso!" : "Localização cadastrada com sucesso!");
-                showLocationList();
-            } else {
-                throw new Error(locationId ? "Erro ao atualizar a localização." : "Erro ao cadastrar a localização.");
-            }
+        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(() => {
+            const successMessage = isEdit ? "Localização atualizada com sucesso!" : "Localização cadastrada com sucesso!";
+            showNotification(successMessage, 'success');
+            showLocationList();
         })
         .catch(error => {
-            console.error("Erro:", error);
-            alert("Erro ao processar a localização. Tente novamente.");
+            // ALTERADO: Usa notificação com mensagem de erro específica
+            showNotification(error.message, 'error');
         });
     });
 }
 
 function deleteLocation(locationId) {
-    const confirmDelete = confirm("Tem certeza que deseja excluir esta localização?");
-    if (confirmDelete) {
-        fetch(`http://localhost:8080/location/${locationId}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": getCookie("token")
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                alert("Localização excluída com sucesso!");
-                showLocationList();
-            } else {
-                throw new Error("Erro ao excluir a localização.");
-            }
-        })
-        .catch(error => {
-            console.error("Erro:", error);
-            alert("Erro ao excluir a localização. Tente novamente.");
-        });
-    }
+    if (!confirm("Tem certeza que deseja excluir esta localização?")) return;
+    
+    fetch(`http://localhost:8080/location/${locationId}`, {
+        method: "DELETE",
+        headers: { "Authorization": getCookie("token") }
+    })
+    .then(handleResponse) // NOVO: Tratamento de erro
+    .then(() => {
+        showNotification("Localização excluída com sucesso!", 'success');
+        showLocationList();
+    })
+    .catch(error => {
+        // ALTERADO: Usa notificação com mensagem de erro específica
+        showNotification(error.message, 'error');
+    });
 }

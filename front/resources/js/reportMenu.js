@@ -1,42 +1,39 @@
 function showReportMenu() {
+    // ALTERAÇÃO: HTML simplificado para focar no texto e parecer um botão.
     const menuHTML = `
-        <h2>Selecione o Relatório a Ser Gerado</h2>
-        <div class="report-option" id="report-user-allocations" style="margin-bottom: 10px;">
-            <button>Relatório de Locações por Usuário</button>
+        <div class="section-header">
+            <h2>Menu de Relatórios</h2>
         </div>
-        <div class="report-option" id="report-item-allocations" style="margin-bottom: 10px;">
-            <button>Relatório de Itens Mais Locados</button>
-        </div>
-        <div class="report-option" id="report-location" style="margin-bottom: 10px;">
-            <button>Relatório de Locações com Mais Itens</button>
-        </div>
-        <div class="report-option" id="report-category" style="margin-bottom: 10px;">
-            <button>Relatório de Itens por Categoria</button>
-        </div>
-        <div class="report-option" id="report-user-by-role" style="margin-bottom: 10px;">
-            <button>Relatório de Usuários por Cargo</button>
+        
+        <div class="report-menu-container">
+            <div class="report-card-button" id="report-user-allocations">
+                <h3>Locações por Usuário</h3>
+            </div>
+
+            <div class="report-card-button" id="report-item-allocations">
+                <h3>Itens Mais Locados</h3>
+            </div>
+
+            <div class="report-card-button" id="report-location">
+                <h3>Itens por Localização</h3>
+            </div>
+
+            <div class="report-card-button" id="report-category">
+                <h3>Itens por Categoria</h3>
+            </div>
+
+            <div class="report-card-button" id="report-user-by-role">
+                <h3>Usuários por Cargo</h3>
+            </div>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = menuHTML;
 
-    document.getElementById("report-user-allocations").addEventListener("click", () => {
-        showAllocationReport();
-    });
-
-    document.getElementById("report-item-allocations").addEventListener("click", () => {
-        showItemAllocationReport();
-    });
-
-    document.getElementById("report-location").addEventListener("click", () => {
-        showItemByLocationReport();
-    });
-
-    document.getElementById("report-category").addEventListener("click", () => {
-        showItemByCategoryReport();
-    });
-
-    document.getElementById("report-user-by-role").addEventListener("click", () => {
-        showUserByRoleReport();
-    });
+    // A lógica de clique continua a mesma.
+    document.getElementById("report-user-allocations").addEventListener("click", showAllocationReport);
+    document.getElementById("report-item-allocations").addEventListener("click", showItemAllocationReport);
+    document.getElementById("report-location").addEventListener("click", showItemByLocationReport);
+    document.getElementById("report-category").addEventListener("click", showItemByCategoryReport);
+    document.getElementById("report-user-by-role").addEventListener("click", showUserByRoleReport);
 }

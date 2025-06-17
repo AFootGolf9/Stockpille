@@ -1,4 +1,7 @@
 function showRoleForm() {
+    // ... (toda a parte de definição de 'entities', 'actions' e construção do HTML permanece a mesma) ...
+    // Vou omitir essa parte para focar na mudança, mas ela deve continuar no seu código.
+
     const entities = [
         { displayName: "Usuários", tableName: "user_data" },
         { displayName: "Cargos (Roles)", tableName: "role" },
@@ -10,20 +13,21 @@ function showRoleForm() {
 
     const actions = [
         { displayName: "Ver", permission: "R" },
-        { displayName: "Criar/Escrever", permission: "W" },
+        { displayName: "Criar", permission: "W" },
         { displayName: "Editar", permission: "U" },
         { displayName: "Excluir", permission: "D" }
     ];
 
     let permissionsHTML = `
-        <table class="permission-table">
-            <thead>
-                <tr>
-                    <th>Entidade</th>
-                    ${actions.map(action => `<th>${action.displayName}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody>
+        <div class="table-responsive-container">
+            <table class="permission-table">
+                <thead>
+                    <tr>
+                        <th>Entidade</th>
+                        ${actions.map(action => `<th>${action.displayName}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
     `;
 
     entities.forEach(entity => {
@@ -32,123 +36,151 @@ function showRoleForm() {
                 <td>${entity.displayName}</td>
                 ${actions.map(action => `
                     <td>
-                        <input type="checkbox" class="permission-checkbox" data-table="${entity.tableName}" data-permission="${action.permission}">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="permission-checkbox" data-table="${entity.tableName}" data-permission="${action.permission}">
+                            <span class="slider"></span>
+                        </label>
                     </td>
                 `).join('')}
             </tr>
         `;
     });
 
-    permissionsHTML += '</tbody></table>';
+    permissionsHTML += '</tbody></table></div>';
 
     const roleFormHTML = `
-        <h2>Criar Novo Cargo</h2>
-        <form id="createRoleForm">
-            <div class="form-group">
-                <label for="roleName">Nome do Cargo:</label>
-                <input type="text" id="roleName" name="roleName" required>
+        <div class="form-container card-style">
+            <div class="section-header">
+                <h2>Criar Novo Cargo</h2>
             </div>
-            <h3>Permissões de Acesso:</h3>
-            <div class="permissions-group">
-                ${permissionsHTML}
+            <form id="createRoleForm">
+                <div class="form-group">
+                    <label for="roleName">Nome do Cargo:</label>
+                    <input type="text" id="roleName" name="roleName" required>
+                </div>
+                
+                <div class="form-group">
+                    <h3>Permissões de Acesso:</h3>
+                    ${permissionsHTML}
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="backBtn" class="btn-secondary">Voltar</button>
+                    <button type="submit" id="createRoleSubmitBtn">Criar Cargo</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="list-container card-style" style="margin-top: 30px;">
+             <div class="section-header">
+                <h2>Cargos Existentes</h2>
             </div>
-            <button type="submit">Criar Cargo</button>
-        </form>
-        <hr>
-        <h2>Cargos Existentes</h2>
-        <div id="existingRoles"></div>
+            <div id="existingRoles"></div>
+        </div>
     `;
 
     document.getElementById("main-content").innerHTML = roleFormHTML;
+    document.getElementById("backBtn").addEventListener("click", showUserList);
 
     document.getElementById("createRoleForm").addEventListener("submit", function (event) {
         event.preventDefault();
-        createRole();
+
+        const roleName = document.getElementById("roleName").value.trim();
+        if (!roleName) {
+            showNotification("O nome do cargo é obrigatório.", "error");
+            return;
+        }
+
+        const permissions = {};
+        const checkboxes = document.querySelectorAll(".permission-checkbox:checked");
+        
+        checkboxes.forEach(cb => {
+            const table = cb.getAttribute("data-table");
+            const permission = cb.getAttribute("data-permission");
+            if (!permissions[table]) {
+                permissions[table] = "";
+            }
+            permissions[table] += permission;
+        });
+
+        // NOVO: Adiciona a validação para verificar se alguma permissão foi selecionada.
+        if (Object.keys(permissions).length === 0) {
+            showNotification("É necessário selecionar pelo menos uma permissão para o cargo.", "error");
+            return; // Interrompe a execução se nenhuma permissão for selecionada.
+        }
+
+        const roleData = {
+            name: roleName,
+            permissions: permissions
+        };
+        
+        fetch("http://localhost:8080/role", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": getCookie("token")
+            },
+            body: JSON.stringify(roleData)
+        })
+        .then(handleResponse)
+        .then(() => {
+            showNotification("Cargo criado com sucesso!", 'success');
+            document.getElementById("createRoleForm").reset();
+            listExistingRoles();
+        })
+        .catch(error => showNotification(error.message, 'error'));
     });
 
     listExistingRoles();
 }
 
-function createRole() {
-    const roleName = document.getElementById("roleName").value.toUpperCase();
-    if (!roleName) {
-        alert("Por favor, insira o nome do cargo.");
-        return;
-    }
 
-    const permissionsMap = {};
-    document.querySelectorAll('.permission-checkbox:checked').forEach(checkbox => {
-        const table = checkbox.getAttribute('data-table').toLowerCase();
-        const permission = checkbox.getAttribute('data-permission');
-        if (!permissionsMap[table]) {
-            permissionsMap[table] = '';
-        }
-        permissionsMap[table] += permission;
-    });
+// REATORADO: A função agora é async e usa event listener delegado.
+async function listExistingRoles() {
+    const container = document.getElementById("existingRoles");
+    container.innerHTML = "<p style='padding: 15px;'>Carregando cargos...</p>";
 
-    const permissionsPayload = Object.keys(permissionsMap).map(table => {
-        return {
-            table: table,
-            permission: permissionsMap[table]
-        };
-    });
+    try {
+        const data = await fetch("http://localhost:8080/role", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse); // NOVO: Tratamento de erro
 
-    const roleData = {
-        name: roleName,
-        permission: permissionsPayload  // Note: singular 'permission'
-    };
-
-    console.log("Payload para criar role:", roleData);
-    console.log("Token:", getCookie("token"));
-
-    fetch("http://localhost:8080/role-permission", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": getCookie("token")
-        },
-        body: JSON.stringify(roleData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => { throw new Error(err.error || "Erro ao criar cargo.") });
-        }
-        return response.json();
-    })
-    .then(() => {
-        alert("Cargo criado com sucesso!");
-        showRoleForm();
-    })
-    .catch(error => {
-        console.error("Erro ao criar cargo:", error);
-        alert(error.message);
-    });
-}
-
-
-
-function listExistingRoles() {
-    fetch("http://localhost:8080/role", {
-        headers: { "Authorization": getCookie("token") }  // REMOVIDO Bearer aqui
-    })
-    .then(response => response.json())
-    .then(data => {
-        const roles = data.data;
-        const container = document.getElementById("existingRoles");
-        if (Array.isArray(roles) && roles.length > 0) {
-            let html = '<ul>';
+        const roles = data?.data || [];
+        
+        if (roles.length > 0) {
+            let html = '<ul class="styled-list">';
             roles.forEach(role => {
-                html += `<li><strong>${role.name}</strong> (ID: ${role.id})</li>`;
+                // NOVO: Adiciona data-attributes em vez de onclick
+                html += `<li class="styled-list-item">
+                            <span>${role.name}</span>
+                            <button class="btn-sm view-permissions-btn" data-role-id="${role.id}" data-role-name="${role.name}">Ver Permissões</button>
+                         </li>`;
             });
             html += '</ul>';
             container.innerHTML = html;
+
+            // NOVO: Event listener delegado para os botões.
+            container.addEventListener('click', (event) => {
+                if (event.target.classList.contains('view-permissions-btn')) {
+                    const roleId = event.target.dataset.roleId;
+                    const roleName = event.target.dataset.roleName;
+                    // Supondo que a função showRolePermissions exista e abra um modal ou outra tela.
+                    showRolePermissions(roleId, roleName);
+                }
+            });
+
         } else {
-            container.innerHTML = "<p>Nenhum cargo cadastrado ainda.</p>";
+            container.innerHTML = "<p style='padding: 15px;'>Nenhum cargo cadastrado ainda.</p>";
         }
-    })
-    .catch(error => {
+    } catch (error) {
+        // ALTERADO: Exibe erro detalhado na interface.
         console.error("Erro ao buscar cargos:", error);
-        document.getElementById("existingRoles").innerHTML = "<p>Erro ao carregar cargos.</p>";
-    });
+        container.innerHTML = `<p class="error-message">Não foi possível carregar os cargos: ${error.message}</p>`;
+    }
 }
 
+
+// NOTA: A função showRolePermissions(roleId, roleName) não foi fornecida,
+// mas o código acima está pronto para chamá-la corretamente.
+// Você precisará implementá-la, provavelmente para buscar e exibir
+// as permissões de um cargo específico em um modal ou nova tela.

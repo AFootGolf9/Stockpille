@@ -17,7 +17,6 @@
       </h1>
     </div>
     <div id="user-info">
-      <img id="user-photo" src="https://i.redd.it/fwbpo1cpkcb61.png" alt="Foto do usuário"/>
       <span id="user-name">Usuário</span>
     </div>
   </header>
@@ -61,17 +60,18 @@
       </div>
     </nav>
 
+    <div id="user-message-area-wrapper">
+      <div id="user-message-area"></div>
+    </div>
     <main class="main-content" id="main-content">
       <h2>Bem-vindo!</h2>
       <p>Selecione uma opção no menu para começar.</p>
     </main>
   </div>
 
-  <!-- Bibliotecas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- Scripts do sistema -->
   <script src="../resources/js/home.js"></script>
   <script src="../resources/js/user.js"></script>
   <script src="../resources/forms/Productform.js"></script>
@@ -90,7 +90,6 @@
   <script src="../resources/reports/showItemByCategoryReport.js"></script>
   <script src="../resources/reports/showUserByRoleReport.js"></script>
 
-  <!-- Script do layout responsivo e proteção -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -104,8 +103,6 @@
 
       const userNameElement = document.getElementById("user-name");
       if (userNameElement) {
-        // Aqui pode vir a chamada de API se quiser:
-        // fetch('/user/profile').then(r => r.json()).then(data => userNameElement.textContent = data.nome);
         userNameElement.textContent = "Usuário"; // Default
       }
     });

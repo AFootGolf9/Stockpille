@@ -9,12 +9,13 @@ function getCookie(name) {
 }
 
 function showAllocationsList() {
+    // ALTERAÇÃO APLICADA AQUI: Usando a classe genérica para o cabeçalho.
     const allocationsListHTML = `
-        <div class="allocations-header">
-            <h2>Lista de Locações</h2>
+        <div class="section-header">
+            <h2>Lista de Alocações</h2>
         </div>
-        <div id="allocations-list" class="allocations-list">
-            <p>Carregando locações...</p>
+        <div id="allocations-list">
+            <p>Carregando alocações...</p>
         </div>
     `;
 
@@ -61,33 +62,39 @@ function showAllocationsList() {
 
             Promise.all([Promise.all(itemPromises), Promise.all(userPromises), Promise.all(locationPromises)])
             .then(([items, users, locations]) => {
+                // ALTERAÇÕES APLICADAS AQUI:
+                // 1. Adicionado o "list-container"
+                // 2. Tabela usa a classe "generic-list-table"
+                // 3. Cada <td> tem seu "data-label" para responsividade
                 const tableHTML = `
-                    <table class="allocations-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Produto (SKU)</th>
-                                <th>Localização</th>
-                                <th>Usuário</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allocations.map((allocation, index) => {
-                                const item = items[index]?.data || {};
-                                const user = users[index]?.data || {};
-                                const location = locations[index]?.data || {};
+                    <div class="list-container">
+                        <table class="generic-list-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Produto (SKU)</th>
+                                    <th>Localização</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allocations.map((allocation, index) => {
+                                    const item = items[index]?.data || {};
+                                    const user = users[index]?.data || {};
+                                    const location = locations[index]?.data || {};
 
-                                return `
-                                    <tr>
-                                        <td>${allocation.id}</td>
-                                        <td>${item.name || 'Produto não encontrado'} (${item.sku || 'SKU indisponível'})</td>
-                                        <td>${location.name || 'Locação não encontrada'}</td>
-                                        <td>${user.name || 'Usuário não encontrado'}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
+                                    return `
+                                        <tr>
+                                            <td data-label="ID">${allocation.id}</td>
+                                            <td data-label="Produto (SKU)">${item.name || 'Produto não encontrado'} (${item.sku || 'SKU indisponível'})</td>
+                                            <td data-label="Localização">${location.name || 'Locação não encontrada'}</td>
+                                            <td data-label="Usuário">${user.name || 'Usuário não encontrado'}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 `;
                 allocationsListContainer.innerHTML = tableHTML;
 
@@ -97,11 +104,11 @@ function showAllocationsList() {
             });
 
         } else {
-            document.getElementById("allocations-list").innerHTML = "<p>Nenhuma locação encontrada.</p>";
+            document.getElementById("allocations-list").innerHTML = "<p>Nenhuma alocação encontrada.</p>";
         }
     })
     .catch(error => {
-        console.error("Erro ao carregar as locações:", error);
-        document.getElementById("allocations-list").innerHTML = `<p>Erro ao carregar as locações: ${error.message}</p>`;
+        console.error("Erro ao carregar as alocações:", error);
+        document.getElementById("allocations-list").innerHTML = `<p>Erro ao carregar as alocações: ${error.message}</p>`;
     });
 }
