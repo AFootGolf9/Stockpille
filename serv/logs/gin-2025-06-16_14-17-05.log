@@ -605,3 +605,4 @@ Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-
 [GIN] 2025/06/16 - 16:01:23 | 200 |       573.3µs |             ::1 | GET      "/role"
 [GIN] 2025/06/16 - 16:02:07 | 200 |       578.1µs |             ::1 | GET      "/role"
 [GIN] 2025/06/16 - 16:02:07 | 200 |       514.2µs |             ::1 | GET      "/user"
+[GIN] 2025/06/16 - 16:02:41 | 200 |      1.0282ms |             ::1 | GET      "/user/validate"

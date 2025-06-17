@@ -1,12 +1,13 @@
+// A função getCookie continua a mesma
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 }
 
-function showUserByRoleReport() {
-    const token = getCookie('token');
 
-    // ALTERAÇÃO APLICADA AQUI: Usando o cabeçalho padronizado.
+
+// REATORADO: Convertido para async/await para simplificar o código.
+async function showUserByRoleReport() {
     const reportHTML = `
         <div class="section-header">
             <h2>Relatório de Usuários por Função (Role)</h2>
@@ -19,25 +20,17 @@ function showUserByRoleReport() {
             <p>Carregando relatório...</p>
         </div>
     `;
-
     document.getElementById('main-content').innerHTML = reportHTML;
 
-    fetch('http://localhost:8080/rel/userbyrole', {
-        headers: {
-            "Authorization": token
-        }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error(`Erro ${res.status} ao carregar relatório`);
-        return res.json();
-    })
-    .then(data => {
-        if (data && Object.keys(data).length > 0) {
-            
-            // ALTERAÇÕES APLICADAS AQUI:
-            // 1. Adicionado o "list-container".
-            // 2. Tabela usa a classe "generic-list-table" e não tem estilos inline.
-            // 3. Cada <td> tem seu "data-label" para responsividade.
+    const reportResultContainer = document.getElementById('user-by-role-report-result');
+
+    try {
+        // NOVO: Usa handleResponse para tratar erros e simplifica a chamada.
+        const reportData = await fetch('http://localhost:8080/rel/userbyrole', {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        if (reportData && Object.keys(reportData).length > 0) {
             let tableHTML = `
                 <div class="list-container">
                     <table class="generic-list-table">
@@ -50,29 +43,28 @@ function showUserByRoleReport() {
                         <tbody>
             `;
 
-            for (const roleName in data) {
+            for (const roleName in reportData) {
                 tableHTML += `
                     <tr>
                         <td data-label="Função (Role)">${roleName}</td>
-                        <td data-label="Quantidade de Usuários">${data[roleName]}</td>
+                        <td data-label="Quantidade de Usuários">${reportData[roleName]}</td>
                     </tr>
                 `;
             }
 
-            tableHTML += `</tbody></table></div>`; // Fechando table e div
-
-            document.getElementById('user-by-role-report-result').innerHTML = tableHTML;
+            tableHTML += `</tbody></table></div>`;
+            reportResultContainer.innerHTML = tableHTML;
         } else {
-            document.getElementById('user-by-role-report-result').innerHTML = "<p>Nenhum dado encontrado.</p>";
+            reportResultContainer.innerHTML = "<p>Nenhum dado encontrado.</p>";
         }
-    })
-    .catch(err => {
-        console.error('Erro ao carregar relatório:', err);
-        document.getElementById('user-by-role-report-result').innerHTML = `<p>Falha ao carregar relatório: ${err.message}</p>`;
-    });
+    } catch (error) {
+        // ALTERADO: Captura qualquer erro e exibe uma mensagem clara na interface.
+        console.error('Erro ao carregar relatório de usuários por cargo:', error);
+        reportResultContainer.innerHTML = `<p class="error-message">Falha ao carregar relatório: ${error.message}</p>`;
+    }
 }
 
-
+// ALTERADO: A função generateUserByRolePDF agora usa notificação em vez de alert.
 function generateUserByRolePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -81,25 +73,24 @@ function generateUserByRolePDF() {
     doc.setFontSize(16);
     doc.text("Relatório de Usuários por Função (Role)", 14, 20);
 
-    // ALTERAÇÃO APLICADA AQUI: O seletor agora busca pela classe genérica e correta.
     const table = document.querySelector(".generic-list-table");
     if (!table) {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
 
     doc.autoTable({
-        html: table, // O método 'html' simplifica a extração de dados
+        html: table,
         startY: 30,
         theme: 'grid',
         headStyles: {
-            fillColor: [20, 54, 88], // Cor do cabeçalho do nosso CSS
+            fillColor: [20, 54, 88],
             textColor: 255,
             fontStyle: 'bold',
         }
     });
 
-    // Adiciona rodapé em todas as páginas
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);

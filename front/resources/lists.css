@@ -530,3 +530,44 @@ form h2 {
 .btn-secondary:hover {
     background-color: #5a6268;
 }
+
+/* Estilos para as notificações */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 16px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification-success {
+    background-color: #28a745; /* Verde */
+}
+
+.notification-error {
+    background-color: #dc3545; /* Vermelho */
+}
+
+/* Estilo para mensagens de erro no conteúdo principal */
+.error-message {
+    color: #dc3545;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ffc1c1;
+    background-color: #fff2f2;
+    border-radius: 8px;
+}

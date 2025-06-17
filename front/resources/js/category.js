@@ -1,16 +1,14 @@
-/**
- * Exibe a lista de categorias com um cabeçalho e botões de ação.
- * Agora, o botão "Editar" leva a um formulário dedicado.
- */
-function showCategoryList() {
+
+async function showCategoryList() {
+    // ALTERADO: Usando as classes .section-header e .list-container do novo CSS.
     const html = `
-        <div class="product-section-header">
+        <div class="section-header">
             <h2>Lista de Categorias</h2>
-            <div class="product-header-actions">
+            <div class="header-actions">
                 <button id="backToProductsBtn">Voltar para Produtos</button>
             </div>
         </div>
-        <div class="product-table-wrapper">
+        <div class="list-container">
             <div id="category-list-content">
                 <p>Carregando categorias...</p>
             </div>
@@ -21,20 +19,21 @@ function showCategoryList() {
 
     const categoryListContent = document.getElementById("category-list-content");
 
-    fetch("http://localhost:8080/category", {
-        method: "GET",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const categories = data.data;
-        if (!categories || !categories.length) {
+    try {
+        const data = await fetch("http://localhost:8080/category", {
+            method: "GET",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        const categories = data?.data || [];
+        if (categories.length === 0) {
             categoryListContent.innerHTML = "<p>Nenhuma categoria encontrada.</p>";
             return;
         }
 
+        // ALTERADO: Tabela agora usa a classe "generic-list-table".
         let listHTML = `
-            <table class="product-table"> 
+            <table class="generic-list-table"> 
                 <thead>
                     <tr>
                         <th>Nome</th>
@@ -45,10 +44,12 @@ function showCategoryList() {
         `;
 
         categories.forEach(category => {
+            // ALTERAÇÃO CRÍTICA: Adicionado o atributo 'data-label' para responsividade.
+            // O CSS usa este atributo para exibir os títulos em telas pequenas.
             listHTML += `
                 <tr>
-                    <td>${category.name}</td>
-                    <td>
+                    <td data-label="Nome">${category.name}</td>
+                    <td data-label="Ações">
                         <button class="editBtn" data-id="${category.id}">Editar</button>
                         <button class="deleteBtn" data-id="${category.id}">Excluir</button>
                     </td>
@@ -59,8 +60,8 @@ function showCategoryList() {
         listHTML += "</tbody></table>";
         categoryListContent.innerHTML = listHTML;
 
-        // Adiciona um único event listener para os botões da tabela
-        categoryListContent.querySelector('.product-table').addEventListener('click', (event) => {
+        // O event listener delegado continua funcionando perfeitamente.
+        categoryListContent.querySelector('.generic-list-table').addEventListener('click', (event) => {
             const button = event.target;
             const categoryId = button.getAttribute('data-id');
 
@@ -71,35 +72,35 @@ function showCategoryList() {
                 deleteCategory(categoryId);
             }
         });
-    })
-    .catch(error => {
+
+    } catch (error) {
         console.error("Erro ao carregar categorias:", error);
-        categoryListContent.innerHTML = "<p>Erro ao carregar categorias.</p>";
-    });
+        categoryListContent.innerHTML = `<p class="error-message">Não foi possível carregar as categorias: ${error.message}</p>`;
+    }
 }
 
+
 /**
- * NOVA FUNÇÃO: Cria e exibe um formulário para editar uma categoria específica.
+ * NENHUMA MUDANÇA NECESSÁRIA AQUI.
+ * O CSS já estiliza os botões do formulário pelos seus IDs (#backBtn, etc.)
+ * e a estrutura do formulário (.form-group, .form-actions) já é a correta.
  */
-function showCategoryEditForm(id) {
-    // Primeiro, busca os dados atuais da categoria para preencher o formulário
-    fetch(`http://localhost:8080/category/${id}`, {
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const category = data.data;
+async function showCategoryEditForm(id) {
+    try {
+        const data = await fetch(`http://localhost:8080/category/${id}`, {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        const category = data?.data;
         if (!category) {
-            alert("Categoria não encontrada.");
-            showCategoryList();
-            return;
+            throw new Error("Dados da categoria não encontrados na resposta.");
         }
 
         const formHTML = `
             <h2>Editar Categoria</h2>
             <div class="form-group">
                 <label for="categoryName">Nome da Categoria:</label>
-                <input type="text" id="categoryName" class="form-control" value="${category.name}" required>
+                <input type="text" id="categoryName" value="${category.name}" required>
             </div>
             <div class="form-actions">
                 <button type="button" id="backBtn">Voltar</button>
@@ -108,14 +109,12 @@ function showCategoryEditForm(id) {
         `;
         document.getElementById("main-content").innerHTML = formHTML;
 
-        // Evento para o botão "Voltar"
         document.getElementById("backBtn").addEventListener("click", showCategoryList);
 
-        // Evento para o botão "Salvar"
         document.getElementById("saveCategoryBtn").addEventListener("click", () => {
-            const newName = document.getElementById("categoryName").value;
-            if (!newName.trim()) {
-                alert("O nome da categoria não pode ser vazio.");
+            const newName = document.getElementById("categoryName").value.trim();
+            if (!newName) {
+                showNotification("O nome da categoria não pode ser vazio.", "error");
                 return;
             }
 
@@ -127,55 +126,39 @@ function showCategoryEditForm(id) {
                 },
                 body: JSON.stringify({ name: newName })
             })
-            .then(response => {
-                if (response.ok) {
-                    alert("Categoria atualizada com sucesso!");
-                    showCategoryList(); // Volta para a lista após salvar
-                } else {
-                    return response.json().then(errData => {
-                        throw new Error(errData.message || "Erro ao atualizar categoria");
-                    });
-                }
+            .then(handleResponse)
+            .then(() => {
+                showNotification("Categoria atualizada com sucesso!", "success");
+                showCategoryList();
             })
-            .catch(error => {
-                console.error("Erro:", error);
-                alert(error.message);
-            });
+            .catch(error => showNotification(error.message, "error"));
         });
 
-    })
-    .catch(error => {
-        console.error("Erro ao buscar categoria:", error);
-        alert("Não foi possível carregar os dados da categoria para edição.");
+    } catch (error) {
+        console.error("Erro ao buscar categoria para edição:", error);
+        showNotification(error.message, "error");
         showCategoryList();
-    });
+    }
 }
 
 
 /**
- * A função deleteCategory permanece a mesma.
+ * Nenhuma alteração visual necessária nesta função.
  */
 function deleteCategory(id) {
     if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
 
     fetch(`http://localhost:8080/category/${id}`, {
         method: "DELETE",
-        headers: {
-            "Authorization": getCookie("token")
-        }
+        headers: { "Authorization": getCookie("token") }
     })
-    .then(response => {
-        if (response.ok) {
-            alert("Categoria excluída com sucesso!");
-            showCategoryList(); // Recarrega a lista
-        } else {
-            return response.json().then(data => {
-                throw new Error(data.message || "Erro ao excluir categoria");
-            });
-        }
+    .then(handleResponse)
+    .then(() => {
+        showNotification("Categoria excluída com sucesso!", "success");
+        showCategoryList();
     })
     .catch(error => {
-        console.error("Erro:", error);
-        alert(error.message);
+        console.error("Erro ao excluir categoria:", error);
+        showNotification(error.message, "error");
     });
 }

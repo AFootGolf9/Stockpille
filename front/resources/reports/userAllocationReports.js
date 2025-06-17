@@ -1,14 +1,19 @@
+// A função getCookie continua a mesma
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 }
 
-function showAllocationReport() {
-    // ALTERAÇÃO APLICADA AQUI: Padronizando o cabeçalho da página.
+// REATORADO: Convertido para async/await e usa Promise.all para eficiência.
+async function showAllocationReport() {
+    // Adicionado um botão "Voltar" para uma melhor navegação
     const reportHTML = `
         <div class="section-header">
             <h2>Relatório de Locações por Usuários</h2>
-            <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
+            <div>
+                <button class="btn-secondary" onclick="showReportMenu()">Voltar</button>
+                <button id="generate-pdf" onclick="generatePDF()">Gerar PDF</button>
+            </div>
         </div>
         <div id="allocations-report-result">
             <p>Carregando relatório...</p>
@@ -16,77 +21,60 @@ function showAllocationReport() {
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("allocations-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("allocations-report-result");
 
-    fetch("http://localhost:8080/user", {
-        headers: { "Authorization": token }
-    })
-    .then(response => response.json())
-    .then(usersData => {
-        if (!usersData || !Array.isArray(usersData.data) || usersData.data.length === 0) {
-            document.getElementById("allocations-report-result").innerHTML = "<p>Nenhum usuário encontrado.</p>";
+    try {
+        // NOVO: Usa Promise.all para buscar dados de usuários e alocações simultaneamente.
+        const [usersResponse, allocationResponse] = await Promise.all([
+            fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
+            fetch("http://localhost:8080/rel/allocbyuser", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
+        ]);
+
+        const users = usersResponse?.data || [];
+        const allocationData = allocationResponse || {};
+
+        if (users.length === 0) {
+            reportResultContainer.innerHTML = "<p>Nenhum usuário encontrado para gerar o relatório.</p>";
             return;
         }
 
-        const users = usersData.data;
+        const results = users.map(user => ({
+            user: user.name,
+            totalAllocations: allocationData[user.name] || 0
+        }));
+        results.sort((a, b) => b.totalAllocations - a.totalAllocations);
 
-        fetch("http://localhost:8080/rel/allocbyuser", {
-            headers: { "Authorization": token }
-        })
-        .then(res => res.json())
-        .then(allocationData => {
-            if (!allocationData || Object.keys(allocationData).length === 0) {
-                document.getElementById("allocations-report-result").innerHTML = "<p>Nenhuma locação encontrada.</p>";
-                return;
-            }
-
-            const results = users.map(user => ({
-                user: user.name,
-                totalAllocations: allocationData[user.name] || 0
-            }));
-
-            results.sort((a, b) => b.totalAllocations - a.totalAllocations);
-
-            // ALTERAÇÕES APLICADAS AQUI: Usando o padrão de container, tabela e data-labels.
-            const tableHTML = `
-                <div class="list-container">
-                    <table class="generic-list-table">
-                        <thead>
+        const tableHTML = `
+            <div class="list-container">
+                <table class="generic-list-table">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Total de Locações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(result => `
                             <tr>
-                                <th>Usuário</th>
-                                <th>Total de Locações</th>
+                                <td data-label="Usuário">${result.user}</td>
+                                <td data-label="Total de Locações">${result.totalAllocations}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${results.map(result => `
-                                <tr>
-                                    <td data-label="Usuário">${result.user}</td>
-                                    <td data-label="Total de Locações">${result.totalAllocations}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            document.getElementById("allocations-report-result").innerHTML = tableHTML;
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de locações:", error);
-            document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar o relatório de locações: ${error.message}</p>`;
-        });
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        reportResultContainer.innerHTML = tableHTML;
 
-    })
-    .catch(error => {
-        console.error("Erro ao carregar os usuários:", error);
-        document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar os usuários: ${error.message}</p>`;
-    });
+    } catch (error) {
+        // ALTERADO: Um único catch para qualquer erro na busca de dados.
+        console.error("Erro ao carregar o relatório de locações:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
 
+// ALTERADO: A função generatePDF agora usa notificação em vez de alert.
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -95,25 +83,24 @@ function generatePDF() {
     doc.setFontSize(16);
     doc.text("Relatório de locações por usuários", 14, 20);
 
-    // ALTERAÇÃO APLICADA AQUI: O seletor agora busca pela classe genérica e correta.
     const table = document.querySelector(".generic-list-table");
     if (!table) {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
     
     doc.autoTable({
-        html: table, // O método 'html' simplifica a extração de dados da tabela
+        html: table,
         startY: 30,
         theme: 'grid',
         headStyles: {
-            fillColor: [20, 54, 88], // Cor do cabeçalho do nosso CSS
+            fillColor: [20, 54, 88],
             textColor: 255,
             fontStyle: 'bold',
         }
     });
     
-    // Adiciona rodapé em todas as páginas
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);

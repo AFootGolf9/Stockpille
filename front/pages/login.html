@@ -3,18 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../resources/login.css">
-    <title>Login StockPille</title>
+    <link rel="stylesheet" href="../resources/login.css"> 
+    <title>Login - StockPille</title>
 </head>
 <body>
     <div class="login-container">
-        <h1>Login de Usuário</h1>
-        <input type="text" class="form-control border-2 border-primary" name="username" id="username" placeholder="Nome">
-        <input type="password" class="form-control mt-2 border-2 border-primary" name="password" id="password" placeholder="Senha">
-        <button type="submit" onclick="login()">Entrar</button> 
+        <div class="login-header">
+            <h1>StockPille</h1>
+            <img src="https://cdn-icons-png.flaticon.com/512/1829/1829206.png" alt="Logo da StockPille" class="login-logo">
+        </div>
 
-        <div id="message"></div>
+        <form id="loginForm" onsubmit="event.preventDefault(); login();">
+            <div class="form-group">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" placeholder="Digite seu nome de usuário" autocomplete="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+            </div>
+            
+            <button type="submit">Entrar</button>
+
+            <div id="message"></div>
+        </form>
     </div>
+
     <script src="../resources/js/login.js"></script>
 </body>
 </html>

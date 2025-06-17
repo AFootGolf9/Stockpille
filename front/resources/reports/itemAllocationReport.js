@@ -4,8 +4,8 @@ function getCookie(name) {
     return match ? match[2] : null;
 }
 
-function showItemAllocationReport() {
-    // ALTERAÇÃO APLICADA AQUI: Adicionado o botão "Voltar".
+// REATORADO: Convertido para async/await para simplificar o código.
+async function showItemAllocationReport() {
     const reportHTML = `
         <div class="section-header">
             <h2>Relatório de Itens Mais Locados</h2>
@@ -18,35 +18,23 @@ function showItemAllocationReport() {
             <p>Carregando relatório...</p>
         </div>
     `;
-
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    // O restante da função permanece o mesmo...
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("item-allocation-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("item-allocation-report-result");
 
-    fetch("http://localhost:8080/rel/allocbyitem", {
-        headers: { "Authorization": token }
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Não autorizado: Verifique seu login.');
-            }
-            throw new Error('Erro na requisição: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(itemData => {
+    try {
+        // NOVO: Usa handleResponse para tratar erros e simplifica a chamada.
+        const itemData = await fetch("http://localhost:8080/rel/allocbyitem", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
         if (itemData && Object.keys(itemData).length > 0) {
             const results = Object.entries(itemData).map(([itemName, total]) => ({
                 item: itemName,
                 totalAllocations: total || 0
             }));
             results.sort((a, b) => b.totalAllocations - a.totalAllocations);
+            
             const tableHTML = `
                 <div class="list-container">
                     <table class="generic-list-table">
@@ -67,24 +55,25 @@ function showItemAllocationReport() {
                     </table>
                 </div>
             `;
-            document.getElementById("item-allocation-report-result").innerHTML = tableHTML;
+            reportResultContainer.innerHTML = tableHTML;
         } else {
-            document.getElementById("item-allocation-report-result").innerHTML = "<p>Nenhum item encontrado.</p>";
+            reportResultContainer.innerHTML = "<p>Nenhum dado de locação por item encontrado.</p>";
         }
-    })
-    .catch(error => {
-        console.error("Erro ao carregar o relatório de itens mais locados:", error);
-        document.getElementById("item-allocation-report-result").innerHTML = `<p>Erro ao carregar o relatório: ${error.message}</p>`;
-    });
+    } catch (error) {
+        // ALTERADO: Captura qualquer erro e exibe uma mensagem clara na interface.
+        console.error("Erro ao carregar o relatório de itens:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
-// A função generateItemAllocationPDF continua a mesma
+// ALTERADO: A função generateItemAllocationPDF agora usa notificação em vez de alert.
 function generateItemAllocationPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("Relatório de itens mais locados", 14, 20);
+
     const table = document.querySelector(".generic-list-table");
     if (table) {
         doc.autoTable({
@@ -103,14 +92,16 @@ function generateItemAllocationPDF() {
             doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
         }
     } else {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
     doc.save("relatorio_itens_locados.pdf");
 }
 
-function showAllocationReport() {
-    // ALTERAÇÃO APLICADA AQUI: Adicionado o botão "Voltar".
+
+// REATORADO: Convertido para async/await e usa Promise.all para eficiência.
+async function showAllocationReport() {
     const reportHTML = `
         <div class="section-header">
             <h2>Relatório de Locações por Usuários</h2>
@@ -125,77 +116,72 @@ function showAllocationReport() {
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    // O restante da função permanece o mesmo...
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("allocations-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("allocations-report-result");
 
-    fetch("http://localhost:8080/user", {
-        headers: { "Authorization": token }
-    })
-    .then(response => response.json())
-    .then(usersData => {
-        if (!usersData || !Array.isArray(usersData.data) || usersData.data.length === 0) {
-            document.getElementById("allocations-report-result").innerHTML = "<p>Nenhum usuário encontrado.</p>";
+    try {
+        // NOVO: Usa Promise.all para buscar dados de usuários e alocações simultaneamente.
+        const [usersResponse, allocationResponse] = await Promise.all([
+            fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
+            fetch("http://localhost:8080/rel/allocbyuser", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
+        ]);
+
+        const users = usersResponse?.data || [];
+        const allocationData = allocationResponse || {};
+
+        if (users.length === 0) {
+            reportResultContainer.innerHTML = "<p>Nenhum usuário encontrado para gerar o relatório.</p>";
             return;
         }
-        const users = usersData.data;
-        fetch("http://localhost:8080/rel/allocbyuser", {
-            headers: { "Authorization": token }
-        })
-        .then(res => res.json())
-        .then(allocationData => {
-            if (!allocationData || Object.keys(allocationData).length === 0) {
-                document.getElementById("allocations-report-result").innerHTML = "<p>Nenhuma locação encontrada.</p>";
-                return;
-            }
-            const results = users.map(user => ({
-                user: user.name,
-                totalAllocations: allocationData[user.name] || 0
-            }));
-            results.sort((a, b) => b.totalAllocations - a.totalAllocations);
-            const tableHTML = `
-                <div class="list-container">
-                    <table class="generic-list-table">
-                        <thead>
+
+        if (Object.keys(allocationData).length === 0) {
+            reportResultContainer.innerHTML = "<p>Nenhuma locação encontrada.</p>";
+            // Ainda assim, pode ser útil mostrar os usuários com 0 alocações.
+        }
+
+        const results = users.map(user => ({
+            user: user.name,
+            totalAllocations: allocationData[user.name] || 0
+        }));
+        results.sort((a, b) => b.totalAllocations - a.totalAllocations);
+
+        const tableHTML = `
+            <div class="list-container">
+                <table class="generic-list-table">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Total de Locações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(result => `
                             <tr>
-                                <th>Usuário</th>
-                                <th>Total de Locações</th>
+                                <td data-label="Usuário">${result.user}</td>
+                                <td data-label="Total de Locações">${result.totalAllocations}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${results.map(result => `
-                                <tr>
-                                    <td data-label="Usuário">${result.user}</td>
-                                    <td data-label="Total de Locações">${result.totalAllocations}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            document.getElementById("allocations-report-result").innerHTML = tableHTML;
-        })
-        .catch(error => {
-            console.error("Erro ao carregar o relatório de locações:", error);
-            document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar o relatório de locações: ${error.message}</p>`;
-        });
-    })
-    .catch(error => {
-        console.error("Erro ao carregar os usuários:", error);
-        document.getElementById("allocations-report-result").innerHTML = `<p>Erro ao carregar os usuários: ${error.message}</p>`;
-    });
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        reportResultContainer.innerHTML = tableHTML;
+
+    } catch (error) {
+        // ALTERADO: Um único catch para qualquer erro na busca de dados.
+        console.error("Erro ao carregar o relatório de locações:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
-// A função generatePDF continua a mesma
+
+// ALTERADO: A função generatePDF agora usa notificação em vez de alert.
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("Relatório de locações por usuários", 14, 20);
+
     const table = document.querySelector(".generic-list-table");
     if (table) {
         doc.autoTable({
@@ -214,7 +200,8 @@ function generatePDF() {
             doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
         }
     } else {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
     doc.save("relatorio_locacoes_por_usuario.pdf");

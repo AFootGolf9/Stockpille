@@ -1,10 +1,13 @@
+// A função getCookie continua a mesma
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 }
 
-function showItemByCategoryReport() {
-    // ALTERAÇÃO APLICADA AQUI: Adicionado o botão "Voltar".
+
+
+// REATORADO: Convertido para async/await para simplificar o código.
+async function showItemByCategoryReport() {
     const reportHTML = `
         <div class="section-header">
             <h2>Relatório de Itens por Categoria</h2>
@@ -17,36 +20,21 @@ function showItemByCategoryReport() {
             <p>Carregando relatório...</p>
         </div>
     `;
-
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("item-by-category-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("item-by-category-report-result");
 
-    fetch("http://localhost:8080/rel/itembycategory", {
-        headers: {
-            "Authorization": token
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Não autorizado: Verifique seu login.');
-            }
-            throw new Error('Erro na requisição: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Relatório de itens por categoria:", data);
+    try {
+        // NOVO: Usa handleResponse para tratar erros e simplifica a chamada.
+        const reportData = await fetch("http://localhost:8080/rel/itembycategory", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
 
-        if (data && Object.keys(data).length > 0) {
-            const results = Object.keys(data).map(categoryName => {
-                return { category: categoryName, totalItems: data[categoryName] || 0 };
-            });
+        if (reportData && Object.keys(reportData).length > 0) {
+            const results = Object.keys(reportData).map(categoryName => ({
+                category: categoryName,
+                totalItems: reportData[categoryName] || 0
+            }));
 
             results.sort((a, b) => b.totalItems - a.totalItems);
 
@@ -70,18 +58,18 @@ function showItemByCategoryReport() {
                     </table>
                 </div>
             `;
-
-            document.getElementById("item-by-category-report-result").innerHTML = tableHTML;
+            reportResultContainer.innerHTML = tableHTML;
         } else {
-            document.getElementById("item-by-category-report-result").innerHTML = "<p>Nenhuma categoria encontrada.</p>";
+            reportResultContainer.innerHTML = "<p>Nenhum dado de itens por categoria encontrado.</p>";
         }
-    })
-    .catch(error => {
+    } catch (error) {
+        // ALTERADO: Captura qualquer erro e exibe uma mensagem clara na interface.
         console.error("Erro ao carregar o relatório de itens por categoria:", error);
-        document.getElementById("item-by-category-report-result").innerHTML = `<p>Erro ao carregar relatório: ${error.message}</p>`;
-    });
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
+// ALTERADO: A função generateItemByCategoryPDF agora usa notificação em vez de alert.
 function generateItemByCategoryPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -92,7 +80,8 @@ function generateItemByCategoryPDF() {
 
     const table = document.querySelector(".generic-list-table");
     if (!table) {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
 

@@ -1,127 +1,106 @@
-function getToken() {
-    return localStorage.getItem('authToken');
-}
 
-function showAllocationForm() {
+async function showAllocationForm() {
     const formHTML = `
         <h2>Alocar Produto em Localização</h2>
         <div class="form-group">
             <label for="itemSelect">Selecione o Produto:</label>
-            <select id="itemSelect" required>
-                <option value="">Selecione um Produto</option>
+            <select id="itemSelect" required disabled>
+                <option value="">Carregando produtos...</option>
             </select>
         </div>
         <div class="form-group">
             <label for="locationSelect">Selecione a Localização:</label>
-            <select id="locationSelect" required>
-                <option value="">Selecione uma Localização</option>
+            <select id="locationSelect" required disabled>
+                <option value="">Carregando localizações...</option>
             </select>
         </div>
         <div class="form-group">
-            <button id="allocateBtn">Alocar Produto</button>
+            <button id="allocateBtn" disabled>Alocar Produto</button>
         </div>
     `;
 
     document.getElementById("main-content").innerHTML = formHTML;
 
-    loadItems();
-    loadLocations();
+    const itemSelect = document.getElementById("itemSelect");
+    const locationSelect = document.getElementById("locationSelect");
+    const allocateBtn = document.getElementById("allocateBtn");
 
-    document.getElementById("allocateBtn").addEventListener("click", function(event) {
-        event.preventDefault(); 
-        allocateProduct();
-    });
-}
-
-function loadItems() {
-    fetch("http://localhost:8080/item", {
-        method: "GET",
-        headers: {
-            "Authorization": getCookie("token")
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const items = data.data;
-        const itemSelect = document.getElementById("itemSelect");
-        if (Array.isArray(items) && items.length > 0) {
+    try {
+        // Carrega itens e localizações em paralelo
+        const [itemsData, locationsData] = await Promise.all([
+            fetch("http://localhost:8080/item", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
+            fetch("http://localhost:8080/location", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
+        ]);
+        
+        // Popula o seletor de produtos
+        const items = itemsData?.data || [];
+        itemSelect.innerHTML = '<option value="">Selecione um Produto</option>';
+        if (items.length > 0) {
             items.forEach(item => {
-                const option = document.createElement("option");
-                option.value = item.sku;
-                option.textContent = `${item.sku} - ${item.name}`;
-                itemSelect.appendChild(option);
+                itemSelect.add(new Option(`${item.sku} - ${item.name}`, item.sku));
             });
         } else {
-            const noItemsOption = document.createElement("option");
-            noItemsOption.textContent = "Nenhum produto disponível";
-            itemSelect.appendChild(noItemsOption);
+            itemSelect.add(new Option("Nenhum produto disponível", ""));
         }
-    })
-    .catch(error => console.error("Erro ao carregar produtos:", error));
-}
 
-function loadLocations() {
-    fetch("http://localhost:8080/location", {
-        method: "GET",
-        headers: {
-            "Authorization": getCookie("token")
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const locations = data.data;
-        const locationSelect = document.getElementById("locationSelect");
-        if (Array.isArray(locations) && locations.length > 0) {
+        // Popula o seletor de localizações
+        const locations = locationsData?.data || [];
+        locationSelect.innerHTML = '<option value="">Selecione uma Localização</option>';
+        if (locations.length > 0) {
             locations.forEach(location => {
-                const option = document.createElement("option");
-                option.value = location.id;
-                option.textContent = location.name;
-                locationSelect.appendChild(option);
+                locationSelect.add(new Option(location.name, location.id));
             });
         } else {
-            const noLocationsOption = document.createElement("option");
-            noLocationsOption.textContent = "Nenhuma Localização disponível";
-            locationSelect.appendChild(noLocationsOption);
+            locationSelect.add(new Option("Nenhuma localização disponível", ""));
         }
-    })
-    .catch(error => console.error("Erro ao carregar localizações:", error));
-}
+        
+        // Habilita os seletores e o botão
+        itemSelect.disabled = false;
+        locationSelect.disabled = false;
+        allocateBtn.disabled = false;
 
-function allocateProduct() {
-    const itemId = document.getElementById("itemSelect").value;
-    const locationId = document.getElementById("locationSelect").value;
-    const token = getCookie("token");
-    console.log("Produto selecionado:", itemId);
-    console.log("Locação selecionada:", locationId);
-    console.log("Token:", token);
-
-    if (!itemId || !locationId || !token) {
-        alert("Por favor, preencha todos os campos.");
-        return;
+    } catch (error) {
+        // Exibe notificação de erro e mantém o formulário desabilitado
+        console.error("Erro ao carregar dados para alocação:", error);
+        showNotification(`Erro ao carregar dados do formulário: ${error.message}`, "error");
+        itemSelect.innerHTML = '<option value="">Falha ao carregar</option>';
+        locationSelect.innerHTML = '<option value="">Falha ao carregar</option>';
     }
 
-    fetch("http://localhost:8080/allocation", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": getCookie("token")
-        },
-        body: JSON.stringify({
-            item_id: parseInt(itemId),
-            location_id: parseInt(locationId)
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Resposta do servidor:", data);
-        if (data.status) {
-            alert("Produto alocado com sucesso!");
-        } else {
-            alert("Erro ao alocar o produto.");
+
+    allocateBtn.addEventListener("click", function(event) {
+        event.preventDefault();
+
+        const itemId = itemSelect.value;
+        const locationId = locationSelect.value;
+
+        if (!itemId || !locationId) {
+            showNotification("Por favor, selecione um produto e uma localização.", "error");
+            return;
         }
-    })
-    .catch(error => {
-        console.error("Erro ao alocar o produto:", error);
-        alert("Erro ao alocar o produto. Tente novamente.");
+
+        fetch("http://localhost:8080/allocation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                // MANTIDO O HEADER ORIGINAL:
+                "Authorization": getCookie("token") 
+            },
+            body: JSON.stringify({
+                item_id: parseInt(itemId),
+                location_id: parseInt(locationId)
+            })
+        })
+        .then(handleResponse)
+        .then(data => {
+            console.log("Resposta do servidor:", data);
+            showNotification("Produto alocado com sucesso!", "success");
+            itemSelect.selectedIndex = 0;
+            locationSelect.selectedIndex = 0;
+        })
+        .catch(error => {
+            console.error("Erro ao alocar o produto:", error);
+            showNotification(error.message, "error");
+        });
     });
 }

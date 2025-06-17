@@ -1,5 +1,105 @@
+/**
+ * =================================================================
+ * NOVAS FUNÇÕES AUXILIARES PARA TRATAMENTO DE ERRO E NOTIFICAÇÕES
+ * =================================================================
+ */
+
+/**
+ * Exibe uma notificação flutuante na tela.
+ * @param {string} message - A mensagem a ser exibida.
+ * @param {string} type - O tipo de notificação ('success' ou 'error').
+ */
+function showNotification(message, type = 'error') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Adiciona a classe 'show' para iniciar a animação de entrada
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+
+    // Remove a notificação após 5 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+        // Espera a animação de saída terminar para remover o elemento
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 500);
+    }, 5000);
+}
+
+/**
+ * Processa a resposta do fetch, tratando erros de forma centralizada.
+ * @param {Response} response - O objeto de resposta do fetch.
+ * @returns {Promise<any>} - Retorna o JSON da resposta se bem-sucedido.
+ * @throws {Error} - Lança um erro com uma mensagem amigável em caso de falha.
+ */
+async function handleResponse(response) {
+    if (response.ok) {
+        // Se a resposta for 204 No Content, não há corpo para parsear.
+        if (response.status === 204) {
+            return null; 
+        }
+        return response.json();
+    }
+
+    // Tenta extrair uma mensagem de erro específica do corpo da resposta
+    let errorMessage = 'Ocorreu um erro inesperado.';
+    try {
+        const errorData = await response.json();
+        if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+        }
+    } catch (e) {
+        // O corpo do erro não era JSON ou estava vazio, ignora.
+    }
+
+    switch (response.status) {
+        case 400:
+            errorMessage = `Dados inválidos: ${errorMessage}`;
+            break;
+        case 401:
+            errorMessage = 'Sessão expirada. Por favor, faça login novamente.';
+            // Opcional: redirecionar para a página de login
+            // window.location.href = '/login.html';
+            break;
+        case 403:
+            // Requisito específico do usuário: tratar falta de permissão
+            errorMessage = 'Você não tem permissão para realizar esta ação devido ao seu cargo.';
+            break;
+        case 404:
+            errorMessage = 'O recurso solicitado não foi encontrado.';
+            break;
+        case 500:
+            errorMessage = 'Ocorreu um erro interno no servidor. Tente novamente mais tarde.';
+            break;
+    }
+    
+    throw new Error(errorMessage);
+}
+
+
+function tryParseJSON(text) {
+    try {
+        const obj = JSON.parse(text);
+        return (obj && typeof obj === 'object') ? obj : null;
+    } catch {
+        console.error("JSON inválido:", text);
+        return null;
+    }
+}
+
+
+/**
+ * =================================================================
+ * FUNÇÕES DO SISTEMA (Refatoradas com o novo tratamento de erro)
+ * =================================================================
+ */
+
 function showProductList() {
-    // ALTERAÇÃO APLICADA AQUI: Usando a classe genérica "header-actions"
     const productListHTML = `
         <div class="section-header"> 
             <h2>Lista de Produtos</h2>
@@ -30,47 +130,43 @@ function showProductList() {
     let allProducts = [];
     let categoryMap = {};
 
+    // Carregar categorias e depois produtos
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => res.json())
+    .then(handleResponse) // NOVO: Tratamento de erro centralizado
     .then(categoriesData => {
         const categories = categoriesData.data;
         if (Array.isArray(categories)) {
             categories.forEach(cat => {
-                const option = document.createElement("option");
-                option.value = cat.id;
-                option.textContent = cat.name;
+                const option = new Option(cat.name, cat.id);
                 categoryFilter.appendChild(option);
                 categoryMap[cat.id] = cat.name;
             });
         }
+        // Encadeia o fetch de produtos
         return fetch("http://localhost:8080/item", {
             method: "GET",
             headers: { "Authorization": getCookie("token") }
-        });
+        }).then(handleResponse);
     })
-    .then(res => res.text())
-    .then(text => {
-        const parsed = tryParseJSON(text);
-        if (parsed?.data) {
-            allProducts = parsed.data;
-            if (allProducts.length > 0) {
-                renderTable(allProducts);
-                productSearch.addEventListener("input", filterProducts);
-                categoryFilter.addEventListener("change", filterProducts);
-            } else {
-                productListContentArea.innerHTML = "<p>Nenhum produto cadastrado.</p>";
-            }
+    .then(productsData => {
+        allProducts = productsData?.data || [];
+        if (allProducts.length > 0) {
+            renderTable(allProducts);
+            productSearch.addEventListener("input", filterProducts);
+            categoryFilter.addEventListener("change", filterProducts);
         } else {
-            productListContentArea.innerHTML = "<p>Formato de dados inválido.</p>";
+            productListContentArea.innerHTML = "<p>Nenhum produto cadastrado.</p>";
         }
     })
     .catch(err => {
+        // ALTERADO: Exibe erro detalhado na interface
         console.error("Erro ao carregar dados:", err);
-        productListContentArea.innerHTML = `<p>Erro: ${err.message}</p>`;
+        productListContentArea.innerHTML = `<p class="error-message">Não foi possível carregar os produtos: ${err.message}</p>`;
     });
+
 
     function filterProducts() {
         const term = productSearch.value.toLowerCase();
@@ -98,7 +194,6 @@ function showProductList() {
         } else {
             products.forEach(p => {
                 const catName = p.category_id ? (categoryMap[p.category_id] || 'Desconhecida') : 'Sem Categoria';
-                // ALTERAÇÃO APLICADA AQUI: Adicionados os "data-label" para a responsividade funcionar.
                 html += `
                     <tr>
                         <td data-label="SKU">${p.sku || '-'}</td>
@@ -121,12 +216,13 @@ function showProductList() {
                 method: "GET",
                 headers: { "Authorization": getCookie("token") }
             })
-            .then(res => res.json())
+            .then(handleResponse) // NOVO: Tratamento de erro
             .then(qtd => {
                 const cell = document.getElementById(`quantity-${p.sku}`);
                 if (cell) cell.textContent = qtd.quantity ?? "N/D";
             })
             .catch(err => {
+                console.error(`Erro ao buscar quantidade para SKU ${p.sku}:`, err);
                 const cell = document.getElementById(`quantity-${p.sku}`);
                 if (cell) cell.textContent = "Erro";
             });
@@ -147,15 +243,6 @@ function showProductList() {
     document.getElementById("listCategoryBtn").addEventListener("click", showCategoryList);
 }
 
-function tryParseJSON(text) {
-    try {
-        const obj = JSON.parse(text);
-        return (obj && typeof obj === 'object') ? obj : null;
-    } catch {
-        console.error("JSON inválido:", text);
-        return null;
-    }
-}
 
 function showProductForm(productId = null) {
     const isEdit = Boolean(productId);
@@ -188,31 +275,34 @@ function showProductForm(productId = null) {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => res.json())
+    .then(handleResponse)
     .then(cats => {
         cats.data?.forEach(cat => {
-            const opt = new Option(cat.name, cat.id);
-            catSelect.add(opt);
+            catSelect.add(new Option(cat.name, cat.id));
         });
 
         if (isEdit) {
-            fetch(`http://localhost:8080/item/${productId}`, {
+            return fetch(`http://localhost:8080/item/${productId}`, {
                 method: "GET",
                 headers: { "Authorization": getCookie("token") }
-            })
-            .then(res => res.json())
-            .then(prod => {
-                const item = prod.data;
-                nameInput.value = item.name || '';
-                descInput.value = item.description || '';
-                catSelect.value = item.category_id || '';
-                currentSku = item.sku;
-                currentUserId = item.user_id;
-            })
-            .catch(err => alert("Erro ao carregar produto: " + err.message));
+            }).then(handleResponse);
         }
     })
-    .catch(err => alert("Erro categorias: " + err.message));
+    .then(prod => {
+        if (isEdit && prod) {
+            const item = prod.data;
+            nameInput.value = item.name || '';
+            descInput.value = item.description || '';
+            catSelect.value = item.category_id || '';
+            currentSku = item.sku;
+            currentUserId = item.user_id;
+        }
+    })
+    .catch(err => {
+        // ALTERADO: Usa notificação em vez de alert
+        showNotification(`Erro ao carregar dados do formulário: ${err.message}`);
+        showProductList(); // Volta para a lista se houver erro
+    });
 
     document.getElementById("registerProductBtn").addEventListener("click", () => {
         const name = nameInput.value.trim();
@@ -220,7 +310,7 @@ function showProductForm(productId = null) {
         const catId = catSelect.value;
 
         if (!name || !desc || !catId) {
-            alert("Preencha todos os campos.");
+            showNotification("Todos os campos são obrigatórios.", "error");
             return;
         }
 
@@ -235,7 +325,7 @@ function showProductForm(productId = null) {
 
         if (isEdit) {
             if (!currentSku || !currentUserId) {
-                alert("Erro interno: dados do produto não carregados.");
+                showNotification("Erro interno: dados do produto não carregados. Não foi possível atualizar.", "error");
                 return;
             }
             data.sku = parseInt(currentSku);
@@ -252,28 +342,30 @@ function showProductForm(productId = null) {
             },
             body: JSON.stringify(data)
         })
-        .then(res => {
-            if (!res.ok) throw new Error("Erro ao salvar produto.");
-            alert("Produto salvo com sucesso!");
+        .then(handleResponse) // NOVO: tratamento de erro
+        .then(() => {
+            showNotification(`Produto ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
             showProductList();
         })
-        .catch(err => alert(err.message));
+        .catch(err => showNotification(err.message, 'error')); // ALTERADO
     });
 }
 
 function deleteProduct(productId) {
-    if (!confirm("Excluir produto?")) return;
+    if (!confirm("Tem certeza que deseja excluir este produto?")) return;
+
     fetch(`http://localhost:8080/item/${productId}`, {
         method: "DELETE",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => {
-        if (!res.ok) throw new Error("Falha ao excluir");
-        alert("Produto excluído!");
+    .then(handleResponse) // NOVO: tratamento de erro
+    .then(() => {
+        showNotification("Produto excluído com sucesso!", 'success');
         showProductList();
     })
-    .catch(err => alert(err.message));
+    .catch(err => showNotification(err.message, 'error')); // ALTERADO
 }
+
 
 function showCategoryForm() {
     document.getElementById("main-content").innerHTML = `
@@ -287,7 +379,11 @@ function showCategoryForm() {
     document.getElementById("backBtn").addEventListener("click", showProductList);
     document.getElementById("registerCategoryBtn").addEventListener("click", () => {
         const name = document.getElementById("name").value.trim();
-        if (!name) return alert("Nome é obrigatório.");
+        if (!name) {
+            showNotification("O nome da categoria é obrigatório.", "error");
+            return;
+        }
+        
         fetch("http://localhost:8080/category", {
             method: "POST",
             headers: {
@@ -296,39 +392,38 @@ function showCategoryForm() {
             },
             body: JSON.stringify({ name })
         })
-        .then(res => {
-            if (!res.ok) throw new Error("Falha ao cadastrar");
-            alert("Categoria cadastrada!");
+        .then(handleResponse) // NOVO: tratamento de erro
+        .then(() => {
+            showNotification("Categoria cadastrada com sucesso!", 'success');
             showCategoryList();
         })
-        .catch(err => alert(err.message));
+        .catch(err => showNotification(err.message, 'error')); // ALTERADO
     });
 }
 
 function showCategoryList() {
     document.getElementById("main-content").innerHTML = `
         <div class="section-header">
-              <h2>Lista de Categorias</h2>
-              <button id="backToProductsBtn">Voltar para Produtos</button>
+            <h2>Lista de Categorias</h2>
+            <button id="backToProductsBtn">Voltar para Produtos</button>
         </div>
         <div id="category-list-content-area"><p>Carregando...</p></div>
     `;
     document.getElementById("backToProductsBtn").addEventListener("click", showProductList);
+    const contentArea = document.getElementById("category-list-content-area");
 
     fetch("http://localhost:8080/category", {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => res.json())
+    .then(handleResponse) // NOVO: tratamento de erro
     .then(data => {
         const cats = data.data || [];
-        const contentArea = document.getElementById("category-list-content-area");
         if (!cats.length) {
-            contentArea.innerHTML = "<p>Sem categorias.</p>";
+            contentArea.innerHTML = "<p>Nenhuma categoria cadastrada.</p>";
             return;
         }
         
-        // ALTERAÇÃO APLICADA AQUI: Adicionados os "data-label" para a responsividade.
         let html = `
             <div class="list-container">
                 <table class="generic-list-table">
@@ -345,11 +440,7 @@ function showCategoryList() {
                     </td>
                 </tr>`;
         });
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
+        html += `</tbody></table></div>`;
         contentArea.innerHTML = html;
         
         const categoryTable = contentArea.querySelector(".generic-list-table");
@@ -361,18 +452,25 @@ function showCategoryList() {
             });
         }
     })
-    .catch(err => alert("Erro: " + err.message));
+    .catch(err => {
+        // ALTERADO: Exibe erro na interface
+        contentArea.innerHTML = `<p class="error-message">Não foi possível carregar as categorias: ${err.message}</p>`;
+    });
 }
+
 
 function showCategoryEditForm(categoryId) {
     fetch(`http://localhost:8080/category/${categoryId}`, {
         method: "GET",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => res.json())
+    .then(handleResponse) // NOVO: tratamento de erro
     .then(data => {
         const cat = data.data;
-        if (!cat) return alert("Categoria não encontrada.");
+        if (!cat) {
+            // Este caso é coberto pelo 404 do handleResponse, mas é uma segurança extra.
+            throw new Error("Categoria não encontrada.");
+        }
         document.getElementById("main-content").innerHTML = `
             <h2>Editar Categoria</h2>
             <div class="form-group"><label>Nome:</label><input id="name" value="${cat.name}" required></div>
@@ -384,7 +482,10 @@ function showCategoryEditForm(categoryId) {
         document.getElementById("backBtn").addEventListener("click", showCategoryList);
         document.getElementById("updateCategoryBtn").addEventListener("click", () => {
             const newName = document.getElementById("name").value.trim();
-            if (!newName) return alert("Nome é obrigatório.");
+            if (!newName) {
+                showNotification("O nome da categoria é obrigatório.", "error");
+                return;
+            }
             fetch(`http://localhost:8080/category/${categoryId}`, {
                 method: "PUT",
                 headers: {
@@ -393,27 +494,32 @@ function showCategoryEditForm(categoryId) {
                 },
                 body: JSON.stringify({ name: newName })
             })
-            .then(res => {
-                if (!res.ok) throw new Error("Falha ao atualizar");
-                alert("Categoria atualizada!");
+            .then(handleResponse) // NOVO: tratamento de erro
+            .then(() => {
+                showNotification("Categoria atualizada com sucesso!", 'success');
                 showCategoryList();
             })
-            .catch(err => alert(err.message));
+            .catch(err => showNotification(err.message, 'error')); // ALTERADO
         });
     })
-    .catch(err => alert("Erro: " + err.message));
+    .catch(err => {
+        showNotification(err.message, 'error'); // ALTERADO
+        showCategoryList(); // Volta para a lista em caso de erro
+    });
 }
 
+
 function deleteCategory(categoryId) {
-    if (!confirm("Excluir categoria?")) return;
+    if (!confirm("Excluir esta categoria? Todos os produtos associados ficarão sem categoria.")) return;
+
     fetch(`http://localhost:8080/category/${categoryId}`, {
         method: "DELETE",
         headers: { "Authorization": getCookie("token") }
     })
-    .then(res => {
-        if (!res.ok) throw new Error("Falha ao excluir");
-        alert("Categoria excluída!");
+    .then(handleResponse) // NOVO: tratamento de erro
+    .then(() => {
+        showNotification("Categoria excluída com sucesso!", 'success');
         showCategoryList();
     })
-    .catch(err => alert(err.message));
+    .catch(err => showNotification(err.message, 'error')); // ALTERADO
 }

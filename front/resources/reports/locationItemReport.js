@@ -1,13 +1,15 @@
+// A função getCookie continua a mesma
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;
 }
 
-function showItemByLocationReport() {
-    // ALTERAÇÃO APLICADA AQUI: Adicionado o botão "Voltar".
+
+// REATORADO: Convertido para async/await para simplificar o código.
+async function showItemByLocationReport() {
     const reportHTML = `
         <div class="section-header">
-            <h2>Relatório de Localizações com Mais Itens</h2>
+            <h2>Relatório de Itens por Localização</h2>
             <div>
                 <button class="btn-secondary" onclick="showReportMenu()">Voltar</button>
                 <button id="generate-pdf" onclick="generateItemByLocationPDF()">Gerar PDF</button>
@@ -19,36 +21,19 @@ function showItemByLocationReport() {
     `;
     document.getElementById("main-content").innerHTML = reportHTML;
 
-    const token = getCookie("token");
-    if (!token) {
-        document.getElementById("item-by-location-report-result").innerHTML = "<p>Token de autenticação não encontrado. Faça login novamente.</p>";
-        return;
-    }
+    const reportResultContainer = document.getElementById("item-by-location-report-result");
 
-    fetch("http://localhost:8080/rel/itembylocation", {
-        headers: {
-            "Authorization": token
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Não autorizado: Verifique seu login.');
-            }
-            throw new Error('Erro na requisição: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(locationData => {
-        console.log("Relatório de localizações com mais itens:", locationData);
+    try {
+        // NOVO: Usa handleResponse para tratar erros e simplifica a chamada.
+        const locationData = await fetch("http://localhost:8080/rel/itembylocation", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
 
         if (locationData && typeof locationData === "object" && Object.keys(locationData).length > 0) {
-            const results = Object.keys(locationData).map(locationName => {
-                return {
-                    location: locationName,
-                    totalItems: locationData[locationName] || 0
-                };
-            });
+            const results = Object.keys(locationData).map(locationName => ({
+                location: locationName,
+                totalItems: locationData[locationName] || 0
+            }));
 
             results.sort((a, b) => b.totalItems - a.totalItems);
 
@@ -72,28 +57,30 @@ function showItemByLocationReport() {
                     </table>
                 </div>
             `;
-            document.getElementById("item-by-location-report-result").innerHTML = tableHTML;
+            reportResultContainer.innerHTML = tableHTML;
         } else {
-            document.getElementById("item-by-location-report-result").innerHTML = "<p>Nenhuma localização encontrada.</p>";
+            reportResultContainer.innerHTML = "<p>Nenhum dado de itens por localização encontrado.</p>";
         }
-    })
-    .catch(error => {
-        console.error("Erro ao carregar o relatório de localizações com mais itens:", error);
-        document.getElementById("item-by-location-report-result").innerHTML = `<p>Erro ao carregar o relatório de localizações: ${error.message}</p>`;
-    });
+    } catch (error) {
+        // ALTERADO: Captura qualquer erro e exibe uma mensagem clara na interface.
+        console.error("Erro ao carregar o relatório de itens por localização:", error);
+        reportResultContainer.innerHTML = `<p class="error-message">Erro ao carregar o relatório: ${error.message}</p>`;
+    }
 }
 
+// ALTERADO: A função generateItemByLocationPDF agora usa notificação em vez de alert.
 function generateItemByLocationPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Relatório de localizações com mais itens", 14, 20);
+    doc.text("Relatório de itens por localização", 14, 20);
 
     const table = document.querySelector(".generic-list-table");
     if (!table) {
-        alert("Erro: Nenhuma tabela encontrada para gerar o PDF.");
+        // Usa notificação para o erro.
+        showNotification("Nenhuma tabela encontrada para gerar o PDF.", "error");
         return;
     }
 
@@ -118,5 +105,5 @@ function generateItemByLocationPDF() {
         doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 35, pageHeight - 10);
     }
 
-    doc.save("relatorio_localizacoes_itens.pdf");
+    doc.save("relatorio_itens_por_localizacao.pdf");
 }
