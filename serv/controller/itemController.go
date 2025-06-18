@@ -10,7 +10,7 @@ import (
 
 func CountItensController(c *gin.Context) {
 	// Get the item ID from the request parameters
-	itemId := c.Param("itemId")
+	itemId := c.Param("id")
 	if itemId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Item ID is required"})
 		return
