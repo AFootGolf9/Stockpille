@@ -621,3 +621,126 @@ form h2 {
 .permission-yes { ... }
 .permission-no { ... }
 */
+/**
+ * ===================================
+ * CSS para o Modal de Confirmação
+ * ===================================
+ */
+
+/* O fundo escurecido que cobre a página */
+.confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique por cima de tudo */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Classe para ativar a transição de fade-in */
+.confirmation-overlay.visible {
+    opacity: 1;
+}
+
+/* A caixa do modal em si */
+.confirmation-modal {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirmation-overlay.visible .confirmation-modal {
+    transform: scale(1);
+}
+
+.confirmation-modal h3 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.confirmation-modal p {
+    margin: 15px 0;
+    color: #555;
+    font-size: 1rem;
+}
+
+/* Container para os botões */
+.confirmation-modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Estilo geral dos botões do modal */
+.confirmation-modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.confirmation-modal-actions button:active {
+    transform: scale(0.98);
+}
+
+/* Botão de Cancelar (estilo secundário) */
+.confirmation-btn-cancel {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #555;
+}
+
+.confirmation-btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+/* Botão de Confirmar (estilo de perigo) */
+.confirmation-btn-confirm {
+    background-color: #e74c3c; /* Vermelho */
+    color: white;
+}
+
+.confirmation-btn-confirm:hover {
+    background-color: #c0392b;
+}
+/* Esconde a barra de filtro se ela não tiver nenhum conteúdo dentro */
+.product-filter:empty {
+    display: none;
+}
+
+/* --- Cores para Botões Pequenos de Ação --- */
+
+/* CSS Corrigido para o botão AZUL (Editar) */
+.btn-sm.btn-primary {
+    background-color: #143658; /* Mantém a cor azul */
+    padding: 5px 10px;         /* FORÇA o tamanho do .btn-sm */
+    font-size: 12px;           /* FORÇA o tamanho da fonte do .btn-sm */
+}
+.btn-sm.btn-primary:hover {
+    background-color: #0056b3; 
+}
+
+/* Para o botão VERMELHO (Excluir) */
+.btn-sm.btn-danger {
+    background-color: #dc3545; /* Vermelho de perigo */
+}
+.btn-sm.btn-danger:hover {
+    background-color: #c82333; /* Vermelho mais escuro no hover */
+}

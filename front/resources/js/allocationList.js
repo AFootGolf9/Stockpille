@@ -12,6 +12,7 @@ function showAllocationsList() {
         <div class="section-header">
             <h2>Lista de Alocações</h2>
         </div>
+        <div class="product-filter"></div>
         <div id="allocations-list">
             <p>Carregando alocações...</p>
         </div>
@@ -62,7 +63,8 @@ function showAllocationsList() {
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Produto (SKU)</th>
+                                <th>Produto</th>
+                                <th>SKU</th>
                                 <th>Localização</th>
                                 <th>Usuário</th>
                                 <th>Ações</th>
@@ -76,11 +78,12 @@ function showAllocationsList() {
                                 return `
                                     <tr id="alloc-row-${allocation.id}">
                                         <td data-label="ID">${allocation.id}</td>
-                                        <td data-label="Produto (SKU)">${item.name || 'Produto não encontrado'} (${item.sku || 'SKU indisponível'})</td>
+                                        <td data-label="Produto">${item.name || 'Produto não encontrado'}</td>
+                                        <td data-label="SKU">${item.sku || 'N/D'}</td>
                                         <td data-label="Localização">${location.name || 'Locação não encontrada'}</td>
                                         <td data-label="Usuário">${user.name || 'Usuário não encontrado'}</td>
                                         <td data-label="Ações">
-                                            <button onclick="deleteAllocation(${allocation.id})" class="btn-danger">Excluir</button>
+                                            <button data-id="${allocation.id}" class="btn-danger">Excluir</button>
                                         </td>
                                     </tr>
                                 `;
@@ -90,6 +93,14 @@ function showAllocationsList() {
                 </div>
             `;
             allocationsListContainer.innerHTML = tableHTML;
+            
+            allocationsListContainer.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.tagName === 'BUTTON' && target.classList.contains('btn-danger')) {
+                    const allocationId = target.dataset.id;
+                    deleteAllocation(parseInt(allocationId));
+                }
+            });
         })
         .catch(error => {
             console.error("Erro ao carregar dados relacionados:", error);
@@ -103,14 +114,14 @@ function showAllocationsList() {
 }
 
 async function deleteAllocation(allocationId) {
-    if (!confirm("Tem certeza que deseja excluir esta alocação? O estoque do produto será reduzido.")) return;
-
     if (!allocationId) {
         showNotification("Não foi possível obter o ID da alocação. Tente recarregar a página.", "error");
         return;
     }
 
     try {
+        await showConfirmationModal("Tem certeza que deseja excluir esta alocação? O estoque do item será ajustado.", "Excluir Alocação");
+
         await fetch(`http://localhost:8080/allocation/${allocationId}`, {
             method: "DELETE",
             headers: { "Authorization": getCookie("token") }
@@ -123,7 +134,62 @@ async function deleteAllocation(allocationId) {
         showNotification("Alocação excluída e estoque ajustado com sucesso!", "success");
 
     } catch (error) {
-        console.error("Erro no processo de exclusão da alocação:", error);
-        showNotification(`Erro ao excluir: ${error.message}`, "error");
+        if (error && error.message) {
+            console.error("Erro no processo de exclusão da alocação:", error);
+            showNotification(`Erro ao excluir: ${error.message}`, "error");
+        } else {
+            console.log("Exclusão de alocação cancelada.");
+        }
     }
+}
+
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                if(document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
+    });
 }

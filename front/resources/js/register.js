@@ -1,4 +1,3 @@
-
 async function showUserList() {
     const userListHTML = `
     <div class="section-header">
@@ -8,6 +7,7 @@ async function showUserList() {
             <button id="createRoleBtn">Criar Cargo</button>
         </div>
     </div>
+    <div class="product-filter"></div>
     <div id="user-list-container">
         <p>Carregando usuários...</p>
     </div>
@@ -17,7 +17,6 @@ async function showUserList() {
     const userListContainer = document.getElementById("user-list-container");
 
     try {
-        // NOVO: Carrega cargos e usuários em paralelo para melhor performance.
         const [roleData, userData] = await Promise.all([
             fetch("http://localhost:8080/role", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
             fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
@@ -59,7 +58,6 @@ async function showUserList() {
             `;
             userListContainer.innerHTML = tableHTML;
 
-            // REATORADO: Event listener delegado para melhor performance.
             userListContainer.addEventListener('click', (event) => {
                 const target = event.target;
                 const userId = target.getAttribute('data-id');
@@ -75,17 +73,14 @@ async function showUserList() {
             userListContainer.innerHTML = "<p>Nenhum usuário cadastrado.</p>";
         }
     } catch (error) {
-        // ALTERADO: Captura qualquer erro do Promise.all e exibe na interface.
         console.error("Erro ao carregar dados de usuários:", error);
         userListContainer.innerHTML = `<p class="error-message">Não foi possível carregar os dados: ${error.message}</p>`;
     }
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
     document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
-
 }
 
-// REATORADO: A função agora é async para simplificar o carregamento de dados.
 async function showUserForm(userId = null) {
     const isEdit = Boolean(userId);
     const formHTML = `
@@ -117,16 +112,14 @@ async function showUserForm(userId = null) {
     const usernameInput = document.getElementById("username");
 
     try {
-        // NOVO: Carrega os cargos primeiro.
         const roleData = await fetch("http://localhost:8080/role", { headers: { "Authorization": getCookie("token") } }).then(handleResponse);
         const roles = roleData?.data || [];
         
-        roleSelect.innerHTML = '<option value="">Selecione um cargo</option>'; // Limpa o "Carregando..."
+        roleSelect.innerHTML = '<option value="">Selecione um cargo</option>';
         roles.forEach(role => {
             roleSelect.add(new Option(role.name, role.id));
         });
 
-        // Se for edição, carrega os dados do usuário.
         if (isEdit) {
             const userData = await fetch(`http://localhost:8080/user/${userId}`, { headers: { "Authorization": getCookie("token") } }).then(handleResponse);
             const user = userData?.data;
@@ -136,7 +129,6 @@ async function showUserForm(userId = null) {
             }
         }
     } catch (error) {
-        // ALTERADO: Usa notificação e volta para a lista em caso de erro.
         showNotification(`Erro ao carregar dados do formulário: ${error.message}`);
         showUserList();
     }
@@ -156,7 +148,7 @@ async function showUserForm(userId = null) {
         }
 
         let userData = { name, roleId };
-        if (password) { // Inclui a senha apenas se for preenchida
+        if (password) {
             userData.password = password;
         }
 
@@ -171,12 +163,12 @@ async function showUserForm(userId = null) {
             },
             body: JSON.stringify(userData)
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             showNotification(`Usuário ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
             showUserList();
         })
-        .catch(error => showNotification(error.message, 'error')); // ALTERADO
+        .catch(error => showNotification(error.message, 'error'));
     });
 }
 
@@ -211,29 +203,81 @@ function showRoleForm() {
             },
             body: JSON.stringify({ name })
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             showNotification("Cargo criado com sucesso!", 'success');
-            showUserList(); // Ou showRoleList() se preferir ir para a lista de cargos
+            showUserList();
         })
-        .catch(error => showNotification(error.message, 'error')); // ALTERADO
+        .catch(error => showNotification(error.message, 'error'));
     });
 }
 
-function deleteUser(userId) {
-    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
-    
-    fetch(`http://localhost:8080/user/${userId}`, {
-        method: "DELETE",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse) // NOVO: Tratamento de erro
-    .then(() => {
+async function deleteUser(userId) {
+    try {
+        await showConfirmationModal("Tem certeza que deseja excluir este usuário?", "Excluir Usuário");
+
+        await fetch(`http://localhost:8080/user/${userId}`, {
+            method: "DELETE",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
         showNotification("Usuário excluído com sucesso!", 'success');
         showUserList();
-    })
-    .catch(error => showNotification(error.message, 'error')); // ALTERADO
+
+    } catch (error) {
+        if (error) {
+            showNotification(error.message, 'error');
+        } else {
+            console.log("Exclusão de usuário cancelada.");
+        }
+    }
 }
 
-// NOTA: Você precisará criar a função showRoleList() e as outras de edição/exclusão de cargos, 
-// seguindo o mesmo padrão das funções acima.
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
+    });
+}

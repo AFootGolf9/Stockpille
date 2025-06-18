@@ -12,7 +12,6 @@ function showLocationList() {
     document.getElementById("main-content").innerHTML = locationListHTML;
     const locationListContainer = document.getElementById("location-list-container");
 
-    // NOVO: Usar Promise.all para buscar localizações e alocações simultaneamente
     Promise.all([
         fetch("http://localhost:8080/location", {
             method: "GET",
@@ -27,7 +26,6 @@ function showLocationList() {
         const locations = locationsData?.data || [];
         const allAllocations = allocationsData?.data || [];
 
-        // NOVO: Criar um mapa para contar eficientemente os itens por localização
         const locationCounts = new Map();
         allAllocations.forEach(alloc => {
             const count = locationCounts.get(alloc.location_id) || 0;
@@ -48,7 +46,6 @@ function showLocationList() {
                         </thead>
                         <tbody>
                             ${locations.map(location => {
-                                // NOVO: Obter a contagem do mapa
                                 const itemCount = locationCounts.get(location.id) || 0;
                                 return `
                                 <tr>
@@ -113,14 +110,13 @@ function showLocationForm(locationId = null) {
             method: "GET",
             headers: { "Authorization": getCookie("token") }
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(data => {
             if (data?.data) {
                 locationNameInput.value = data.data.name;
             }
         })
         .catch(error => {
-            // ALTERADO: Usa notificação em vez de alert e volta para a lista
             showNotification(`Erro ao carregar dados: ${error.message}`);
             showLocationList();
         });
@@ -146,33 +142,84 @@ function showLocationForm(locationId = null) {
             },
             body: JSON.stringify(locationData)
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             const successMessage = isEdit ? "Localização atualizada com sucesso!" : "Localização cadastrada com sucesso!";
             showNotification(successMessage, 'success');
             showLocationList();
         })
         .catch(error => {
-            // ALTERADO: Usa notificação com mensagem de erro específica
             showNotification(error.message, 'error');
         });
     });
 }
 
-function deleteLocation(locationId) {
-    if (!confirm("Tem certeza que deseja excluir esta localização?")) return;
-    
-    fetch(`http://localhost:8080/location/${locationId}`, {
-        method: "DELETE",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse) // NOVO: Tratamento de erro
-    .then(() => {
+async function deleteLocation(locationId) {
+    try {
+        await showConfirmationModal("Tem certeza que deseja excluir esta localização? As alocações associadas não serão removidas.", "Excluir Localização");
+
+        await fetch(`http://localhost:8080/location/${locationId}`, {
+            method: "DELETE",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
         showNotification("Localização excluída com sucesso!", 'success');
         showLocationList();
-    })
-    .catch(error => {
-        // ALTERADO: Usa notificação com mensagem de erro específica
-        showNotification(error.message, 'error');
+
+    } catch (error) {
+        if (error) {
+             showNotification(error.message, 'error');
+        } else {
+             console.log("Exclusão cancelada pelo usuário.");
+        }
+    }
+}
+
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
     });
 }
