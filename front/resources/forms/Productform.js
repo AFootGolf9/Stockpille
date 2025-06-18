@@ -219,7 +219,7 @@ function showProductList() {
             .then(handleResponse) // NOVO: Tratamento de erro
             .then(qtd => {
                 const cell = document.getElementById(`quantity-${p.sku}`);
-                if (cell) cell.textContent = qtd.quantity ?? "N/D";
+                if (cell) cell.textContent = qtd.count ?? "N/D";
             })
             .catch(err => {
                 console.error(`Erro ao buscar quantidade para SKU ${p.sku}:`, err);

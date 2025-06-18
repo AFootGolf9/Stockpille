@@ -3,7 +3,9 @@ package controller
 import (
 	"stockpille/entity"
 	"stockpille/repository"
+	"stockpille/repository/entityRepository"
 	"stockpille/service"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +15,69 @@ type RoleWithPermission struct {
 	Id          int                 `json:"id"`
 	Name        string              `json:"name"`
 	Permissions []entity.Permission `json:"permission"`
+}
+
+func GetRolePermission(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Invalid ID",
+		})
+		return
+	}
+
+	var roleWithPermission RoleWithPermission
+	user := c.MustGet("user").(entity.User)
+
+	roleWithPermission.Id = id
+
+	role := entity.Role{
+		Id: roleWithPermission.Id,
+	}
+
+	permission, err := service.GetRolePermission(user.RoleId, role.GetCamps()[0])
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+	if permission == "" {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
+		return
+	}
+
+	err = entityRepository.SelectPK(&role)
+
+	if err != nil {
+		c.JSON(404, gin.H{
+			"error": "Role not found",
+		})
+		return
+	}
+
+	roleWithPermission.Name = role.Name
+
+	temp := repository.GetRolePermission(roleWithPermission.Id)
+	if temp == nil {
+		c.JSON(404, gin.H{
+			"error": "Role not found",
+		})
+		return
+	}
+	roleWithPermission.Permissions = make([]entity.Permission, 0)
+	for table, perm := range temp {
+		roleWithPermission.Permissions = append(roleWithPermission.Permissions, entity.Permission{
+			RoleId:     roleWithPermission.Id,
+			Permission: perm,
+			Table:      table,
+		})
+	}
+
+	c.JSON(200, roleWithPermission)
 }
 
 func CreatePermission(c *gin.Context) {

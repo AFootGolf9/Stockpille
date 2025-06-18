@@ -64,7 +64,7 @@ func main() {
 	rs.SetCRUD(&entity.Role{})
 	rs.SetCRUD(&entity.Category{})
 
-	r.GET("/item/quantity/:id", controller.GetItemQuantity)
+	r.GET("/item/quantity/:id", controller.CountItensController)
 	r.GET("/user/validate", controller.ValidateToken)
 
 	r.GET("/rel/allocbyuser", controller.RelAllocByUser)
@@ -73,9 +73,10 @@ func main() {
 	r.GET("/rel/itembycategory", controller.RelItemByCategory)
 	r.GET("/rel/userbyrole", controller.RelUserByRole)
 
-	r.POST("/role-permision", controller.CreatePermission)
-	r.PUT("/role-permision", controller.UpdatePermission)
-	r.GET("/role-permision", controller.GetPermission)
+	r.GET("/role-permission/:id", controller.GetRolePermission)
+	r.POST("/role-permission", controller.CreatePermission)
+	r.PUT("/role-permission", controller.UpdatePermission)
+	r.GET("/role-permission", controller.GetPermission)
 
 	// https://github.com/gin-gonic/gin/blob/v1.10.0/docs/doc.md#custom-middleware
 
