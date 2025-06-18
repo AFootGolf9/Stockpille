@@ -592,3 +592,32 @@ form h2 {
     background-color: #a0a0a0;
     cursor: not-allowed;
 }
+
+/* Estilos para os novos indicadores de permissão (círculos) */
+
+.permission-indicator {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%; /* Isso transforma o elemento quadrado em um círculo perfeito */
+  vertical-align: middle; /* Alinha o círculo verticalmente no meio da célula */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Sombra sutil para dar profundidade */
+}
+
+/* Cor para permissão concedida (verde) */
+.permission-indicator.granted {
+  background-color: #28a745; 
+  border: 1px solid #218838;
+}
+
+/* Cor para permissão negada (vermelho) */
+.permission-indicator.denied {
+  background-color: #dc3545;
+  border: 1px solid #c82333;
+}
+
+/* Você pode remover os estilos antigos se quiser */
+/*
+.permission-yes { ... }
+.permission-no { ... }
+*/

@@ -82,8 +82,7 @@ async function showUserList() {
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
     document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
-    // Supondo que você tenha a função showRoleList
-    document.getElementById("listRolesBtn").addEventListener("click", () => showRoleList()); 
+
 }
 
 // REATORADO: A função agora é async para simplificar o carregamento de dados.
