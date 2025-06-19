@@ -63,13 +63,13 @@ function showRoleForm() {
 
                 <div class="form-actions">
                     <button type="button" id="backBtn" class="btn-secondary">Voltar</button>
-                    <button type="submit" id="createRoleSubmitBtn" class="btn-primary">Criar Cargo</button>
+                    <button type="submit" id="createRoleSubmitBtn">Criar Cargo</button>
                 </div>
             </form>
         </div>
 
-        <div id="role-list-wrapper" class="list-container card-style" style="margin-top: 30px;">
-            <div class="section-header">
+        <div class="list-container card-style" style="margin-top: 30px;">
+             <div class="section-header">
                 <h2>Cargos Existentes</h2>
             </div>
             <div id="existingRoles"></div>
@@ -131,22 +131,6 @@ function showRoleForm() {
         .catch(error => showNotification(error.message, 'error'));
     });
 
-    document.getElementById('role-list-wrapper').addEventListener('click', (event) => {
-        const button = event.target.closest('button');
-        if (!button) return;
-
-        const roleId = button.dataset.roleId;
-        const roleName = button.dataset.roleName;
-
-        if (button.classList.contains('view-permissions-btn')) {
-            showRolePermissions(roleId, roleName);
-        } else if (button.classList.contains('edit-role-btn')) {
-            showRoleEditForm(roleId, roleName);
-        } else if (button.classList.contains('delete-role-btn')) {
-            deleteRole(roleId, roleName);
-        }
-    });
-
     listExistingRoles();
 }
 
@@ -168,13 +152,30 @@ async function listExistingRoles() {
                             <span>${role.name}</span>
                             <div class="list-item-actions">
                                 <button class="btn-sm view-permissions-btn" data-role-id="${role.id}" data-role-name="${role.name}">Ver</button>
-                                <button class="btn-sm btn-primary edit-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Editar</button>
+                                <button class="btn-sm btn-secondary edit-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Editar</button>
                                 <button class="btn-sm btn-danger delete-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Excluir</button>
                             </div>
-                        </li>`;
+                          </li>`;
             });
             html += '</ul>';
             container.innerHTML = html;
+
+            container.addEventListener('click', (event) => {
+                const button = event.target.closest('button');
+                if (!button) return;
+
+                const roleId = button.dataset.roleId;
+                const roleName = button.dataset.roleName;
+
+                if (button.classList.contains('view-permissions-btn')) {
+                    showRolePermissions(roleId, roleName);
+                } else if (button.classList.contains('edit-role-btn')) {
+                    showRoleEditForm(roleId, roleName);
+                } else if (button.classList.contains('delete-role-btn')) {
+                    deleteRole(roleId, roleName);
+                }
+            });
+
         } else {
             container.innerHTML = "<p style='padding: 15px;'>Nenhum cargo cadastrado ainda.</p>";
         }
@@ -285,8 +286,8 @@ async function showRoleEditForm(roleId, roleName) {
                 </div>
                 <form id="editRoleForm">
                     <div class="form-group">
-                        <label for="roleName">Nome do Cargo (não pode ser alterado):</label>
-                        <input type="text" id="roleName" name="roleName" value="${currentName}" required readonly>
+                        <label for="roleName">Nome do Cargo:</label>
+                        <input type="text" id="roleName" name="roleName" value="${currentName}" required>
                     </div>
                     <div class="form-group">
                         <h3>Permissões de Acesso:</h3>
@@ -294,7 +295,7 @@ async function showRoleEditForm(roleId, roleName) {
                     </div>
                     <div class="form-actions">
                         <button type="button" id="backBtn" class="btn-secondary">Cancelar</button>
-                        <button type="submit" class="btn-primary">Atualizar Permissões</button>
+                        <button type="submit">Atualizar Cargo</button>
                     </div>
                 </form>
             </div>
@@ -306,7 +307,12 @@ async function showRoleEditForm(roleId, roleName) {
         document.getElementById('editRoleForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             
-            const roleNameValue = currentName;
+            const newName = document.getElementById('roleName').value.trim();
+            if (!newName) {
+                showNotification("O nome do cargo é obrigatório.", "error");
+                return;
+            }
+
             const permissions = {};
             document.querySelectorAll(".permission-checkbox:checked").forEach(cb => {
                 const table = cb.dataset.table;
@@ -321,7 +327,7 @@ async function showRoleEditForm(roleId, roleName) {
 
             const roleData = {
                 id: parseInt(roleId),
-                name: roleNameValue,
+                name: newName,
                 permission: permissionsArray
             };
 
@@ -335,7 +341,7 @@ async function showRoleEditForm(roleId, roleName) {
                     body: JSON.stringify(roleData)
                 }).then(handleResponse);
 
-                showNotification('Permissões do cargo atualizadas com sucesso!', 'success');
+                showNotification('Cargo atualizado com sucesso!', 'success');
                 showRoleForm();
             } catch (error) {
                 showNotification(error.message, 'error');
@@ -349,7 +355,7 @@ async function showRoleEditForm(roleId, roleName) {
 
 async function deleteRole(roleId, roleName) {
     try {
-        const userCountResponse = await fetch(`http://localhost:8080/rel/userbyrole`, {
+        const userCountResponse = await fetch(`http://localhost:8080/rel/userbyrole?id=${roleId}`, {
             headers: { "Authorization": getCookie("token") }
         }).then(handleResponse);
         
@@ -360,7 +366,11 @@ async function deleteRole(roleId, roleName) {
             return;
         }
 
-        await showConfirmationModal(`Tem certeza que deseja excluir o cargo "${roleName}"? Esta ação não pode ser desfeita.`, "Excluir Cargo");
+        const confirmation = confirm(`Tem certeza que deseja excluir o cargo "${roleName}"? Esta ação não pode ser desfeita.`);
+
+        if (!confirmation) {
+            return;
+        }
 
         await fetch(`http://localhost:8080/role/${roleId}`, {
             method: 'DELETE',
@@ -373,61 +383,6 @@ async function deleteRole(roleId, roleName) {
         showRoleForm();
 
     } catch (error) {
-        if (error) {
-            showNotification(error.message, 'error');
-        } else {
-            console.log("Exclusão de cargo cancelada.");
-        }
+        showNotification(error.message, 'error');
     }
-}
-
-function showConfirmationModal(message, title = 'Confirmar Ação') {
-    return new Promise((resolve, reject) => {
-        const overlay = document.createElement('div');
-        overlay.className = 'confirmation-overlay';
-
-        overlay.innerHTML = `
-            <div class="confirmation-modal">
-                <h3>${title}</h3>
-                <p>${message}</p>
-                <div class="confirmation-modal-actions">
-                    <button class="confirmation-btn-cancel">Cancelar</button>
-                    <button class="confirmation-btn-confirm">Confirmar</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        setTimeout(() => overlay.classList.add('visible'), 10);
-
-        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
-        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
-
-        const closeModal = () => {
-            overlay.classList.remove('visible');
-            setTimeout(() => {
-                if(document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        };
-
-        confirmBtn.addEventListener('click', () => {
-            closeModal();
-            resolve();
-        });
-
-        cancelBtn.addEventListener('click', () => {
-            closeModal();
-            reject();
-        });
-
-        overlay.addEventListener('click', (event) => {
-            if (event.target === overlay) {
-                closeModal();
-                reject();
-            }
-        });
-    });
 }
