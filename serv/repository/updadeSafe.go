@@ -26,8 +26,6 @@ func PrepareForUpdate(camps []string, data []any) error {
 
 	query += " FROM " + camps[0] + " WHERE " + camps[1] + " = $1"
 
-	// println(query)
-
 	row := db.QueryRow(query, data[0])
 	err := row.Scan(data...)
 
