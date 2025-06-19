@@ -113,6 +113,14 @@ func CreatePermission(c *gin.Context) {
 		})
 		return
 	}
+	err = role.Validate(user.Id)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	service.New(&role, user.Id)
 
@@ -149,10 +157,12 @@ func UpdatePermission(c *gin.Context) {
 	roleWithPermission.Name = strings.ToUpper(roleWithPermission.Name)
 
 	role := entity.Role{
-		Name: roleWithPermission.Name,
+		Id: roleWithPermission.Id,
+		// Name: roleWithPermission.Name,
 	}
 
-	roleId, err := repository.GetRoleIdByName(role.Name)
+	// roleId, err := repository.GetRoleIdByName(role.Name)
+	err := entityRepository.SelectPK(&role)
 
 	if err != nil {
 		c.JSON(404, gin.H{
@@ -160,7 +170,7 @@ func UpdatePermission(c *gin.Context) {
 		})
 		return
 	}
-	role.SetId(roleId)
+	// role.SetId(roleId)
 
 	permission, err := service.GetRolePermission(user.RoleId, role.GetCamps()[0])
 	if err != nil {
@@ -184,6 +194,7 @@ func UpdatePermission(c *gin.Context) {
 		allowed = "all"
 	}
 
+	role.Name = roleWithPermission.Name
 	service.Update(&role, allowed, user.Id)
 
 	for _, permission := range roleWithPermission.Permissions {
