@@ -44,6 +44,13 @@ func UpdateRolePermission(roleId int, table string, permission string) {
 		permission = "rwdu"
 	}
 
+	// verify if role_permission exists
+	exists := GetRolePermissionByTable(roleId, table)
+	if exists == "" {
+		CreateRolePermission(roleId, table, permission)
+		return
+	}
+
 	_, err := db.Exec("UPDATE role_permission SET permission = $1 WHERE role_id = $2 AND table_name = $3", permission, roleId, table)
 	if err != nil {
 		panic(err)
