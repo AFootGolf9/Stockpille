@@ -16,19 +16,32 @@ async function showUserList() {
 
     const userListContainer = document.getElementById("user-list-container");
 
-    try {
-        const [roleData, userData] = await Promise.all([
-            fetch("http://localhost:8080/role", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
-            fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
-        ]);
+    let roles = [];
+    let roleMap = {};
+    let permissionToViewRoles = true;
 
-        const roles = roleData?.data || [];
+    try {
+        const userRes = await fetch("http://localhost:8080/user", {
+            headers: { "Authorization": getCookie("token") }
+        });
+        const userData = await handleResponse(userRes);
         const users = userData?.data || [];
-        
-        const roleMap = roles.reduce((map, role) => {
-            map[role.id] = role.name;
-            return map;
-        }, {});
+
+        // Tenta buscar os cargos
+        try {
+            const roleRes = await fetch("http://localhost:8080/role", {
+                headers: { "Authorization": getCookie("token") }
+            });
+            const roleData = await handleResponse(roleRes);
+            roles = roleData?.data || [];
+            roleMap = roles.reduce((map, role) => {
+                map[role.id] = role.name;
+                return map;
+            }, {});
+        } catch (roleError) {
+            console.warn("Sem permissão para visualizar cargos:", roleError);
+            permissionToViewRoles = false;
+        }
 
         if (users.length > 0) {
             const tableHTML = `
@@ -45,7 +58,13 @@ async function showUserList() {
                             ${users.map(user => `
                                 <tr>
                                     <td data-label="Nome">${user.name}</td>
-                                    <td data-label="Cargo">${roleMap[user.roleId] || "Sem cargo"}</td>
+                                    <td data-label="Cargo">
+                                        ${
+                                            permissionToViewRoles
+                                                ? (roleMap[user.roleId] || "Sem cargo")
+                                                : "Sem permissão para ver cargo"
+                                        }
+                                    </td>
                                     <td data-label="Ações">
                                         <button class="editBtn" data-id="${user.id}">Editar</button>
                                         <button class="deleteBtn" data-id="${user.id}">Excluir</button>
@@ -80,6 +99,7 @@ async function showUserList() {
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
     document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
 }
+
 
 async function showUserForm(userId = null) {
     const isEdit = Boolean(userId);
