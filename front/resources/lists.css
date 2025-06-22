@@ -739,8 +739,15 @@ form h2 {
 
 /* Para o botão VERMELHO (Excluir) */
 .btn-sm.btn-danger {
-    background-color: #dc3545; /* Vermelho de perigo */
+    background-color: #dc3545; 
 }
 .btn-sm.btn-danger:hover {
-    background-color: #c82333; /* Vermelho mais escuro no hover */
+    background-color: #c82333; 
+}
+
+.btn-sm.btn-edit {
+    background-color: #143658;
+}
+.btn-sm.btn-edit:hover {
+    background-color: #0056b3; 
 }

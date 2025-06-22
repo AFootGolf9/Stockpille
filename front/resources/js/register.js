@@ -87,7 +87,7 @@ async function showUserForm(userId = null) {
         <h2>${isEdit ? 'Editar Usuário' : 'Cadastro de Usuário'}</h2>
         <div class="form-group">
             <label for="username">Nome:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" required ${isEdit ? 'disabled style="background-color: #e0e0e0; cursor: not-allowed;" title="Não é possível alterar o nome do usuário"' : ''}>
         </div>
         <div class="form-group">
             <label for="role">Cargo:</label>
@@ -134,12 +134,19 @@ async function showUserForm(userId = null) {
     }
 
     document.getElementById("registerBtn").addEventListener("click", function() {
-        const name = usernameInput.value.trim();
+        // When editing, the name is not taken from the input field as it's disabled.
+        // It should be fetched from the `user` object if `isEdit` is true, or handled appropriately.
+        // For this example, we'll assume the name isn't changing for edits.
+        const name = usernameInput.value.trim(); 
         const roleId = parseInt(document.getElementById("role").value, 10);
         const password = document.getElementById("password").value;
 
-        if (!name || !roleId) {
-            showNotification("Nome e Cargo são obrigatórios.", "error");
+        if (!name && !isEdit) { // Only check for name if it's a new user
+            showNotification("Nome é obrigatório para novos usuários.", "error");
+            return;
+        }
+        if (!roleId) {
+            showNotification("Cargo é obrigatório.", "error");
             return;
         }
         if (!isEdit && !password) {
@@ -147,7 +154,10 @@ async function showUserForm(userId = null) {
             return;
         }
 
-        let userData = { name, roleId };
+        let userData = { roleId }; // Only send roleId and password if changing
+        if (!isEdit) { // For new users, name is required
+             userData.name = name;
+        }
         if (password) {
             userData.password = password;
         }

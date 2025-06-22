@@ -152,7 +152,7 @@ async function listExistingRoles() {
                             <span>${role.name}</span>
                             <div class="list-item-actions">
                                 <button class="btn-sm view-permissions-btn" data-role-id="${role.id}" data-role-name="${role.name}">Ver</button>
-                                <button class="btn-sm btn-secondary edit-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Editar</button>
+                                <button class="btn-sm btn-edit edit-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Editar</button>
                                 <button class="btn-sm btn-danger delete-role-btn" data-role-id="${role.id}" data-role-name="${role.name}">Excluir</button>
                             </div>
                           </li>`;
@@ -295,7 +295,7 @@ async function showRoleEditForm(roleId, roleName) {
                     </div>
                     <div class="form-actions">
                         <button type="button" id="backBtn" class="btn-secondary">Cancelar</button>
-                        <button type="submit">Atualizar Cargo</button>
+                        <button type="submit" class="btn-primary">Atualizar Cargo</button>
                     </div>
                 </form>
             </div>

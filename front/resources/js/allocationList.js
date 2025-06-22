@@ -83,7 +83,7 @@ function showAllocationsList() {
                                         <td data-label="Localização">${location.name || 'Locação não encontrada'}</td>
                                         <td data-label="Usuário">${user.name || 'Usuário não encontrado'}</td>
                                         <td data-label="Ações">
-                                            <button data-id="${allocation.id}" class="btn-danger">Excluir</button>
+                                            <button data-id="${allocation.id}" class="deleteBtn">Excluir</button>
                                         </td>
                                     </tr>
                                 `;
@@ -96,7 +96,7 @@ function showAllocationsList() {
             
             allocationsListContainer.addEventListener('click', (event) => {
                 const target = event.target;
-                if (target.tagName === 'BUTTON' && target.classList.contains('btn-danger')) {
+                if (target.tagName === 'BUTTON' && target.classList.contains('deleteBtn')) {
                     const allocationId = target.dataset.id;
                     deleteAllocation(parseInt(allocationId));
                 }

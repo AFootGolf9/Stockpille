@@ -295,6 +295,19 @@ function showProductForm(productId = null) {
 
 async function deleteProduct(productId) {
     try {
+        const quantityResponse = await fetch(`http://localhost:8080/item/quantity/${productId}`, {
+            method: "GET",
+            headers: { "Authorization": getCookie("token") }
+        });
+        const quantityData = await handleResponse(quantityResponse);
+
+        const stockCount = quantityData?.count || 0;
+
+        if (stockCount > 0) {
+            showNotification(`Este produto não pode ser excluído, pois possui ${stockCount} unidade(s) em estoque.`, "error");
+            return; 
+        }
+
         await showConfirmationModal("Tem certeza que deseja excluir este produto?", "Excluir Produto");
         
         await fetch(`http://localhost:8080/item/${productId}`, {
@@ -304,11 +317,12 @@ async function deleteProduct(productId) {
         
         showNotification("Produto excluído com sucesso!", 'success');
         showProductList();
+
     } catch (error) {
-        if (error) {
+        if (error && error.message) {
             showNotification(error.message, 'error');
         } else {
-            console.log("Exclusão de produto cancelada.");
+            console.log("Exclusão de produto cancelada pelo usuário.");
         }
     }
 }

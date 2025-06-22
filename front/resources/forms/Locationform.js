@@ -156,21 +156,46 @@ function showLocationForm(locationId = null) {
 
 async function deleteLocation(locationId) {
     try {
-        await showConfirmationModal("Tem certeza que deseja excluir esta localização? As alocações associadas não serão removidas.", "Excluir Localização");
+        // --- INÍCIO DA NOVA LÓGICA DE VERIFICAÇÃO ---
 
+        // 1. Busca todas as alocações para verificar se a localização está em uso.
+        const allocationsData = await fetch("http://localhost:8080/allocation", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        const allAllocations = allocationsData?.data || [];
+        const idToDelete = parseInt(locationId, 10);
+
+        // 2. Verifica se alguma alocação usa o ID desta localização.
+        const isLocationInUse = allAllocations.some(alloc => alloc.location_id === idToDelete);
+
+        // 3. Se estiver em uso, impede a exclusão e mostra o erro.
+        if (isLocationInUse) {
+            showNotification("Esta localização não pode ser excluída, pois possui itens alocados nela.", "error");
+            return; // Para a execução da função.
+        }
+
+        // --- FIM DA NOVA LÓGICA DE VERIFICAÇÃO ---
+
+        // 4. Se a localização estiver vazia, prossegue com a confirmação.
+        // Note que ajustei a mensagem para ser mais clara.
+        await showConfirmationModal(`Tem certeza que deseja excluir esta localização?`, "Excluir Localização");
+
+        // 5. Executa a exclusão.
         await fetch(`http://localhost:8080/location/${locationId}`, {
             method: "DELETE",
             headers: { "Authorization": getCookie("token") }
         }).then(handleResponse);
 
-        showNotification("Localização excluída com sucesso!", 'success');
+        showNotification("Localização excluída com sucesso!", "success");
         showLocationList();
 
     } catch (error) {
+        // Lida com o cancelamento do modal ou erros do fetch.
         if (error) {
-             showNotification(error.message, 'error');
+            showNotification(error.message, 'error');
         } else {
-             console.log("Exclusão cancelada pelo usuário.");
+            console.log("Exclusão de localização cancelada.");
         }
     }
 }
