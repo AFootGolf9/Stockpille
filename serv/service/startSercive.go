@@ -56,6 +56,12 @@ func Start() {
 		repository.CreateRolePermission(1, entities.GetCamps()[0], "RWDU")
 	}
 
+	repository.CreateRolePermission(1, "relatorio1", "R")
+	repository.CreateRolePermission(1, "relatorio2", "R")
+	repository.CreateRolePermission(1, "relatorio3", "R")
+	repository.CreateRolePermission(1, "relatorio4", "R")
+	repository.CreateRolePermission(1, "relatorio5", "R")
+
 	// create the default category
 	category := &entity.Category{
 		Name: "no category",
