@@ -101,7 +101,7 @@ func getControllerWithPagination(object entity.Entity, c *gin.Context) {
 		})
 		return
 	}
-	if permission == "" {
+	if !strings.Contains(permission, "r") && !strings.Contains(permission, "R") {
 		c.JSON(403, gin.H{
 			"error": "Forbidden",
 		})
@@ -202,7 +202,7 @@ func putController(object entity.Entity, c *gin.Context) {
 		})
 		return
 	}
-	if permission == "" {
+	if !strings.Contains(permission, "u") && !strings.Contains(permission, "U") {
 		c.JSON(403, gin.H{
 			"error": "Forbidden",
 		})
@@ -242,7 +242,7 @@ func deleteController(object entity.Entity, c *gin.Context) {
 		})
 		return
 	}
-	if permission == "" {
+	if !strings.Contains(permission, "d") && !strings.Contains(permission, "D") {
 		c.JSON(403, gin.H{
 			"error": "Forbidden",
 		})
