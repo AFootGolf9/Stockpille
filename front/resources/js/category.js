@@ -1,6 +1,4 @@
-
 async function showCategoryList() {
-    // ALTERADO: Usando as classes .section-header e .list-container do novo CSS.
     const html = `
         <div class="section-header">
             <h2>Lista de Categorias</h2>
@@ -31,7 +29,6 @@ async function showCategoryList() {
             return;
         }
 
-        // ALTERADO: Tabela agora usa a classe "generic-list-table".
         let listHTML = `
             <table class="generic-list-table"> 
                 <thead>
@@ -44,8 +41,6 @@ async function showCategoryList() {
         `;
 
         categories.forEach(category => {
-            // ALTERAÇÃO CRÍTICA: Adicionado o atributo 'data-label' para responsividade.
-            // O CSS usa este atributo para exibir os títulos em telas pequenas.
             listHTML += `
                 <tr>
                     <td data-label="Nome">${category.name}</td>
@@ -60,7 +55,6 @@ async function showCategoryList() {
         listHTML += "</tbody></table>";
         categoryListContent.innerHTML = listHTML;
 
-        // O event listener delegado continua funcionando perfeitamente.
         categoryListContent.querySelector('.generic-list-table').addEventListener('click', (event) => {
             const button = event.target;
             const categoryId = button.getAttribute('data-id');
@@ -79,12 +73,6 @@ async function showCategoryList() {
     }
 }
 
-
-/**
- * NENHUMA MUDANÇA NECESSÁRIA AQUI.
- * O CSS já estiliza os botões do formulário pelos seus IDs (#backBtn, etc.)
- * e a estrutura do formulário (.form-group, .form-actions) já é a correta.
- */
 async function showCategoryEditForm(id) {
     try {
         const data = await fetch(`http://localhost:8080/category/${id}`, {
@@ -141,24 +129,87 @@ async function showCategoryEditForm(id) {
     }
 }
 
+async function deleteCategory(id) {
+    try {
+        showNotification("Verificando se a categoria está em uso...", "info"); 
+        const itemsResponse = await fetch("http://localhost:8080/item", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
 
-/**
- * Nenhuma alteração visual necessária nesta função.
- */
-function deleteCategory(id) {
-    if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
+        const allItems = itemsResponse?.data || [];
+        const categoryId = parseInt(id, 10);
+        const isCategoryInUse = allItems.some(item => item.category_id === categoryId);
 
-    fetch(`http://localhost:8080/category/${id}`, {
-        method: "DELETE",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse)
-    .then(() => {
+        if (isCategoryInUse) {
+            showNotification("Não é possível excluir: esta categoria está atribuída a um ou mais itens.", "error");
+            return; 
+        }
+        await showConfirmationModal("Esta categoria não está em uso. Deseja excluí-la permanentemente?", "Excluir Categoria");
+        await fetch(`http://localhost:8080/category/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+        
         showNotification("Categoria excluída com sucesso!", "success");
         showCategoryList();
-    })
-    .catch(error => {
-        console.error("Erro ao excluir categoria:", error);
-        showNotification(error.message, "error");
+        
+    } catch (error) {
+        if (error) {
+            console.error("Erro ao excluir categoria:", error);
+            showNotification(error.message, "error");
+        } else {
+            console.log("Exclusão de categoria cancelada.");
+        }
+    }
+}
+
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
     });
 }

@@ -1,9 +1,3 @@
-/**
- * =================================================================
- * FUNÇÕES DE LOCALIZAÇÃO (Refatoradas com o novo tratamento de erro)
- * =================================================================
- */
-
 function showLocationList() {
     const locationListHTML = `
         <div class="section-header">
@@ -18,14 +12,26 @@ function showLocationList() {
     document.getElementById("main-content").innerHTML = locationListHTML;
     const locationListContainer = document.getElementById("location-list-container");
 
-    fetch("http://localhost:8080/location", {
-        method: "GET",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse) // NOVO: Tratamento de erro centralizado
-    .then(data => {
-        const locations = data?.data || [];
-        
+    Promise.all([
+        fetch("http://localhost:8080/location", {
+            method: "GET",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse),
+        fetch("http://localhost:8080/allocation", {
+            method: "GET",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse)
+    ])
+    .then(([locationsData, allocationsData]) => {
+        const locations = locationsData?.data || [];
+        const allAllocations = allocationsData?.data || [];
+
+        const locationCounts = new Map();
+        allAllocations.forEach(alloc => {
+            const count = locationCounts.get(alloc.location_id) || 0;
+            locationCounts.set(alloc.location_id, count + 1);
+        });
+
         if (locations.length > 0) {
             const tableHTML = `
                 <div class="list-container">
@@ -34,27 +40,30 @@ function showLocationList() {
                             <tr>
                                 <th>ID</th>
                                 <th>Nome</th>
+                                <th>Quantidade de Itens</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${locations.map(location => `
+                            ${locations.map(location => {
+                                const itemCount = locationCounts.get(location.id) || 0;
+                                return `
                                 <tr>
                                     <td data-label="ID">${location.id}</td>
                                     <td data-label="Nome">${location.name}</td>
+                                    <td data-label="Quantidade de Itens">${itemCount}</td>
                                     <td data-label="Ações">
                                         <button class="editBtn" data-id="${location.id}">Editar</button>
                                         <button class="deleteBtn" data-id="${location.id}">Excluir</button>
                                     </td>
                                 </tr>
-                            `).join('')}
+                            `}).join('')}
                         </tbody>
                     </table>
                 </div>
             `;
             locationListContainer.innerHTML = tableHTML;
 
-            // REATORADO: Usando um único event listener para melhor performance.
             locationListContainer.addEventListener('click', (event) => {
                 const target = event.target;
                 const locationId = target.getAttribute("data-id");
@@ -71,9 +80,8 @@ function showLocationList() {
         }
     })
     .catch(error => {
-        // ALTERADO: Exibe erro detalhado na interface
-        console.error("Erro ao carregar localizações:", error);
-        locationListContainer.innerHTML = `<p class="error-message">Não foi possível carregar as localizações: ${error.message}</p>`;
+        console.error("Erro ao carregar dados:", error);
+        locationListContainer.innerHTML = `<p class="error-message">Não foi possível carregar os dados: ${error.message}</p>`;
     });
 
     document.getElementById("createLocationBtn").addEventListener("click", () => showLocationForm());
@@ -102,14 +110,13 @@ function showLocationForm(locationId = null) {
             method: "GET",
             headers: { "Authorization": getCookie("token") }
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(data => {
             if (data?.data) {
                 locationNameInput.value = data.data.name;
             }
         })
         .catch(error => {
-            // ALTERADO: Usa notificação em vez de alert e volta para a lista
             showNotification(`Erro ao carregar dados: ${error.message}`);
             showLocationList();
         });
@@ -135,33 +142,109 @@ function showLocationForm(locationId = null) {
             },
             body: JSON.stringify(locationData)
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             const successMessage = isEdit ? "Localização atualizada com sucesso!" : "Localização cadastrada com sucesso!";
             showNotification(successMessage, 'success');
             showLocationList();
         })
         .catch(error => {
-            // ALTERADO: Usa notificação com mensagem de erro específica
             showNotification(error.message, 'error');
         });
     });
 }
 
-function deleteLocation(locationId) {
-    if (!confirm("Tem certeza que deseja excluir esta localização?")) return;
-    
-    fetch(`http://localhost:8080/location/${locationId}`, {
-        method: "DELETE",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse) // NOVO: Tratamento de erro
-    .then(() => {
-        showNotification("Localização excluída com sucesso!", 'success');
+async function deleteLocation(locationId) {
+    try {
+        // --- INÍCIO DA NOVA LÓGICA DE VERIFICAÇÃO ---
+
+        // 1. Busca todas as alocações para verificar se a localização está em uso.
+        const allocationsData = await fetch("http://localhost:8080/allocation", {
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        const allAllocations = allocationsData?.data || [];
+        const idToDelete = parseInt(locationId, 10);
+
+        // 2. Verifica se alguma alocação usa o ID desta localização.
+        const isLocationInUse = allAllocations.some(alloc => alloc.location_id === idToDelete);
+
+        // 3. Se estiver em uso, impede a exclusão e mostra o erro.
+        if (isLocationInUse) {
+            showNotification("Esta localização não pode ser excluída, pois possui itens alocados nela.", "error");
+            return; // Para a execução da função.
+        }
+
+        // --- FIM DA NOVA LÓGICA DE VERIFICAÇÃO ---
+
+        // 4. Se a localização estiver vazia, prossegue com a confirmação.
+        // Note que ajustei a mensagem para ser mais clara.
+        await showConfirmationModal(`Tem certeza que deseja excluir esta localização?`, "Excluir Localização");
+
+        // 5. Executa a exclusão.
+        await fetch(`http://localhost:8080/location/${locationId}`, {
+            method: "DELETE",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
+        showNotification("Localização excluída com sucesso!", "success");
         showLocationList();
-    })
-    .catch(error => {
-        // ALTERADO: Usa notificação com mensagem de erro específica
-        showNotification(error.message, 'error');
+
+    } catch (error) {
+        // Lida com o cancelamento do modal ou erros do fetch.
+        if (error) {
+            showNotification(error.message, 'error');
+        } else {
+            console.log("Exclusão de localização cancelada.");
+        }
+    }
+}
+
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
     });
 }

@@ -1,4 +1,3 @@
-
 async function showUserList() {
     const userListHTML = `
     <div class="section-header">
@@ -8,6 +7,7 @@ async function showUserList() {
             <button id="createRoleBtn">Criar Cargo</button>
         </div>
     </div>
+    <div class="product-filter"></div>
     <div id="user-list-container">
         <p>Carregando usuários...</p>
     </div>
@@ -16,20 +16,32 @@ async function showUserList() {
 
     const userListContainer = document.getElementById("user-list-container");
 
-    try {
-        // NOVO: Carrega cargos e usuários em paralelo para melhor performance.
-        const [roleData, userData] = await Promise.all([
-            fetch("http://localhost:8080/role", { headers: { "Authorization": getCookie("token") } }).then(handleResponse),
-            fetch("http://localhost:8080/user", { headers: { "Authorization": getCookie("token") } }).then(handleResponse)
-        ]);
+    let roles = [];
+    let roleMap = {};
+    let permissionToViewRoles = true;
 
-        const roles = roleData?.data || [];
+    try {
+        const userRes = await fetch("http://localhost:8080/user", {
+            headers: { "Authorization": getCookie("token") }
+        });
+        const userData = await handleResponse(userRes);
         const users = userData?.data || [];
-        
-        const roleMap = roles.reduce((map, role) => {
-            map[role.id] = role.name;
-            return map;
-        }, {});
+
+        // Tenta buscar os cargos
+        try {
+            const roleRes = await fetch("http://localhost:8080/role", {
+                headers: { "Authorization": getCookie("token") }
+            });
+            const roleData = await handleResponse(roleRes);
+            roles = roleData?.data || [];
+            roleMap = roles.reduce((map, role) => {
+                map[role.id] = role.name;
+                return map;
+            }, {});
+        } catch (roleError) {
+            console.warn("Sem permissão para visualizar cargos:", roleError);
+            permissionToViewRoles = false;
+        }
 
         if (users.length > 0) {
             const tableHTML = `
@@ -46,7 +58,13 @@ async function showUserList() {
                             ${users.map(user => `
                                 <tr>
                                     <td data-label="Nome">${user.name}</td>
-                                    <td data-label="Cargo">${roleMap[user.roleId] || "Sem cargo"}</td>
+                                    <td data-label="Cargo">
+                                        ${
+                                            permissionToViewRoles
+                                                ? (roleMap[user.roleId] || "Sem cargo")
+                                                : "Sem permissão para ver cargo"
+                                        }
+                                    </td>
                                     <td data-label="Ações">
                                         <button class="editBtn" data-id="${user.id}">Editar</button>
                                         <button class="deleteBtn" data-id="${user.id}">Excluir</button>
@@ -59,7 +77,6 @@ async function showUserList() {
             `;
             userListContainer.innerHTML = tableHTML;
 
-            // REATORADO: Event listener delegado para melhor performance.
             userListContainer.addEventListener('click', (event) => {
                 const target = event.target;
                 const userId = target.getAttribute('data-id');
@@ -75,25 +92,22 @@ async function showUserList() {
             userListContainer.innerHTML = "<p>Nenhum usuário cadastrado.</p>";
         }
     } catch (error) {
-        // ALTERADO: Captura qualquer erro do Promise.all e exibe na interface.
         console.error("Erro ao carregar dados de usuários:", error);
         userListContainer.innerHTML = `<p class="error-message">Não foi possível carregar os dados: ${error.message}</p>`;
     }
 
     document.getElementById("createUserBtn").addEventListener("click", () => showUserForm());
     document.getElementById("createRoleBtn").addEventListener("click", () => showRoleForm());
-    // Supondo que você tenha a função showRoleList
-    document.getElementById("listRolesBtn").addEventListener("click", () => showRoleList()); 
 }
 
-// REATORADO: A função agora é async para simplificar o carregamento de dados.
+
 async function showUserForm(userId = null) {
     const isEdit = Boolean(userId);
     const formHTML = `
         <h2>${isEdit ? 'Editar Usuário' : 'Cadastro de Usuário'}</h2>
         <div class="form-group">
             <label for="username">Nome:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" required ${isEdit ? 'disabled style="background-color: #e0e0e0; cursor: not-allowed;" title="Não é possível alterar o nome do usuário"' : ''}>
         </div>
         <div class="form-group">
             <label for="role">Cargo:</label>
@@ -118,16 +132,14 @@ async function showUserForm(userId = null) {
     const usernameInput = document.getElementById("username");
 
     try {
-        // NOVO: Carrega os cargos primeiro.
         const roleData = await fetch("http://localhost:8080/role", { headers: { "Authorization": getCookie("token") } }).then(handleResponse);
         const roles = roleData?.data || [];
         
-        roleSelect.innerHTML = '<option value="">Selecione um cargo</option>'; // Limpa o "Carregando..."
+        roleSelect.innerHTML = '<option value="">Selecione um cargo</option>';
         roles.forEach(role => {
             roleSelect.add(new Option(role.name, role.id));
         });
 
-        // Se for edição, carrega os dados do usuário.
         if (isEdit) {
             const userData = await fetch(`http://localhost:8080/user/${userId}`, { headers: { "Authorization": getCookie("token") } }).then(handleResponse);
             const user = userData?.data;
@@ -137,18 +149,24 @@ async function showUserForm(userId = null) {
             }
         }
     } catch (error) {
-        // ALTERADO: Usa notificação e volta para a lista em caso de erro.
         showNotification(`Erro ao carregar dados do formulário: ${error.message}`);
         showUserList();
     }
 
     document.getElementById("registerBtn").addEventListener("click", function() {
-        const name = usernameInput.value.trim();
+        // When editing, the name is not taken from the input field as it's disabled.
+        // It should be fetched from the `user` object if `isEdit` is true, or handled appropriately.
+        // For this example, we'll assume the name isn't changing for edits.
+        const name = usernameInput.value.trim(); 
         const roleId = parseInt(document.getElementById("role").value, 10);
         const password = document.getElementById("password").value;
 
-        if (!name || !roleId) {
-            showNotification("Nome e Cargo são obrigatórios.", "error");
+        if (!name && !isEdit) { // Only check for name if it's a new user
+            showNotification("Nome é obrigatório para novos usuários.", "error");
+            return;
+        }
+        if (!roleId) {
+            showNotification("Cargo é obrigatório.", "error");
             return;
         }
         if (!isEdit && !password) {
@@ -156,8 +174,11 @@ async function showUserForm(userId = null) {
             return;
         }
 
-        let userData = { name, roleId };
-        if (password) { // Inclui a senha apenas se for preenchida
+        let userData = { roleId }; // Only send roleId and password if changing
+        if (!isEdit) { // For new users, name is required
+             userData.name = name;
+        }
+        if (password) {
             userData.password = password;
         }
 
@@ -172,12 +193,12 @@ async function showUserForm(userId = null) {
             },
             body: JSON.stringify(userData)
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             showNotification(`Usuário ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
             showUserList();
         })
-        .catch(error => showNotification(error.message, 'error')); // ALTERADO
+        .catch(error => showNotification(error.message, 'error'));
     });
 }
 
@@ -212,29 +233,81 @@ function showRoleForm() {
             },
             body: JSON.stringify({ name })
         })
-        .then(handleResponse) // NOVO: Tratamento de erro
+        .then(handleResponse)
         .then(() => {
             showNotification("Cargo criado com sucesso!", 'success');
-            showUserList(); // Ou showRoleList() se preferir ir para a lista de cargos
+            showUserList();
         })
-        .catch(error => showNotification(error.message, 'error')); // ALTERADO
+        .catch(error => showNotification(error.message, 'error'));
     });
 }
 
-function deleteUser(userId) {
-    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
-    
-    fetch(`http://localhost:8080/user/${userId}`, {
-        method: "DELETE",
-        headers: { "Authorization": getCookie("token") }
-    })
-    .then(handleResponse) // NOVO: Tratamento de erro
-    .then(() => {
+async function deleteUser(userId) {
+    try {
+        await showConfirmationModal("Tem certeza que deseja excluir este usuário?", "Excluir Usuário");
+
+        await fetch(`http://localhost:8080/user/${userId}`, {
+            method: "DELETE",
+            headers: { "Authorization": getCookie("token") }
+        }).then(handleResponse);
+
         showNotification("Usuário excluído com sucesso!", 'success');
         showUserList();
-    })
-    .catch(error => showNotification(error.message, 'error')); // ALTERADO
+
+    } catch (error) {
+        if (error) {
+            showNotification(error.message, 'error');
+        } else {
+            console.log("Exclusão de usuário cancelada.");
+        }
+    }
 }
 
-// NOTA: Você precisará criar a função showRoleList() e as outras de edição/exclusão de cargos, 
-// seguindo o mesmo padrão das funções acima.
+function showConfirmationModal(message, title = 'Confirmar Ação') {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+
+        overlay.innerHTML = `
+            <div class="confirmation-modal">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirmation-modal-actions">
+                    <button class="confirmation-btn-cancel">Cancelar</button>
+                    <button class="confirmation-btn-confirm">Confirmar</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => overlay.classList.add('visible'), 10);
+
+        const confirmBtn = overlay.querySelector('.confirmation-btn-confirm');
+        const cancelBtn = overlay.querySelector('.confirmation-btn-cancel');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 300);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            reject();
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal();
+                reject();
+            }
+        });
+    });
+}

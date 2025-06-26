@@ -592,3 +592,345 @@ form h2 {
     background-color: #a0a0a0;
     cursor: not-allowed;
 }
+
+/* Estilos para os novos indicadores de permissão (círculos) */
+
+.permission-indicator {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%; /* Isso transforma o elemento quadrado em um círculo perfeito */
+  vertical-align: middle; /* Alinha o círculo verticalmente no meio da célula */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Sombra sutil para dar profundidade */
+}
+
+/* Cor para permissão concedida (verde) */
+.permission-indicator.granted {
+  background-color: #28a745; 
+  border: 1px solid #218838;
+}
+
+/* Cor para permissão negada (vermelho) */
+.permission-indicator.denied {
+  background-color: #dc3545;
+  border: 1px solid #c82333;
+}
+
+/* Você pode remover os estilos antigos se quiser */
+/*
+.permission-yes { ... }
+.permission-no { ... }
+*/
+/**
+ * ===================================
+ * CSS para o Modal de Confirmação
+ * ===================================
+ */
+
+/* O fundo escurecido que cobre a página */
+.confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique por cima de tudo */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Classe para ativar a transição de fade-in */
+.confirmation-overlay.visible {
+    opacity: 1;
+}
+
+/* A caixa do modal em si */
+.confirmation-modal {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirmation-overlay.visible .confirmation-modal {
+    transform: scale(1);
+}
+
+.confirmation-modal h3 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.confirmation-modal p {
+    margin: 15px 0;
+    color: #555;
+    font-size: 1rem;
+}
+
+/* Container para os botões */
+.confirmation-modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Estilo geral dos botões do modal */
+.confirmation-modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.confirmation-modal-actions button:active {
+    transform: scale(0.98);
+}
+
+/* Botão de Cancelar (estilo secundário) */
+.confirmation-btn-cancel {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #555;
+}
+
+.confirmation-btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+/* Botão de Confirmar (estilo de perigo) */
+.confirmation-btn-confirm {
+    background-color: #e74c3c; /* Vermelho */
+    color: white;
+}
+
+.confirmation-btn-confirm:hover {
+    background-color: #c0392b;
+}
+/* Esconde a barra de filtro se ela não tiver nenhum conteúdo dentro */
+.product-filter:empty {
+    display: none;
+}
+
+/* --- Cores para Botões Pequenos de Ação --- */
+
+/* CSS Corrigido para o botão AZUL (Editar) */
+.btn-sm.btn-primary {
+    background-color: #143658; /* Mantém a cor azul */
+    padding: 5px 10px;         /* FORÇA o tamanho do .btn-sm */
+    font-size: 12px;           /* FORÇA o tamanho da fonte do .btn-sm */
+}
+.btn-sm.btn-primary:hover {
+    background-color: #0056b3; 
+}
+
+/* Para o botão VERMELHO (Excluir) */
+.btn-sm.btn-danger {
+    background-color: #dc3545; 
+}
+.btn-sm.btn-danger:hover {
+    background-color: #c82333; 
+}
+
+.btn-sm.btn-edit {
+    background-color: #143658;
+}
+.btn-sm.btn-edit:hover {
+    background-color: #0056b3; 
+}
+/* Estilo do Dashboard */
+.dashboard-header {
+    margin-bottom: 25px;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.dashboard-header p {
+    font-size: 16px;
+    color: #666;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: 15px;
+    transition: transform 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    font-size: 16px;
+    color: #143658;
+}
+
+/* Cards de KPI */
+.kpi-card {
+    display: flex;
+    align-items: center;
+}
+
+.kpi-card .card-icon {
+    font-size: 36px;
+    color: #143658;
+    margin-right: 20px;
+    padding: 15px;
+    background-color: #f0f4f8;
+    border-radius: 50%;
+}
+
+.kpi-card .card-content h3 {
+    margin: 0;
+    font-size: 32px;
+    color: #333;
+}
+
+.kpi-card .card-content p {
+    margin: 0;
+    color: #666;
+}
+
+/* Ações Rápidas */
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-quick-action {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 14px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-quick-action:hover {
+    background-color: #f0f4f8;
+    border-color: #143658;
+}
+
+.btn-quick-action i {
+    margin-right: 8px;
+    color: #143658;
+}
+
+/* Atividade Recente */
+.recent-activity {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.recent-activity li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    color: #555;
+}
+
+.recent-activity li:last-child {
+    border-bottom: none;
+}
+
+.chart-card {
+    /* Deixa o card pronto para conter um elemento responsivo */
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-wrapper {
+    /* Este novo container força o gráfico a obedecer os limites */
+    position: relative;
+    flex-grow: 1;
+    height: 100%; /* Ocupa o espaço restante do card */
+    min-height: 250px; /* Garante uma altura mínima para o gráfico */
+}
+/* Estilos para o container de notificações */
+#notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse; /* Para que as novas notificações apareçam em cima */
+    gap: 10px;
+}
+
+/* Estilos base para a notificação */
+.notification {
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    min-width: 250px;
+    max-width: 350px;
+    word-wrap: break-word;
+}
+
+/* Estado visível */
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Estado de saída */
+.notification.hide {
+    opacity: 0;
+    transform: translateX(100%);
+    /* Ajuste a duração para corresponder ao tempo do seu setTimeout ou ajuste o setTimeout para a duração do CSS */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out; 
+}
+
+/* Cores por tipo */
+.notification.success {
+    background-color: #28a745; /* Verde para sucesso */
+}
+
+.notification.error {
+    background-color: #dc3545; /* Vermelho para erro */
+}
+
+.notification.info {
+    background-color: #17a2b8; /* Azul para informação */
+}

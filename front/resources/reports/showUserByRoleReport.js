@@ -10,7 +10,7 @@ function getCookie(name) {
 async function showUserByRoleReport() {
     const reportHTML = `
         <div class="section-header">
-            <h2>Relatório de Usuários por Função (Role)</h2>
+            <h2>Relatório de Usuários por Cargo</h2>
             <div>
                 <button onclick="showReportMenu()">Voltar</button>
                 <button id="generate-pdf" onclick="generateUserByRolePDF()">Gerar PDF</button>
@@ -36,7 +36,7 @@ async function showUserByRoleReport() {
                     <table class="generic-list-table">
                         <thead>
                             <tr>
-                                <th>Função (Role)</th>
+                                <th>Cargo</th>
                                 <th>Quantidade de Usuários</th>
                             </tr>
                         </thead>
@@ -46,7 +46,7 @@ async function showUserByRoleReport() {
             for (const roleName in reportData) {
                 tableHTML += `
                     <tr>
-                        <td data-label="Função (Role)">${roleName}</td>
+                        <td data-label="Cargo">${roleName}</td>
                         <td data-label="Quantidade de Usuários">${reportData[roleName]}</td>
                     </tr>
                 `;
@@ -71,7 +71,7 @@ function generateUserByRolePDF() {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Relatório de Usuários por Função (Role)", 14, 20);
+    doc.text("Relatório de Usuários por Cargo", 14, 20);
 
     const table = document.querySelector(".generic-list-table");
     if (!table) {
